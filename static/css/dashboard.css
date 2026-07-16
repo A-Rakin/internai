@@ -1,0 +1,853 @@
+/* ============================================================
+   InternAI - Dashboard Styles
+   ============================================================
+   Styles for all portal dashboards (Student, Company,
+   Supervisor, Admin) including data tables, charts,
+   activity feeds, and dashboard-specific components.
+   ============================================================ */
+
+/* ============================================================
+   1. DASHBOARD HEADER
+   ============================================================ */
+
+/* Welcome header section */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+/* Welcome greeting */
+.dashboard-header .greeting h2 {
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+}
+
+.dashboard-header .greeting p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    margin: 0;
+}
+
+/* Dashboard action buttons */
+.dashboard-header .actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+/* ============================================================
+   2. STAT CARDS ROW
+   ============================================================ */
+
+/* Stats grid container */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+/* ============================================================
+   3. CHART CONTAINERS
+   ============================================================ */
+
+/* Chart wrapper card */
+.chart-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    height: 100%;
+}
+
+/* Chart header with title and controls */
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+}
+
+.chart-header h5 {
+    font-weight: 600;
+    font-size: var(--fs-base);
+    margin: 0;
+}
+
+/* Chart period selector */
+.chart-period-select {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+/* Chart canvas container */
+.chart-container {
+    position: relative;
+    height: 280px;
+    width: 100%;
+}
+
+/* ============================================================
+   4. ACTIVITY FEED
+   ============================================================ */
+
+/* Activity feed list */
+.activity-feed {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Individual activity item */
+.activity-item {
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid var(--border-color);
+    transition: background var(--transition-fast);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item:hover {
+    background: rgba(108, 99, 255, 0.03);
+    margin: 0 calc(var(--space-md) * -1);
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+    border-radius: var(--radius-sm);
+}
+
+/* Activity icon */
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-sm);
+    flex-shrink: 0;
+}
+
+.activity-icon.type-application {
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--primary);
+}
+
+.activity-icon.type-interview {
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--info);
+}
+
+.activity-icon.type-report {
+    background: rgba(255, 179, 68, 0.1);
+    color: var(--warning);
+}
+
+.activity-icon.type-offer {
+    background: rgba(0, 201, 167, 0.1);
+    color: var(--success);
+}
+
+.activity-icon.type-evaluation {
+    background: rgba(255, 101, 132, 0.1);
+    color: var(--accent);
+}
+
+/* Activity content */
+.activity-content {
+    flex: 1;
+    min-width: 0;               /* Allow text truncation */
+}
+
+.activity-content .activity-text {
+    color: var(--text-primary);
+    font-size: var(--fs-sm);
+    margin-bottom: 2px;
+    line-height: 1.4;
+}
+
+.activity-content .activity-text strong {
+    color: var(--text-heading);
+}
+
+.activity-content .activity-time {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+}
+
+/* ============================================================
+   5. DEADLINE/TIMELINE COMPONENT
+   ============================================================ */
+
+/* Upcoming deadlines list */
+.deadline-list {
+    list-style: none;
+    padding: 0;
+}
+
+.deadline-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+    transition: all var(--transition-fast);
+}
+
+.deadline-item:hover {
+    border-color: var(--primary);
+    transform: translateX(4px);
+}
+
+/* Deadline date badge */
+.deadline-date {
+    text-align: center;
+    background: rgba(108, 99, 255, 0.1);
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    flex-shrink: 0;
+    min-width: 56px;
+}
+
+.deadline-date .day {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.deadline-date .month {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+/* Deadline content */
+.deadline-info h6 {
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    margin-bottom: 2px;
+}
+
+.deadline-info p {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ============================================================
+   6. APPLICATION PIPELINE
+   ============================================================ */
+
+/* Pipeline status tracker */
+.pipeline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-md) 0;
+}
+
+/* Pipeline step */
+.pipeline-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.pipeline-step .step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-full);
+    background: var(--border-color);
+    margin: 0 auto var(--space-xs);
+    position: relative;
+    z-index: 2;
+}
+
+.pipeline-step.active .step-dot {
+    background: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-glow);
+}
+
+.pipeline-step.completed .step-dot {
+    background: var(--success);
+}
+
+.pipeline-step .step-label {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+}
+
+.pipeline-step.active .step-label {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Pipeline connector line */
+.pipeline-connector {
+    flex: 0 0 40px;
+    height: 2px;
+    background: var(--border-color);
+    margin-bottom: 20px;
+}
+
+.pipeline-connector.active {
+    background: var(--primary);
+}
+
+.pipeline-connector.completed {
+    background: var(--success);
+}
+
+/* ============================================================
+   7. PROFILE CARD
+   ============================================================ */
+
+/* Profile overview card */
+.profile-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+/* Profile banner */
+.profile-banner {
+    height: 160px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    position: relative;
+}
+
+/* Profile avatar (overlapping banner) */
+.profile-avatar-wrapper {
+    text-align: center;
+    margin-top: -50px;
+    position: relative;
+    z-index: 2;
+}
+
+.profile-avatar-wrapper img,
+.profile-avatar-wrapper .avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-full);
+    border: 4px solid var(--bg-surface);
+    margin-bottom: var(--space-md);
+}
+
+/* Profile completion progress */
+.profile-completion {
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.profile-completion .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    margin-bottom: var(--space-xs);
+}
+
+/* ============================================================
+   8. SKILL TAGS
+   ============================================================ */
+
+/* Skill tag */
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--primary);
+    border-radius: var(--radius-xl);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    margin: 0.15rem;
+    transition: all var(--transition-fast);
+}
+
+.skill-tag:hover {
+    background: rgba(108, 99, 255, 0.2);
+}
+
+/* Removable skill tag */
+.skill-tag .remove-tag {
+    margin-left: var(--space-xs);
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.skill-tag .remove-tag:hover {
+    opacity: 1;
+}
+
+/* ============================================================
+   9. DATA TABLE
+   ============================================================ */
+
+/* Table wrapper for horizontal scrolling */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+/* Table toolbar */
+.table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+/* Search input in table toolbar */
+.table-search {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.75rem;
+    max-width: 300px;
+}
+
+.table-search input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: var(--fs-sm);
+    outline: none;
+    width: 100%;
+}
+
+.table-search i {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+/* Table filter buttons */
+.table-filters {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.filter-btn {
+    padding: 0.35rem 0.875rem;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* ============================================================
+   10. INTERVIEW CARD
+   ============================================================ */
+
+.interview-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+    transition: all var(--transition-fast);
+}
+
+.interview-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.interview-card .interview-time {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--primary);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.interview-card .interview-title {
+    font-weight: 600;
+    font-size: var(--fs-base);
+    margin-bottom: var(--space-xs);
+}
+
+.interview-card .interview-company {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+/* ============================================================
+   11. REPORT CARD
+   ============================================================ */
+
+.report-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all var(--transition-fast);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.report-card:hover {
+    border-color: var(--primary);
+}
+
+.report-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.report-week {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--fs-lg);
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   12. AI ANALYSIS CARD
+   ============================================================ */
+
+/* AI score visualization */
+.ai-score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: var(--radius-full);
+    background: conic-gradient(
+        var(--primary) calc(var(--score) * 3.6deg),
+        var(--bg-input) calc(var(--score) * 3.6deg)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    position: relative;
+}
+
+.ai-score-circle::after {
+    content: '';
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-full);
+    background: var(--bg-surface);
+    position: absolute;
+}
+
+.ai-score-value {
+    position: relative;
+    z-index: 2;
+    font-size: var(--fs-2xl);
+    font-weight: 800;
+    color: var(--primary);
+}
+
+/* AI analysis bar */
+.analysis-bar {
+    margin-bottom: var(--space-md);
+}
+
+.analysis-bar .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-xs);
+}
+
+.analysis-bar .bar-label span:first-child {
+    color: var(--text-secondary);
+}
+
+.analysis-bar .bar-label span:last-child {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* ============================================================
+   13. QUICK ACTION CARDS
+   ============================================================ */
+
+.quick-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-align: center;
+    transition: all var(--transition-base);
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-primary);
+    min-height: 120px;
+}
+
+.quick-action:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-glow);
+    color: var(--primary);
+}
+
+.quick-action i {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-sm);
+    color: var(--primary);
+}
+
+.quick-action span {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+/* ============================================================
+   14. NOTIFICATION DROPDOWN
+   ============================================================ */
+
+/* Notification dropdown panel */
+.notification-dropdown {
+    width: 380px;
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.notification-dropdown .dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.notification-dropdown .dropdown-header h6 {
+    font-weight: 600;
+    margin: 0;
+    font-size: var(--fs-sm);
+}
+
+.notification-dropdown .mark-all-read {
+    font-size: var(--fs-xs);
+    color: var(--primary);
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+/* Notification item in dropdown */
+.notification-item {
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    transition: background var(--transition-fast);
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background: rgba(108, 99, 255, 0.05);
+}
+
+.notification-item.unread {
+    background: rgba(108, 99, 255, 0.03);
+}
+
+.notification-item .notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-sm);
+    flex-shrink: 0;
+}
+
+.notification-item .notif-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-item .notif-text {
+    font-size: var(--fs-sm);
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    line-height: 1.4;
+}
+
+.notification-item .notif-time {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   15. EVALUATION FORM
+   ============================================================ */
+
+/* Score slider/rating */
+.score-input {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.score-input label {
+    min-width: 180px;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+}
+
+.score-input input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: var(--radius-xl);
+    background: var(--bg-input);
+    outline: none;
+}
+
+.score-input input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-full);
+    background: var(--primary);
+    cursor: pointer;
+    border: 3px solid var(--bg-surface);
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+.score-input .score-value {
+    min-width: 36px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--primary);
+    font-size: var(--fs-lg);
+}
+
+/* ============================================================
+   16. FILE UPLOAD AREA
+   ============================================================ */
+
+.upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-2xl);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.upload-area:hover {
+    border-color: var(--primary);
+    background: rgba(108, 99, 255, 0.03);
+}
+
+.upload-area.drag-over {
+    border-color: var(--primary);
+    background: rgba(108, 99, 255, 0.08);
+}
+
+.upload-area i {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-md);
+}
+
+.upload-area h5 {
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.upload-area p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    margin: 0;
+}
+
+/* ============================================================
+   17. SETTINGS TABS
+   ============================================================ */
+
+/* Settings navigation tabs */
+.settings-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: var(--space-xl);
+    gap: 0;
+    overflow-x: auto;
+}
+
+.settings-tab {
+    padding: var(--space-md) var(--space-lg);
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: var(--fs-sm);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.settings-tab:hover {
+    color: var(--text-primary);
+}
+
+.settings-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}

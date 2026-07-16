@@ -1,0 +1,507 @@
+/* ============================================================
+   InternAI - Authentication Page Styles
+   ============================================================
+   Styles for login, registration, forgot password, and
+   password reset pages. Features split-screen layout with
+   animated illustration side.
+   ============================================================ */
+
+/* ============================================================
+   1. AUTH LAYOUT
+   ============================================================ */
+
+/* Full-screen auth container with split layout */
+.auth-container {
+    min-height: 100vh;          /* Full viewport height */
+    display: flex;              /* Flexbox for side-by-side layout */
+    background: var(--bg-dark);
+}
+
+/* Left side - decorative illustration panel */
+.auth-illustration {
+    flex: 1;                    /* Takes half the width */
+    background: linear-gradient(135deg, #1A1A3E 0%, #0F0F1A 50%, #16213E 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative gradient orbs */
+.auth-illustration::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+    top: -100px;
+    right: -100px;
+    animation: float 6s ease-in-out infinite;
+}
+
+.auth-illustration::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--accent-glow), transparent 70%);
+    bottom: -50px;
+    left: -50px;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+/* Illustration content area */
+.auth-illustration-content {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    max-width: 400px;
+}
+
+/* Illustration heading */
+.auth-illustration-content h2 {
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    color: var(--text-heading);
+    margin-bottom: var(--space-md);
+}
+
+/* Illustration description */
+.auth-illustration-content p {
+    color: var(--text-secondary);
+    font-size: var(--fs-base);
+    line-height: 1.7;
+}
+
+/* Feature checkmarks in illustration panel */
+.auth-features {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-xl);
+    text-align: left;
+}
+
+.auth-features li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-md);
+}
+
+.auth-features li i {
+    color: var(--success);
+    font-size: var(--fs-base);
+}
+
+/* Right side - form panel */
+.auth-form-panel {
+    flex: 1;                    /* Takes half the width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl);
+}
+
+/* ============================================================
+   2. AUTH FORM CARD
+   ============================================================ */
+
+/* Auth form container */
+.auth-form-card {
+    width: 100%;
+    max-width: 480px;           /* Maximum form width */
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Auth form logo/brand */
+.auth-logo {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.auth-logo h3 {
+    font-size: var(--fs-xl);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-xs);
+}
+
+.auth-logo p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+/* Auth form heading */
+.auth-heading {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.auth-heading h2 {
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    color: var(--text-heading);
+    margin-bottom: var(--space-xs);
+}
+
+.auth-heading p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+/* ============================================================
+   3. AUTH FORM FIELDS
+   ============================================================ */
+
+/* Form group with floating label feel */
+.auth-form-group {
+    margin-bottom: var(--space-lg);
+    position: relative;
+}
+
+/* Auth form label */
+.auth-form-group label {
+    display: block;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-xs);
+}
+
+/* Auth form input */
+.auth-form-group .form-control {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    transition: all var(--transition-fast);
+    width: 100%;
+}
+
+/* Input with icon */
+.auth-form-group .input-icon-wrapper {
+    position: relative;
+}
+
+.auth-form-group .input-icon-wrapper .form-control {
+    padding-left: 2.75rem;      /* Space for icon */
+}
+
+.auth-form-group .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+/* Password toggle eye icon */
+.auth-form-group .toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color var(--transition-fast);
+}
+
+.auth-form-group .toggle-password:hover {
+    color: var(--primary);
+}
+
+/* ============================================================
+   4. AUTH FORM OPTIONS
+   ============================================================ */
+
+/* Remember me + Forgot password row */
+.auth-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+}
+
+/* Forgot password link */
+.auth-options .forgot-link {
+    color: var(--primary);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.auth-options .forgot-link:hover {
+    color: var(--primary-light);
+}
+
+/* ============================================================
+   5. AUTH SUBMIT BUTTON
+   ============================================================ */
+
+/* Full-width auth submit button */
+.auth-submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 0.875rem;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: var(--fs-base);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    margin-bottom: var(--space-lg);
+}
+
+.auth-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.auth-submit-btn:active {
+    transform: translateY(0);
+}
+
+/* ============================================================
+   6. SOCIAL LOGIN
+   ============================================================ */
+
+/* Divider between form and social login */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+/* Social login button */
+.social-btn {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.social-btn:hover {
+    background: var(--bg-surface);
+    border-color: var(--border-hover);
+}
+
+/* ============================================================
+   7. AUTH FOOTER
+   ============================================================ */
+
+/* Switch between login/register */
+.auth-footer {
+    text-align: center;
+    margin-top: var(--space-lg);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+.auth-footer a {
+    color: var(--primary);
+    font-weight: 600;
+    transition: color var(--transition-fast);
+}
+
+.auth-footer a:hover {
+    color: var(--primary-light);
+}
+
+/* ============================================================
+   8. ROLE SELECTOR TABS
+   ============================================================ */
+
+/* Role selection tabs on registration pages */
+.role-tabs {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs);
+}
+
+.role-tab {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: center;
+}
+
+.role-tab:hover {
+    color: var(--text-primary);
+}
+
+.role-tab.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* ============================================================
+   9. MULTI-STEP FORM
+   ============================================================ */
+
+/* Step progress indicator */
+.step-progress {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+/* Step indicator circle */
+.step-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    transition: all var(--transition-base);
+}
+
+/* Active step */
+.step-indicator.active .step-circle {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* Completed step */
+.step-indicator.completed .step-circle {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+/* Step label */
+.step-label {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.step-indicator.active .step-label {
+    color: var(--primary);
+}
+
+/* Step connector line */
+.step-connector {
+    width: 60px;
+    height: 2px;
+    background: var(--border-color);
+    align-self: center;
+    margin-bottom: 16px;
+}
+
+.step-connector.active {
+    background: var(--primary);
+}
+
+/* ============================================================
+   10. PASSWORD STRENGTH METER
+   ============================================================ */
+
+.password-strength {
+    margin-top: var(--space-sm);
+}
+
+.password-strength-bar {
+    height: 4px;
+    border-radius: var(--radius-xl);
+    background: var(--bg-input);
+    margin-bottom: var(--space-xs);
+    overflow: hidden;
+}
+
+.password-strength-fill {
+    height: 100%;
+    border-radius: var(--radius-xl);
+    transition: width var(--transition-base), background var(--transition-base);
+}
+
+.password-strength-fill.weak { width: 25%; background: var(--danger); }
+.password-strength-fill.fair { width: 50%; background: var(--warning); }
+.password-strength-fill.good { width: 75%; background: var(--info); }
+.password-strength-fill.strong { width: 100%; background: var(--success); }
+
+.password-strength-text {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   11. ERROR MESSAGES
+   ============================================================ */
+
+.auth-error {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+    color: var(--danger);
+    font-size: var(--fs-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.field-error {
+    color: var(--danger);
+    font-size: var(--fs-xs);
+    margin-top: var(--space-xs);
+}

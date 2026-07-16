@@ -1,0 +1,490 @@
+/* ============================================================
+   InternAI - Responsive Styles
+   ============================================================
+   Media queries for tablet (768px), mobile (480px), and
+   large screens. Handles sidebar collapse, stacked layouts,
+   and touch-friendly element sizing.
+   ============================================================ */
+
+/* ============================================================
+   1. LARGE DESKTOP (1400px+)
+   ============================================================ */
+@media (min-width: 1400px) {
+    /* Wider stat cards on large screens */
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ============================================================
+   2. DESKTOP (1200px - 1399px)
+   ============================================================ */
+@media (max-width: 1399px) {
+    /* Adjust hero title size */
+    .hero-title {
+        font-size: var(--fs-3xl);
+    }
+}
+
+/* ============================================================
+   3. TABLET LANDSCAPE (992px - 1199px)
+   ============================================================ */
+@media (max-width: 1199px) {
+    /* Reduce sidebar width */
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    /* Smaller main content padding */
+    .main-content {
+        padding: var(--space-lg);
+    }
+
+    /* Stack pricing cards */
+    .pricing-card.featured {
+        transform: none;       /* Remove scale effect on smaller screens */
+    }
+}
+
+/* ============================================================
+   4. TABLET PORTRAIT (768px - 991px)
+   ============================================================ */
+@media (max-width: 991px) {
+    /* -- Sidebar collapses to icon-only by default -- */
+    .sidebar {
+        width: var(--sidebar-collapsed);
+    }
+
+    /* Hide sidebar text elements */
+    .sidebar-brand h4,
+    .sidebar-nav .nav-link span,
+    .sidebar-nav .nav-section,
+    .sidebar-user .user-info {
+        display: none;
+    }
+
+    /* Adjust main content margin */
+    .main-content {
+        margin-left: var(--sidebar-collapsed);
+    }
+
+    /* Adjust top navbar margin */
+    .top-navbar {
+        margin-left: var(--sidebar-collapsed);
+    }
+
+    /* Sidebar expanded state on hover (tablet) */
+    .sidebar:hover {
+        width: var(--sidebar-width);
+    }
+
+    .sidebar:hover .sidebar-brand h4,
+    .sidebar:hover .sidebar-nav .nav-link span,
+    .sidebar:hover .sidebar-nav .nav-section,
+    .sidebar:hover .sidebar-user .user-info {
+        display: block;
+    }
+
+    /* -- Auth layout -- */
+    /* Hide illustration panel on tablets */
+    .auth-illustration {
+        display: none;
+    }
+
+    /* Full width form panel */
+    .auth-form-panel {
+        flex: 1;
+        padding: var(--space-xl);
+    }
+
+    /* -- Hero section -- */
+    .hero-section {
+        padding: 6rem 0 3rem;
+    }
+
+    .hero-title {
+        font-size: var(--fs-2xl);
+    }
+
+    /* Stack hero content vertically */
+    .hero-illustration {
+        display: none;          /* Hide illustration on tablets */
+    }
+
+    /* -- Stats bar -- */
+    .stats-bar {
+        margin-top: var(--space-lg);
+    }
+
+    /* -- Stats grid -- */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* -- Dashboard header -- */
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* -- Step progress -- */
+    .step-label {
+        display: none;          /* Hide step labels on tablets */
+    }
+
+    .step-connector {
+        width: 30px;
+    }
+
+    /* -- Report card -- */
+    .report-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* -- Table -- */
+    .table-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .table-search {
+        max-width: none;
+    }
+
+    /* -- Notification dropdown -- */
+    .notification-dropdown {
+        width: 320px;
+    }
+
+    /* -- Score input -- */
+    .score-input {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .score-input label {
+        min-width: auto;
+    }
+
+    .score-input input[type="range"] {
+        width: 100%;
+    }
+}
+
+/* ============================================================
+   5. MOBILE LANDSCAPE (576px - 767px)
+   ============================================================ */
+@media (max-width: 767px) {
+    /* -- Sidebar -- */
+    /* Full overlay sidebar on mobile */
+    .sidebar {
+        transform: translateX(-100%);     /* Hidden off-screen */
+        width: var(--sidebar-width);
+    }
+
+    /* Show sidebar when active */
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    /* Remove margin from main content */
+    .main-content {
+        margin-left: 0;
+        padding: var(--space-md);
+    }
+
+    /* Remove margin from top navbar */
+    .top-navbar {
+        margin-left: 0;
+        padding: var(--space-md);
+    }
+
+    /* Sidebar overlay backdrop */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: calc(var(--z-sidebar) - 1);
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    /* Show hamburger menu button */
+    .sidebar-toggle {
+        display: flex !important;
+    }
+
+    /* -- Landing navbar -- */
+    .landing-navbar .nav-link {
+        padding: 0.75rem 1rem;
+    }
+
+    /* -- Hero -- */
+    .hero-section {
+        padding: 5rem 0 2rem;
+        min-height: auto;
+    }
+
+    .hero-title {
+        font-size: var(--fs-xl);
+    }
+
+    .hero-subtitle {
+        font-size: var(--fs-sm);
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* -- Stats -- */
+    .stat-item .stat-number {
+        font-size: var(--fs-2xl);
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;       /* Single column */
+    }
+
+    /* -- Sections -- */
+    .features-section,
+    .how-it-works,
+    .pricing-section,
+    .faq-section,
+    .contact-section {
+        padding: 3rem 0;
+    }
+
+    .section-title {
+        font-size: var(--fs-xl);
+    }
+
+    /* -- Dashboard -- */
+    .chart-container {
+        height: 200px;
+    }
+
+    /* -- Pipeline -- */
+    .pipeline {
+        flex-wrap: wrap;
+    }
+
+    /* -- Auth -- */
+    .auth-form-panel {
+        padding: var(--space-lg);
+    }
+
+    .auth-form-card {
+        max-width: 100%;
+    }
+
+    /* -- Role tabs -- */
+    .role-tabs {
+        flex-direction: column;
+    }
+
+    /* -- Settings tabs -- */
+    .settings-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .settings-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* -- Notification dropdown fullscreen on mobile -- */
+    .notification-dropdown {
+        width: 100vw;
+        max-width: 100vw;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        border-radius: 0;
+    }
+
+    /* -- Pricing card -- */
+    .pricing-card {
+        padding: var(--space-xl);
+    }
+
+    /* -- Upload area -- */
+    .upload-area {
+        padding: var(--space-xl);
+    }
+
+    /* -- Quick actions -- */
+    .quick-action {
+        min-height: 100px;
+        padding: var(--space-md);
+    }
+}
+
+/* ============================================================
+   6. SMALL MOBILE (480px and below)
+   ============================================================ */
+@media (max-width: 480px) {
+    /* Further reduce base font size */
+    html {
+        font-size: 14px;
+    }
+
+    /* Tighter padding */
+    .main-content {
+        padding: var(--space-sm);
+    }
+
+    /* Smaller headings */
+    h1 { font-size: var(--fs-xl); }
+    h2 { font-size: var(--fs-lg); }
+    h3 { font-size: var(--fs-md); }
+
+    /* Hero adjustments */
+    .hero-title {
+        font-size: var(--fs-lg);
+    }
+
+    /* Stat cards single column */
+    .stat-card {
+        padding: var(--space-md);
+    }
+
+    .stat-card .stat-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+
+    .stat-card .stat-content h3 {
+        font-size: var(--fs-xl);
+    }
+
+    /* Smaller cards */
+    .card-body {
+        padding: var(--space-md);
+    }
+
+    .glass-card {
+        padding: var(--space-md);
+    }
+
+    /* Table horizontal scroll */
+    .table-wrapper {
+        font-size: var(--fs-xs);
+    }
+
+    /* Smaller buttons */
+    .btn-primary-custom,
+    .btn-outline-custom {
+        padding: 0.5rem 1rem;
+        font-size: var(--fs-xs);
+    }
+
+    /* Auth form */
+    .auth-form-panel {
+        padding: var(--space-md);
+    }
+
+    .auth-heading h2 {
+        font-size: var(--fs-lg);
+    }
+
+    /* Step progress smaller */
+    .step-circle {
+        width: 30px;
+        height: 30px;
+        font-size: var(--fs-xs);
+    }
+}
+
+/* ============================================================
+   7. PRINT STYLES
+   ============================================================ */
+@media print {
+    /* Hide non-essential elements for printing */
+    .sidebar,
+    .top-navbar,
+    .sidebar-overlay,
+    .btn,
+    .navbar-icon-btn {
+        display: none !important;
+    }
+
+    /* Full width content */
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* White background for printing */
+    body {
+        background: white;
+        color: black;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        background: white;
+    }
+}
+
+/* ============================================================
+   8. TOUCH DEVICE OPTIMIZATIONS
+   ============================================================ */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    .nav-link {
+        padding: 0.75rem 1rem;
+        min-height: 44px;
+    }
+
+    /* Larger form inputs */
+    .form-control,
+    .form-select {
+        min-height: 48px;
+        font-size: 16px;        /* Prevent zoom on focus (iOS) */
+    }
+
+    /* Larger buttons */
+    .btn,
+    .btn-primary-custom,
+    .btn-outline-custom {
+        min-height: 44px;
+    }
+
+    /* Disable hover animations on touch */
+    .feature-card:hover,
+    .stat-card:hover,
+    .glass-card:hover {
+        transform: none;
+    }
+}
+
+/* ============================================================
+   9. REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    /* Disable all animations for accessibility */
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

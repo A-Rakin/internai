@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Register Supervisor - InternAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-illustration">
+        <div class="auth-illustration-content">
+            <h2>Academic Supervision</h2>
+            <p>Guide and track your students' internship progress and reviews with ease.</p>
+        </div>
+    </div>
+    <div class="auth-form-panel">
+        <div class="auth-form-card">
+            <div class="auth-logo">
+                <h3>Supervisor Registration</h3>
+                <p>Manage your assigned student roster</p>
+            </div>
+            
+            <form method="post" action="{% url 'accounts:register_supervisor' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="auth-form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="email">University Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="university">University</label>
+                    <input type="text" id="university" name="university" class="form-control" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="auth-submit-btn">Register</button>
+            </form>
+            <div class="auth-footer">
+                Already have an account? <a href="{% url 'accounts:login' %}">Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

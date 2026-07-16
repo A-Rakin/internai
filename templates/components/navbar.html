@@ -1,0 +1,83 @@
+{% comment %}
+============================================================
+InternAI - Landing Page Navbar Component
+============================================================
+Public navigation bar for the landing website pages.
+Includes brand logo, navigation links, and CTA buttons.
+Used on: home, about, features, pricing, FAQ, contact pages.
+============================================================
+{% endcomment %}
+
+{% load static %}
+
+<!-- Landing page navigation bar - fixed at top with glassmorphism on scroll -->
+<nav class="landing-navbar" id="landingNavbar">
+    <div class="container">
+        <!-- Flexbox row for brand + links + buttons -->
+        <div class="d-flex align-items-center justify-content-between">
+
+            <!-- ---- Brand Logo ---- -->
+            <a href="{% url 'landing:home' %}" class="navbar-brand">
+                <!-- AI icon next to brand name -->
+                <i class="fas fa-robot me-2"></i>InternAI
+            </a>
+
+            <!-- ---- Mobile Menu Toggle Button ---- -->
+            <!-- Only visible on mobile (d-lg-none) -->
+            <button class="btn d-lg-none" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#landingNav" aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style="color: var(--text-primary); border: 1px solid var(--border-color);">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- ---- Navigation Links ---- -->
+            <!-- Collapsible navigation for mobile -->
+            <div class="collapse d-lg-flex" id="landingNav">
+                <div class="d-lg-flex align-items-center gap-1">
+                    <!-- Home link -->
+                    <a href="{% url 'landing:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        Home
+                    </a>
+                    <!-- About link -->
+                    <a href="{% url 'landing:about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+                        About
+                    </a>
+                    <!-- Features link -->
+                    <a href="{% url 'landing:features' %}" class="nav-link {% if request.resolver_match.url_name == 'features' %}active{% endif %}">
+                        Features
+                    </a>
+                    <!-- How It Works link -->
+                    <a href="{% url 'landing:how_it_works' %}" class="nav-link {% if request.resolver_match.url_name == 'how_it_works' %}active{% endif %}">
+                        How It Works
+                    </a>
+                    <!-- Pricing link -->
+                    <a href="{% url 'landing:pricing' %}" class="nav-link {% if request.resolver_match.url_name == 'pricing' %}active{% endif %}">
+                        Pricing
+                    </a>
+                    <!-- FAQ link -->
+                    <a href="{% url 'landing:faq' %}" class="nav-link {% if request.resolver_match.url_name == 'faq' %}active{% endif %}">
+                        FAQ
+                    </a>
+                    <!-- Contact link -->
+                    <a href="{% url 'landing:contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
+                        Contact
+                    </a>
+                </div>
+
+                <!-- ---- Auth Buttons ---- -->
+                <div class="d-lg-flex align-items-center gap-2 ms-lg-4 mt-3 mt-lg-0">
+                    <!-- Login button - outline style -->
+                    <a href="{% url 'accounts:login' %}" class="nav-link">
+                        <i class="fas fa-sign-in-alt me-1"></i> Login
+                    </a>
+                    <!-- Get Started button - filled CTA -->
+                    <a href="{% url 'accounts:register_student' %}" class="btn-get-started">
+                        Get Started <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</nav>

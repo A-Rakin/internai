@@ -1,0 +1,130 @@
+{% comment %}
+============================================================
+InternAI - Base Template (Master Layout)
+============================================================
+This is the root template that all other templates extend.
+It provides the HTML structure, CDN links, navigation,
+and content blocks that child templates override.
+============================================================
+{% endcomment %}
+
+{% load static %}
+<!DOCTYPE html>
+<!-- Set the document language to English -->
+<html lang="en" data-bs-theme="dark">
+<head>
+    <!-- ============================================================
+         META TAGS
+         ============================================================ -->
+    <!-- Character encoding for the document -->
+    <meta charset="UTF-8">
+    <!-- Responsive viewport configuration for mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO description - can be overridden by child templates -->
+    <meta name="description" content="{% block meta_description %}InternAI - AI-Powered Internship Management Platform for Students, Companies, and Supervisors{% endblock %}">
+    <!-- Author meta tag -->
+    <meta name="author" content="InternAI">
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#6C63FF">
+
+    <!-- ============================================================
+         PAGE TITLE
+         ============================================================ -->
+    <!-- Title block - child templates override 'title' block -->
+    <title>{% block title %}InternAI{% endblock %} | InternAI Platform</title>
+
+    <!-- ============================================================
+         FAVICON
+         ============================================================ -->
+    <!-- Placeholder favicon - replace with actual icon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+
+    <!-- ============================================================
+         GOOGLE FONTS - Inter
+         ============================================================ -->
+    <!-- Preconnect for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Import Inter font with multiple weights -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- ============================================================
+         BOOTSTRAP 5 CSS
+         ============================================================ -->
+    <!-- Bootstrap 5.3 - CSS framework for responsive layout and components -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ============================================================
+         FONT AWESOME 6 ICONS
+         ============================================================ -->
+    <!-- Font Awesome - Icon library for UI elements -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <!-- ============================================================
+         CUSTOM STYLESHEETS
+         ============================================================ -->
+    <!-- Main design system stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <!-- Extra CSS block - child templates add page-specific CSS here -->
+    {% block extra_css %}{% endblock %}
+    <!-- Responsive styles loaded last to override other styles -->
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+</head>
+
+<body>
+    <!-- ============================================================
+         DJANGO MESSAGES (Flash Messages)
+         ============================================================ -->
+    <!-- Display any messages set by Django views (success, error, etc.) -->
+    {% if messages %}
+    <div class="messages-container" style="position:fixed; top:20px; right:20px; z-index:9999; max-width:400px;">
+        {% for message in messages %}
+        <!-- Alert with appropriate Bootstrap color class based on message tag -->
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert"
+             style="background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-primary);">
+            <!-- Message icon based on type -->
+            {% if message.tags == 'alert-success' %}
+                <i class="fas fa-check-circle me-2" style="color: var(--success);"></i>
+            {% elif message.tags == 'alert-danger' %}
+                <i class="fas fa-exclamation-circle me-2" style="color: var(--danger);"></i>
+            {% elif message.tags == 'alert-warning' %}
+                <i class="fas fa-exclamation-triangle me-2" style="color: var(--warning);"></i>
+            {% else %}
+                <i class="fas fa-info-circle me-2" style="color: var(--info);"></i>
+            {% endif %}
+            <!-- Message text -->
+            {{ message }}
+            <!-- Close button -->
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ============================================================
+         PAGE CONTENT
+         ============================================================ -->
+    <!-- Main content block - child templates fill this -->
+    {% block content %}{% endblock %}
+
+    <!-- ============================================================
+         BOOTSTRAP 5 JAVASCRIPT
+         ============================================================ -->
+    <!-- Bootstrap JS bundle includes Popper.js for dropdowns and tooltips -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ============================================================
+         CHART.JS (Analytics)
+         ============================================================ -->
+    <!-- Chart.js for rendering interactive charts and graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- ============================================================
+         CUSTOM JAVASCRIPT
+         ============================================================ -->
+    <!-- Main JavaScript file - sidebar, tooltips, CSRF, etc. -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <!-- Extra JS block - child templates add page-specific scripts here -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

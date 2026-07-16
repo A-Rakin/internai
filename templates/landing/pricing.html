@@ -1,0 +1,66 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}Pricing{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}">{% endblock %}
+{% block content %}
+{% include 'components/navbar.html' %}
+<div class="page-header"><div class="container"><h1>Simple <span class="gradient-text">Pricing</span></h1><p>Choose the plan that fits your needs. Start free, upgrade anytime.</p></div></div>
+<section class="pricing-section">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <!-- Free Plan -->
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="pricing-card">
+                    <h4 style="color:var(--text-muted);font-weight:600;">Free</h4>
+                    <p style="color:var(--text-muted);font-size:var(--fs-sm);">Perfect for getting started</p>
+                    <div class="price">$0<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> 5 Internship Applications</li>
+                        <li><i class="fas fa-check"></i> Basic Profile</li>
+                        <li><i class="fas fa-check"></i> Resume Upload</li>
+                        <li><i class="fas fa-check"></i> Email Notifications</li>
+                        <li class="disabled"><i class="fas fa-times"></i> AI Resume Analysis</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Priority Support</li>
+                    </ul>
+                    <a href="{% url 'accounts:register_student' %}" class="btn btn-outline-custom w-100">Get Started</a>
+                </div>
+            </div>
+            <!-- Pro Plan (Featured) -->
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="pricing-card featured">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <h4 style="color:var(--primary);font-weight:600;">Pro</h4>
+                    <p style="color:var(--text-muted);font-size:var(--fs-sm);">For active job seekers</p>
+                    <div class="price">$19<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Unlimited Applications</li>
+                        <li><i class="fas fa-check"></i> Complete Profile</li>
+                        <li><i class="fas fa-check"></i> AI Resume Analysis</li>
+                        <li><i class="fas fa-check"></i> Priority Notifications</li>
+                        <li><i class="fas fa-check"></i> Advanced Analytics</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Dedicated Support</li>
+                    </ul>
+                    <a href="{% url 'accounts:register_student' %}" class="btn btn-primary-custom w-100">Start Pro Trial</a>
+                </div>
+            </div>
+            <!-- Enterprise Plan -->
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="pricing-card">
+                    <h4 style="color:var(--text-muted);font-weight:600;">Enterprise</h4>
+                    <p style="color:var(--text-muted);font-size:var(--fs-sm);">For companies & institutions</p>
+                    <div class="price">$99<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Everything in Pro</li>
+                        <li><i class="fas fa-check"></i> AI Candidate Ranking</li>
+                        <li><i class="fas fa-check"></i> Custom Branding</li>
+                        <li><i class="fas fa-check"></i> API Access</li>
+                        <li><i class="fas fa-check"></i> Dedicated Support</li>
+                        <li><i class="fas fa-check"></i> Custom Integrations</li>
+                    </ul>
+                    <a href="{% url 'landing:contact' %}" class="btn btn-ghost w-100">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% include 'components/footer.html' %}
+{% endblock %}

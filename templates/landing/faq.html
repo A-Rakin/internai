@@ -1,0 +1,30 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}FAQ{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}">{% endblock %}
+{% block content %}
+{% include 'components/navbar.html' %}
+<div class="page-header"><div class="container"><h1>Frequently Asked <span class="gradient-text">Questions</span></h1><p>Find answers to common questions about InternAI</p></div></div>
+<section class="faq-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion faq-accordion" id="faqAccordion">
+                    <!-- FAQ 1 -->
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">What is InternAI?</button></h2><div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion"><div class="accordion-body">InternAI is an AI-powered internship management platform that connects students with companies and academic supervisors. It provides tools for application management, interview scheduling, weekly report submission, supervisor evaluation, and comprehensive analytics.</div></div></div>
+                    <!-- FAQ 2 -->
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">Is InternAI free for students?</button></h2><div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Yes! Students can create a free account and access core features including browsing internships, submitting applications, uploading resumes, and submitting weekly reports. Premium features like AI resume analysis are available with paid plans.</div></div></div>
+                    <!-- FAQ 3 -->
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">How does the AI resume analysis work?</button></h2><div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Our AI engine analyzes uploaded resumes, extracts key skills and experiences, and matches them against internship requirements. It provides a compatibility score and highlights strengths and areas for improvement to help both students and recruiters make informed decisions.</div></div></div>
+                    <!-- FAQ 4 -->
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">Can companies post internship listings?</button></h2><div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Absolutely! Companies can register, create detailed internship listings with requirements, review applications, schedule interviews, and manage the entire recruitment pipeline from their dedicated portal.</div></div></div>
+                    <!-- FAQ 5 -->
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">How do supervisors use the platform?</button></h2><div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Academic supervisors can monitor their assigned students, review submitted weekly reports, provide feedback and scores, and create comprehensive evaluations. They have access to student progress tracking and performance analytics.</div></div></div>
+                    <!-- FAQ 6 -->
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">Is my data secure on InternAI?</button></h2><div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Yes, we take data security very seriously. All user data is encrypted, passwords are hashed, and we follow industry-standard security practices. Your personal information, documents, and communications are fully protected.</div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% include 'components/footer.html' %}
+{% endblock %}

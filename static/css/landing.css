@@ -1,0 +1,785 @@
+/* ============================================================
+   InternAI - Landing Page Styles
+   ============================================================
+   Styles specific to the public-facing landing pages including
+   hero section, features, statistics, pricing, FAQ, and footer.
+   ============================================================ */
+
+/* ============================================================
+   1. LANDING NAVBAR (Public)
+   ============================================================ */
+
+/* Landing page navbar - transparent with glassmorphism on scroll */
+.landing-navbar {
+    position: fixed;           /* Fixed at the top of the viewport */
+    top: 0;                    /* Start at the very top */
+    left: 0;
+    right: 0;
+    z-index: var(--z-navbar);  /* Above other content */
+    padding: 1rem 0;
+    transition: all var(--transition-base);
+    background: transparent;    /* Transparent initially */
+}
+
+/* Navbar becomes solid on scroll (JavaScript adds this class) */
+.landing-navbar.scrolled {
+    background: rgba(15, 15, 26, 0.95);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 0;
+}
+
+/* Landing navbar brand */
+.landing-navbar .navbar-brand {
+    font-size: var(--fs-xl);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Landing nav links */
+.landing-navbar .nav-link {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: var(--fs-sm);
+    padding: 0.5rem 1rem;
+    transition: color var(--transition-fast);
+}
+
+/* Nav link hover */
+.landing-navbar .nav-link:hover,
+.landing-navbar .nav-link.active {
+    color: var(--primary);
+}
+
+/* CTA button in navbar */
+.landing-navbar .btn-get-started {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-xl);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    border: none;
+    transition: all var(--transition-base);
+}
+
+.landing-navbar .btn-get-started:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+    color: white;
+}
+
+/* ============================================================
+   2. HERO SECTION
+   ============================================================ */
+
+/* Hero section - full viewport height with gradient background */
+.hero-section {
+    min-height: 100vh;          /* Full screen height */
+    display: flex;
+    align-items: center;        /* Vertically center content */
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 0 4rem;      /* Top padding for navbar space */
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #1A1A3E 50%, var(--bg-dark) 100%);
+}
+
+/* Animated gradient orbs in background */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+    top: -100px;
+    right: -100px;
+    animation: float 6s ease-in-out infinite;
+}
+
+.hero-section::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--accent-glow), transparent 70%);
+    bottom: -50px;
+    left: -50px;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+/* Hero content area */
+.hero-content {
+    position: relative;
+    z-index: 2;                /* Above the gradient orbs */
+}
+
+/* Hero badge/label */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: rgba(108, 99, 255, 0.15);
+    color: var(--primary-light);
+    padding: 0.4rem 1rem;
+    border-radius: var(--radius-xl);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+}
+
+/* Hero main heading */
+.hero-title {
+    font-size: var(--fs-4xl);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: var(--space-lg);
+    color: var(--text-heading);
+}
+
+/* Hero subtitle/description */
+.hero-subtitle {
+    font-size: var(--fs-md);
+    color: var(--text-secondary);
+    max-width: 540px;
+    margin-bottom: var(--space-xl);
+    line-height: 1.7;
+}
+
+/* Hero CTA buttons container */
+.hero-buttons {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+/* Hero primary button */
+.hero-btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: var(--radius-xl);
+    font-weight: 700;
+    font-size: var(--fs-base);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    transition: all var(--transition-base);
+    text-decoration: none;
+}
+
+.hero-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow);
+    color: white;
+}
+
+/* Hero secondary button */
+.hero-btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    padding: 0.875rem 2rem;
+    border-radius: var(--radius-xl);
+    font-weight: 600;
+    font-size: var(--fs-base);
+    border: 1px solid var(--border-color);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    transition: all var(--transition-base);
+    text-decoration: none;
+}
+
+.hero-btn-secondary:hover {
+    background: var(--bg-surface);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Hero illustration/image area */
+.hero-illustration {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-illustration img {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 20px 40px rgba(108, 99, 255, 0.2));
+}
+
+/* ============================================================
+   3. STATISTICS BAR
+   ============================================================ */
+
+/* Stats bar - glassmorphism container */
+.stats-bar {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl) var(--space-2xl);
+    margin-top: -3rem;          /* Overlaps the hero section */
+    position: relative;
+    z-index: 3;
+}
+
+/* Individual stat item */
+.stat-item {
+    text-align: center;
+    padding: var(--space-md);
+}
+
+/* Stat number */
+.stat-item .stat-number {
+    font-size: var(--fs-3xl);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: var(--space-xs);
+}
+
+/* Stat label */
+.stat-item .stat-label {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+}
+
+/* ============================================================
+   4. FEATURES SECTION
+   ============================================================ */
+
+/* Features section */
+.features-section {
+    padding: 6rem 0;
+    background: var(--bg-dark);
+}
+
+/* Section header */
+.section-header {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+}
+
+/* Section subtitle - colored label above heading */
+.section-subtitle {
+    display: inline-block;
+    color: var(--primary);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-sm);
+}
+
+/* Section main heading */
+.section-title {
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    color: var(--text-heading);
+    margin-bottom: var(--space-md);
+}
+
+/* Section description */
+.section-description {
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: var(--fs-base);
+}
+
+/* Feature card */
+.feature-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    text-align: center;
+    transition: all var(--transition-base);
+    height: 100%;
+}
+
+/* Feature card hover */
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-glow);
+}
+
+/* Feature icon */
+.feature-card .feature-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-md);
+    background: rgba(108, 99, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-lg);
+    font-size: 1.75rem;
+    color: var(--primary);
+    transition: all var(--transition-base);
+}
+
+/* Feature icon changes on card hover */
+.feature-card:hover .feature-icon {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Feature title */
+.feature-card h5 {
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+}
+
+/* Feature description */
+.feature-card p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    margin-bottom: 0;
+}
+
+/* ============================================================
+   5. HOW IT WORKS SECTION
+   ============================================================ */
+
+.how-it-works {
+    padding: 6rem 0;
+    background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-surface-2) 100%);
+}
+
+/* Step card in timeline */
+.step-card {
+    position: relative;
+    padding: var(--space-xl);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-align: center;
+    transition: all var(--transition-base);
+}
+
+.step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+}
+
+/* Step number circle */
+.step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    font-weight: 700;
+    font-size: var(--fs-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-md);
+}
+
+/* ============================================================
+   6. PRICING SECTION
+   ============================================================ */
+
+.pricing-section {
+    padding: 6rem 0;
+    background: var(--bg-dark);
+}
+
+/* Pricing card */
+.pricing-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    text-align: center;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Featured/popular pricing card */
+.pricing-card.featured {
+    border-color: var(--primary);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-glow);
+}
+
+/* Popular badge */
+.pricing-card .popular-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 0.35rem 1.5rem;
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    border-radius: 0 0 0 var(--radius-md);
+}
+
+/* Pricing amount */
+.pricing-card .price {
+    font-size: var(--fs-4xl);
+    font-weight: 800;
+    color: var(--text-heading);
+    margin: var(--space-lg) 0;
+}
+
+.pricing-card .price span {
+    font-size: var(--fs-base);
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+/* Pricing features list */
+.pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-xl) 0;
+    text-align: left;
+}
+
+.pricing-features li {
+    padding: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.pricing-features li i {
+    color: var(--success);
+}
+
+.pricing-features li.disabled {
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.pricing-features li.disabled i {
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   7. FAQ SECTION
+   ============================================================ */
+
+.faq-section {
+    padding: 6rem 0;
+    background: var(--bg-dark);
+}
+
+/* FAQ accordion styling */
+.faq-accordion .accordion-item {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md) !important;
+    margin-bottom: var(--space-md);
+    overflow: hidden;
+}
+
+.faq-accordion .accordion-button {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: var(--fs-base);
+    padding: var(--space-lg);
+    box-shadow: none;
+    border: none;
+}
+
+.faq-accordion .accordion-button::after {
+    filter: invert(1);          /* White arrow icon */
+}
+
+.faq-accordion .accordion-button:not(.collapsed) {
+    background: rgba(108, 99, 255, 0.08);
+    color: var(--primary);
+}
+
+.faq-accordion .accordion-body {
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    padding: 0 var(--space-lg) var(--space-lg);
+    font-size: var(--fs-sm);
+    line-height: 1.7;
+}
+
+/* ============================================================
+   8. CONTACT SECTION
+   ============================================================ */
+
+.contact-section {
+    padding: 6rem 0;
+    background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-surface-2) 100%);
+}
+
+/* Contact info card */
+.contact-info-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    transition: all var(--transition-base);
+}
+
+.contact-info-card:hover {
+    border-color: var(--primary);
+    transform: translateX(4px);
+}
+
+.contact-info-card .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   9. CTA SECTION
+   ============================================================ */
+
+.cta-section {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-full);
+    top: -100px;
+    right: -100px;
+}
+
+.cta-section h2 {
+    color: white;
+    font-size: var(--fs-2xl);
+    margin-bottom: var(--space-md);
+}
+
+.cta-section p {
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 500px;
+    margin: 0 auto var(--space-xl);
+}
+
+.cta-section .btn {
+    background: white;
+    color: var(--primary);
+    font-weight: 700;
+    padding: 0.875rem 2rem;
+    border-radius: var(--radius-xl);
+    border: none;
+    transition: all var(--transition-base);
+}
+
+.cta-section .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================
+   10. FOOTER
+   ============================================================ */
+
+.landing-footer {
+    background: var(--bg-sidebar);
+    border-top: 1px solid var(--border-color);
+    padding: 4rem 0 2rem;
+}
+
+/* Footer heading */
+.landing-footer h5 {
+    color: var(--text-heading);
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    font-size: var(--fs-base);
+}
+
+/* Footer link list */
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: var(--space-sm);
+}
+
+.footer-links a {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+    color: var(--primary);
+    padding-left: 4px;
+}
+
+/* Footer social icons */
+.social-icons {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.social-icons a {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+}
+
+.social-icons a:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* Footer bottom bar */
+.footer-bottom {
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--space-lg);
+    margin-top: var(--space-2xl);
+    text-align: center;
+}
+
+.footer-bottom p {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    margin: 0;
+}
+
+/* ============================================================
+   11. ABOUT PAGE
+   ============================================================ */
+
+.about-section {
+    padding: 8rem 0 4rem;
+}
+
+.about-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    text-align: center;
+    height: 100%;
+    transition: all var(--transition-base);
+}
+
+.about-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+}
+
+.about-card .icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-md);
+    color: var(--primary);
+}
+
+/* ============================================================
+   12. PAGE HEADER (Internal pages)
+   ============================================================ */
+
+.page-header {
+    padding: 8rem 0 3rem;
+    background: linear-gradient(135deg, var(--bg-dark), var(--bg-surface-2));
+    text-align: center;
+    position: relative;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.page-header h1 {
+    font-size: var(--fs-3xl);
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+}
+
+.page-header p {
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Breadcrumb */
+.breadcrumb-custom {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    justify-content: center;
+    margin-top: var(--space-md);
+    position: relative;
+    z-index: 2;
+}
+
+.breadcrumb-custom a {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+}
+
+.breadcrumb-custom a:hover {
+    color: var(--primary);
+}
+
+.breadcrumb-custom span {
+    color: var(--primary);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+.breadcrumb-custom .separator {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+}

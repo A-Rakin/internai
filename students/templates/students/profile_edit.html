@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit Profile{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar"><h4 class="page-title">Edit Profile</h4></div>
+    
+    <div class="card mt-4"><div class="card-body">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">First Name</label><input type="text" class="form-control" value="{{ user.first_name }}" required></div>
+                <div class="col-md-6"><label class="form-label">Last Name</label><input type="text" class="form-control" value="{{ user.last_name }}" required></div>
+                <div class="col-md-6"><label class="form-label">University</label><input type="text" class="form-control" value="Dhaka University" required></div>
+                <div class="col-md-6"><label class="form-label">Department</label><input type="text" class="form-control" value="Computer Science" required></div>
+                <div class="col-md-4"><label class="form-label">CGPA</label><input type="text" class="form-control" value="3.90" required></div>
+                <div class="col-12">
+                    <label class="form-label">Technical Skills (Comma separated)</label>
+                    <input type="text" class="form-control" value="Python, Django, Javascript" required>
+                </div>
+                <div class="col-12"><button type="submit" class="btn btn-primary-custom">Save Changes</button></div>
+            </div>
+        </form>
+    </div></div>
+</div>
+{% endblock %}

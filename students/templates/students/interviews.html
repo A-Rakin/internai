@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Interviews{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar"><h4 class="page-title">Interviews</h4></div>
+    
+    <div class="row g-4 mt-3">
+        <div class="col-md-6">
+            <div class="interview-card">
+                <div class="interview-time"><i class="fas fa-clock"></i> Jul 25, 2026 - 10:00 AM</div>
+                <div class="interview-title">Technical Interview - Python Backend</div>
+                <div class="interview-company">Google LLC</div>
+                <div class="mt-3">
+                    <a href="https://meet.google.com" target="_blank" class="btn-primary-custom"><i class="fas fa-video"></i> Join Meet</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

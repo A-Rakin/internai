@@ -1,0 +1,98 @@
+{% comment %}
+============================================================
+InternAI - Footer Component
+============================================================
+Landing page footer with links, social icons, and copyright.
+Used on all public-facing landing pages.
+============================================================
+{% endcomment %}
+
+{% load static %}
+
+<!-- Landing page footer -->
+<footer class="landing-footer">
+    <div class="container">
+        <!-- Footer columns grid -->
+        <div class="row g-4">
+
+            <!-- ---- Brand Column ---- -->
+            <div class="col-lg-4 col-md-6">
+                <!-- Footer brand -->
+                <h5>
+                    <i class="fas fa-robot me-2" style="color: var(--primary);"></i>
+                    InternAI
+                </h5>
+                <!-- Brand description -->
+                <p style="color: var(--text-muted); font-size: var(--fs-sm); line-height: 1.7; max-width: 300px;">
+                    AI-powered internship management platform connecting students,
+                    companies, and academic supervisors for seamless internship experiences.
+                </p>
+                <!-- Social media icons -->
+                <div class="social-icons">
+                    <!-- Facebook -->
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <!-- Twitter/X -->
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <!-- LinkedIn -->
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <!-- GitHub -->
+                    <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <!-- ---- Quick Links Column ---- -->
+            <div class="col-lg-2 col-md-6">
+                <h5>Quick Links</h5>
+                <ul class="footer-links">
+                    <li><a href="{% url 'landing:home' %}">Home</a></li>
+                    <li><a href="{% url 'landing:about' %}">About Us</a></li>
+                    <li><a href="{% url 'landing:features' %}">Features</a></li>
+                    <li><a href="{% url 'landing:pricing' %}">Pricing</a></li>
+                    <li><a href="{% url 'landing:contact' %}">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- ---- For Users Column ---- -->
+            <div class="col-lg-2 col-md-6">
+                <h5>For Users</h5>
+                <ul class="footer-links">
+                    <li><a href="{% url 'accounts:register_student' %}">Student Portal</a></li>
+                    <li><a href="{% url 'accounts:register_company' %}">Company Portal</a></li>
+                    <li><a href="{% url 'accounts:register_supervisor' %}">Supervisor Portal</a></li>
+                    <li><a href="{% url 'landing:how_it_works' %}">How It Works</a></li>
+                    <li><a href="{% url 'landing:faq' %}">FAQ</a></li>
+                </ul>
+            </div>
+
+            <!-- ---- Support Column ---- -->
+            <div class="col-lg-4 col-md-6">
+                <h5>Contact Us</h5>
+                <ul class="footer-links">
+                    <!-- Email -->
+                    <li>
+                        <i class="fas fa-envelope me-2" style="color: var(--primary); width: 16px;"></i>
+                        <a href="mailto:support@internai.com">support@internai.com</a>
+                    </li>
+                    <!-- Phone -->
+                    <li>
+                        <i class="fas fa-phone me-2" style="color: var(--primary); width: 16px;"></i>
+                        <a href="tel:+8801234567890">+880 1234 567 890</a>
+                    </li>
+                    <!-- Address -->
+                    <li>
+                        <i class="fas fa-map-marker-alt me-2" style="color: var(--primary); width: 16px;"></i>
+                        <span style="color: var(--text-muted); font-size: var(--fs-sm);">Dhaka, Bangladesh</span>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- ---- Footer Bottom Bar ---- -->
+        <div class="footer-bottom">
+            <p>&copy; 2024 InternAI. All rights reserved. |
+                <a href="{% url 'landing:privacy' %}" style="color: var(--text-muted);">Privacy Policy</a>
+            </p>
+        </div>
+    </div>
+</footer>

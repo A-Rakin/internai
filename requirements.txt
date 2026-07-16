@@ -1,0 +1,29 @@
+# ============================================================
+# InternAI - Python Dependencies
+# ============================================================
+# This file lists all Python packages required to run the
+# InternAI Django project. Install with: pip install -r requirements.txt
+# ============================================================
+
+# Django - The core web framework for building the application
+Django>=4.2,<5.0
+
+# Pillow - Python Imaging Library for handling image uploads
+# Used for company logos, user avatars, and document thumbnails
+Pillow>=10.0
+
+# django-crispy-forms - Better Django form rendering with Bootstrap 5
+# Provides clean, DRY form templates that integrate with Bootstrap
+django-crispy-forms>=2.0
+
+# crispy-bootstrap5 - Bootstrap 5 template pack for crispy forms
+# Extends crispy forms with Bootstrap 5 specific styling
+crispy-bootstrap5>=0.7
+
+# django-widget-tweaks - Fine-tune form field rendering in templates
+# Allows adding CSS classes and attributes directly in templates
+django-widget-tweaks>=1.5
+
+# python-decouple - Separate configuration from code
+# Reads settings from .env files for security
+python-decouple>=3.8

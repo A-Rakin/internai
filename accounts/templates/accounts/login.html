@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login - InternAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <!-- Left panel: Illustration and copy -->
+    <div class="auth-illustration">
+        <div class="auth-illustration-content">
+            <h2 class="animate-fade-in">Connect, Learn, and Grow</h2>
+            <p class="animate-fade-in animate-delay-1">InternAI helps you track your internship lifecycle, perform weekly reports, and leverage AI features.</p>
+            <ul class="auth-features animate-fade-in animate-delay-2">
+                <li><i class="fas fa-check-circle"></i> AI-powered match score tracking</li>
+                <li><i class="fas fa-check-circle"></i> Seamless supervisor-student weekly reviews</li>
+                <li><i class="fas fa-check-circle"></i> Real-time notifications and alerts</li>
+            </ul>
+        </div>
+    </div>
+    <!-- Right panel: Login form -->
+    <div class="auth-form-panel">
+        <div class="auth-form-card">
+            <div class="auth-logo">
+                <h3><i class="fas fa-robot me-2"></i>InternAI</h3>
+                <p>Welcome back! Please login to your account.</p>
+            </div>
+            
+            <form method="post" action="{% url 'accounts:login' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="auth-form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" name="username" class="form-control" placeholder="enter your email" required>
+                    </div>
+                </div>
+                <div class="auth-form-group">
+                    <label for="password">Password</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                
+                <div class="auth-options">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="remember_me">
+                        <label class="form-check-label" for="remember_me">Remember me</label>
+                    </div>
+                    <a href="{% url 'accounts:forgot_password' %}" class="forgot-link">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="auth-submit-btn">Login</button>
+            </form>
+            
+            <div class="auth-divider">or login with</div>
+            <button class="social-btn"><i class="fab fa-google"></i> Login with Google</button>
+            
+            <div class="auth-footer">
+                Don't have an account? <br>
+                Register as <a href="{% url 'accounts:register_student' %}">Student</a> | 
+                <a href="{% url 'accounts:register_company' %}">Company</a> | 
+                <a href="{% url 'accounts:register_supervisor' %}">Supervisor</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

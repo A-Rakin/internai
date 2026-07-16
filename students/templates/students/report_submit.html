@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Submit Weekly Report{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar"><h4 class="page-title">Submit Report</h4></div>
+    
+    <div class="card mt-4"><div class="card-body">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Week Number</label>
+                <input type="number" class="form-control" required placeholder="e.g. 3">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Report Title</label>
+                <input type="text" class="form-control" required placeholder="e.g. Backend API Optimization">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Activities Completed</label>
+                <textarea class="form-control" rows="5" required placeholder="Describe what you worked on this week..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Challenges Faced</label>
+                <textarea class="form-control" rows="3" placeholder="Any issues or blockages..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary-custom">Submit Report</button>
+        </form>
+    </div></div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Weekly Reports{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar">
+        <h4 class="page-title">Weekly Reports</h4>
+        <a href="{% url 'students:report_submit' %}" class="btn-primary-custom"><i class="fas fa-plus"></i> Submit Report</a>
+    </div>
+    
+    <div class="mt-4">
+        <div class="report-card">
+            <div class="report-info">
+                <div class="report-week">2</div>
+                <div>
+                    <h6 style="margin:0;font-weight:600;">Week 2 Performance & Accomplishments</h6>
+                    <p style="margin:0;color:var(--text-muted);font-size:var(--fs-sm);">Submitted on Jul 14, 2026</p>
+                </div>
+            </div>
+            <div><span class="badge-status badge-approved">Approved</span></div>
+        </div>
+        <div class="report-card">
+            <div class="report-info">
+                <div class="report-week">1</div>
+                <div>
+                    <h6 style="margin:0;font-weight:600;">Week 1 Overview & Setup</h6>
+                    <p style="margin:0;color:var(--text-muted);font-size:var(--fs-sm);">Submitted on Jul 07, 2026</p>
+                </div>
+            </div>
+            <div><span class="badge-status badge-approved">Approved</span></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

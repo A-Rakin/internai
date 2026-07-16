@@ -1,0 +1,1117 @@
+/* ============================================================
+   InternAI - Main Stylesheet (Design System)
+   ============================================================
+   This is the global stylesheet containing CSS custom properties
+   (design tokens), typography, layout utilities, component styles,
+   and animation definitions used across the entire platform.
+   ============================================================ */
+
+/* ============================================================
+   1. CSS CUSTOM PROPERTIES (Design Tokens)
+   ============================================================
+   All colors, fonts, spacing, shadows, and transitions are
+   defined as CSS variables for consistent theming.
+   ============================================================ */
+:root {
+    /* -- Primary Colors -- */
+    --primary: #6C63FF;             /* Vibrant purple - main brand color */
+    --primary-light: #8B83FF;       /* Lighter shade of primary */
+    --primary-dark: #5A52E0;        /* Darker shade for hover states */
+    --primary-glow: rgba(108, 99, 255, 0.3); /* Glow effect for shadows */
+
+    /* -- Secondary Colors -- */
+    --secondary: #3F3D56;           /* Dark slate - secondary elements */
+    --secondary-light: #54526E;     /* Lighter secondary */
+
+    /* -- Accent Colors -- */
+    --accent: #FF6584;              /* Coral pink - highlights and CTAs */
+    --accent-light: #FF8FA3;        /* Lighter accent */
+    --accent-glow: rgba(255, 101, 132, 0.3); /* Accent glow */
+
+    /* -- Status Colors -- */
+    --success: #00C9A7;             /* Teal green - success states */
+    --success-light: #00E4BF;       /* Lighter success */
+    --warning: #FFB344;             /* Amber - warning states */
+    --warning-light: #FFC76B;       /* Lighter warning */
+    --danger: #FF4757;              /* Red - error/danger states */
+    --danger-light: #FF6B7A;        /* Lighter danger */
+    --info: #3498DB;                /* Blue - informational */
+
+    /* -- Background Colors -- */
+    --bg-dark: #0F0F1A;            /* Deep dark - page background */
+    --bg-surface: #1A1A2E;         /* Dark card surface */
+    --bg-surface-hover: #222240;   /* Card hover state */
+    --bg-surface-2: #16213E;       /* Alternate surface */
+    --bg-input: #252545;           /* Form input background */
+    --bg-sidebar: #12122A;         /* Sidebar background */
+
+    /* -- Text Colors -- */
+    --text-primary: #E4E4E7;       /* Main text color - light gray */
+    --text-secondary: #A0A0B0;     /* Secondary/muted text */
+    --text-muted: #6B6B80;         /* Very muted text */
+    --text-heading: #FFFFFF;       /* Headings - white */
+
+    /* -- Border Colors -- */
+    --border-color: rgba(255, 255, 255, 0.08); /* Subtle border */
+    --border-hover: rgba(255, 255, 255, 0.15); /* Border on hover */
+    --border-active: rgba(108, 99, 255, 0.5);  /* Active border */
+
+    /* -- Typography -- */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    /* -- Font Sizes -- */
+    --fs-xs: 0.75rem;              /* 12px - tiny labels */
+    --fs-sm: 0.875rem;             /* 14px - small text */
+    --fs-base: 1rem;               /* 16px - body text */
+    --fs-md: 1.125rem;             /* 18px - slightly larger */
+    --fs-lg: 1.25rem;              /* 20px - subheadings */
+    --fs-xl: 1.5rem;               /* 24px - section headings */
+    --fs-2xl: 2rem;                /* 32px - page titles */
+    --fs-3xl: 2.5rem;              /* 40px - hero text */
+    --fs-4xl: 3.5rem;              /* 56px - large hero */
+
+    /* -- Spacing -- */
+    --space-xs: 0.25rem;           /* 4px */
+    --space-sm: 0.5rem;            /* 8px */
+    --space-md: 1rem;              /* 16px */
+    --space-lg: 1.5rem;            /* 24px */
+    --space-xl: 2rem;              /* 32px */
+    --space-2xl: 3rem;             /* 48px */
+    --space-3xl: 4rem;             /* 64px */
+
+    /* -- Border Radius -- */
+    --radius-sm: 0.375rem;         /* 6px - small elements */
+    --radius-md: 0.75rem;          /* 12px - cards */
+    --radius-lg: 1rem;             /* 16px - large cards */
+    --radius-xl: 1.5rem;           /* 24px - modals */
+    --radius-full: 50%;            /* Circles */
+
+    /* -- Shadows -- */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 20px var(--primary-glow);
+    --shadow-glow-accent: 0 0 20px var(--accent-glow);
+
+    /* -- Transitions -- */
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms ease;
+    --transition-slow: 400ms ease;
+
+    /* -- Glassmorphism -- */
+    --glass-bg: rgba(26, 26, 46, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-blur: blur(20px);
+
+    /* -- Sidebar -- */
+    --sidebar-width: 280px;
+    --sidebar-collapsed: 80px;
+
+    /* -- Z-indexes -- */
+    --z-sidebar: 1000;
+    --z-navbar: 1050;
+    --z-dropdown: 1060;
+    --z-modal: 1070;
+    --z-tooltip: 1080;
+}
+
+/* ============================================================
+   2. CSS RESET & BASE STYLES
+   ============================================================ */
+
+/* Apply border-box sizing to all elements for predictable layouts */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Set base styles for the HTML document */
+html {
+    scroll-behavior: smooth;        /* Smooth scrolling for anchor links */
+    font-size: 16px;                /* Base font size for rem calculations */
+}
+
+/* Body styling - dark theme with Inter font */
+body {
+    font-family: var(--font-primary);
+    font-size: var(--fs-base);
+    color: var(--text-primary);
+    background-color: var(--bg-dark);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;    /* Smoother font rendering on macOS */
+    -moz-osx-font-smoothing: grayscale;     /* Smoother font rendering on Firefox */
+    overflow-x: hidden;                      /* Prevent horizontal scroll */
+}
+
+/* ============================================================
+   3. TYPOGRAPHY
+   ============================================================ */
+
+/* Heading styles - white with tight letter spacing */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-heading);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.02em;        /* Slightly tighter spacing for headings */
+    margin-bottom: var(--space-md);
+}
+
+/* Individual heading sizes */
+h1 { font-size: var(--fs-3xl); }
+h2 { font-size: var(--fs-2xl); }
+h3 { font-size: var(--fs-xl); }
+h4 { font-size: var(--fs-lg); }
+h5 { font-size: var(--fs-md); }
+h6 { font-size: var(--fs-base); }
+
+/* Paragraph styling */
+p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+/* Link styling - primary color with smooth transition */
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+/* Link hover - lighter shade */
+a:hover {
+    color: var(--primary-light);
+}
+
+/* Small text helper */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* ============================================================
+   4. GLASSMORPHISM CARD
+   ============================================================
+   Modern card design with frosted glass effect.
+   ============================================================ */
+
+/* Base glass card styling */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    transition: all var(--transition-base);
+}
+
+/* Glass card hover effect - slight elevation */
+.glass-card:hover {
+    background: var(--bg-surface-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ============================================================
+   5. CARD COMPONENT
+   ============================================================ */
+
+/* Override Bootstrap card with dark theme */
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+    overflow: hidden;
+}
+
+/* Card hover effect */
+.card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Card header styling */
+.card-header {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--space-md) var(--space-lg);
+}
+
+/* Card body padding */
+.card-body {
+    padding: var(--space-lg);
+}
+
+/* Card title */
+.card-title {
+    color: var(--text-heading);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+}
+
+/* Card text */
+.card-text {
+    color: var(--text-secondary);
+}
+
+/* ============================================================
+   6. STAT CARDS (Dashboard)
+   ============================================================
+   Cards displaying numerical statistics with gradient icons.
+   ============================================================ */
+
+/* Stat card container */
+.stat-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Stat card hover - glow effect */
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-glow);
+    border-color: var(--primary);
+}
+
+/* Stat card icon container */
+.stat-card .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Stat card gradient variants */
+.stat-icon.gradient-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+}
+.stat-icon.gradient-success {
+    background: linear-gradient(135deg, var(--success), #00E4BF);
+    color: white;
+}
+.stat-icon.gradient-warning {
+    background: linear-gradient(135deg, var(--warning), #FFD93D);
+    color: white;
+}
+.stat-icon.gradient-danger {
+    background: linear-gradient(135deg, var(--danger), #FF6B7A);
+    color: white;
+}
+.stat-icon.gradient-info {
+    background: linear-gradient(135deg, var(--info), #5DADE2);
+    color: white;
+}
+.stat-icon.gradient-accent {
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    color: white;
+}
+
+/* Stat card content */
+.stat-card .stat-content h3 {
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    margin-bottom: 0;
+    line-height: 1;
+}
+
+/* Stat card label */
+.stat-card .stat-content p {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    margin-bottom: 0;
+    margin-top: var(--space-xs);
+}
+
+/* Stat card decorative background circle */
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-full);
+    background: rgba(108, 99, 255, 0.05);
+}
+
+/* ============================================================
+   7. BUTTON STYLES
+   ============================================================ */
+
+/* Primary button with gradient */
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 0.625rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+/* Primary button hover */
+.btn-primary-custom:hover {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+/* Outline button variant */
+.btn-outline-custom {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 0.625rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+/* Outline button hover */
+.btn-outline-custom:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+/* Accent button */
+.btn-accent {
+    background: linear-gradient(135deg, var(--accent), #FF8FA3);
+    color: white;
+    border: none;
+    padding: 0.625rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    transition: all var(--transition-base);
+}
+
+.btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow-accent);
+    color: white;
+}
+
+/* Ghost/transparent button */
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    padding: 0.625rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    transition: all var(--transition-base);
+}
+
+.btn-ghost:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+}
+
+/* ============================================================
+   8. FORM STYLES
+   ============================================================ */
+
+/* Form control override for dark theme */
+.form-control,
+.form-select {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: var(--fs-sm);
+    transition: all var(--transition-fast);
+}
+
+/* Form control focus state */
+.form-control:focus,
+.form-select:focus {
+    background: var(--bg-input);
+    border-color: var(--primary);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+    outline: none;
+}
+
+/* Placeholder text color */
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Form labels */
+.form-label {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-xs);
+}
+
+/* Form helper text */
+.form-text {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+}
+
+/* Custom checkbox and radio styling */
+.form-check-input {
+    background-color: var(--bg-input);
+    border-color: var(--border-color);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.form-check-label {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+/* ============================================================
+   9. TABLE STYLES
+   ============================================================ */
+
+/* Dark themed table */
+.table-dark-custom {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Table header */
+.table-dark-custom thead th {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+/* Table body cells */
+.table-dark-custom tbody td {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: var(--fs-sm);
+    vertical-align: middle;
+}
+
+/* Table row hover */
+.table-dark-custom tbody tr:hover {
+    background: rgba(108, 99, 255, 0.05);
+}
+
+/* ============================================================
+   10. BADGE STYLES
+   ============================================================ */
+
+/* Status badges with soft backgrounds */
+.badge-status {
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-xl);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* Badge color variants */
+.badge-pending { background: rgba(255, 179, 68, 0.15); color: var(--warning); }
+.badge-approved, .badge-accepted { background: rgba(0, 201, 167, 0.15); color: var(--success); }
+.badge-rejected { background: rgba(255, 71, 87, 0.15); color: var(--danger); }
+.badge-reviewing, .badge-interview { background: rgba(52, 152, 219, 0.15); color: var(--info); }
+.badge-draft { background: rgba(160, 160, 176, 0.15); color: var(--text-muted); }
+.badge-open { background: rgba(108, 99, 255, 0.15); color: var(--primary); }
+.badge-closed { background: rgba(63, 61, 86, 0.3); color: var(--text-muted); }
+
+/* ============================================================
+   11. SIDEBAR STYLES
+   ============================================================ */
+
+/* Sidebar container */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    z-index: var(--z-sidebar);
+    transition: all var(--transition-base);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar brand/logo area */
+.sidebar-brand {
+    padding: var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+/* Brand logo text */
+.sidebar-brand h4 {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Sidebar navigation */
+.sidebar-nav {
+    padding: var(--space-md) 0;
+    flex: 1;
+}
+
+/* Sidebar section label */
+.sidebar-nav .nav-section {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: var(--space-md) var(--space-lg) var(--space-xs);
+}
+
+/* Sidebar navigation link */
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.625rem var(--space-lg);
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    border-radius: 0;
+    transition: all var(--transition-fast);
+    border-left: 3px solid transparent;
+    margin: 2px 0;
+}
+
+/* Nav link icon */
+.sidebar-nav .nav-link i {
+    width: 20px;
+    text-align: center;
+    font-size: var(--fs-base);
+}
+
+/* Nav link hover state */
+.sidebar-nav .nav-link:hover {
+    background: rgba(108, 99, 255, 0.08);
+    color: var(--primary-light);
+    border-left-color: var(--primary);
+}
+
+/* Nav link active state */
+.sidebar-nav .nav-link.active {
+    background: rgba(108, 99, 255, 0.12);
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: 600;
+}
+
+/* Sidebar user profile section */
+.sidebar-user {
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+}
+
+/* User avatar in sidebar */
+.sidebar-user .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: var(--fs-sm);
+    flex-shrink: 0;
+}
+
+/* User info text */
+.sidebar-user .user-info {
+    overflow: hidden;
+}
+
+.sidebar-user .user-name {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-user .user-role {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+}
+
+/* ============================================================
+   12. NAVBAR (TOP BAR)
+   ============================================================ */
+
+/* Top navigation bar */
+.top-navbar {
+    background: rgba(15, 15, 26, 0.8);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem var(--space-xl);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-navbar);
+    margin-left: var(--sidebar-width);
+    transition: margin-left var(--transition-base);
+}
+
+/* Page title in navbar */
+.top-navbar .page-title {
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    color: var(--text-heading);
+    margin: 0;
+}
+
+/* Navbar actions (search, notifications, profile) */
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+/* Navbar icon button */
+.navbar-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.navbar-icon-btn:hover {
+    background: var(--bg-surface);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Notification badge count */
+.navbar-icon-btn .badge-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================================================
+   13. MAIN CONTENT AREA
+   ============================================================ */
+
+/* Main content wrapper with sidebar offset */
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: var(--space-xl);
+    min-height: 100vh;
+    transition: margin-left var(--transition-base);
+}
+
+/* Sidebar collapsed state */
+.sidebar-collapsed .sidebar {
+    width: var(--sidebar-collapsed);
+}
+
+.sidebar-collapsed .main-content,
+.sidebar-collapsed .top-navbar {
+    margin-left: var(--sidebar-collapsed);
+}
+
+.sidebar-collapsed .sidebar-brand h4,
+.sidebar-collapsed .sidebar-nav .nav-link span,
+.sidebar-collapsed .sidebar-nav .nav-section,
+.sidebar-collapsed .sidebar-user .user-info {
+    display: none;
+}
+
+/* ============================================================
+   14. PAGINATION
+   ============================================================ */
+
+.pagination .page-link {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    padding: 0.5rem 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.pagination .page-link:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+/* ============================================================
+   15. PROGRESS BAR
+   ============================================================ */
+
+.progress {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-xl);
+    height: 8px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: var(--radius-xl);
+    transition: width var(--transition-slow);
+}
+
+/* ============================================================
+   16. ALERT / TOAST STYLES
+   ============================================================ */
+
+/* Custom alert styling for dark theme */
+.alert-custom {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) var(--space-lg);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.alert-custom.alert-success { border-left: 4px solid var(--success); }
+.alert-custom.alert-danger { border-left: 4px solid var(--danger); }
+.alert-custom.alert-warning { border-left: 4px solid var(--warning); }
+.alert-custom.alert-info { border-left: 4px solid var(--info); }
+
+/* ============================================================
+   17. AVATAR COMPONENT
+   ============================================================ */
+
+/* User avatar styles */
+.avatar {
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    border: 2px solid var(--border-color);
+}
+
+.avatar-sm { width: 32px; height: 32px; }
+.avatar-md { width: 48px; height: 48px; }
+.avatar-lg { width: 64px; height: 64px; }
+.avatar-xl { width: 96px; height: 96px; }
+.avatar-xxl { width: 128px; height: 128px; }
+
+/* Avatar placeholder (initials) */
+.avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    font-weight: 700;
+}
+
+/* ============================================================
+   18. MODAL OVERRIDE
+   ============================================================ */
+
+.modal-content {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--space-lg);
+}
+
+.modal-body {
+    padding: var(--space-lg);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: var(--space-md) var(--space-lg);
+}
+
+.btn-close {
+    filter: invert(1);
+}
+
+/* ============================================================
+   19. DROPDOWN OVERRIDE
+   ============================================================ */
+
+.dropdown-menu {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-sm);
+}
+
+.dropdown-item {
+    color: var(--text-secondary);
+    padding: 0.5rem var(--space-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    transition: all var(--transition-fast);
+}
+
+.dropdown-item:hover {
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--primary);
+}
+
+.dropdown-divider {
+    border-color: var(--border-color);
+}
+
+/* ============================================================
+   20. ANIMATIONS & KEYFRAMES
+   ============================================================ */
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Pulse glow animation */
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 5px var(--primary-glow); }
+    50% { box-shadow: 0 0 20px var(--primary-glow); }
+}
+
+/* Float animation (subtle up-down) */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Spin animation for loading */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Animation utility classes */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-slide-left {
+    animation: slideInLeft 0.5s ease forwards;
+}
+
+.animate-slide-right {
+    animation: slideInRight 0.5s ease forwards;
+}
+
+/* Staggered animation delays for list items */
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+.animate-delay-5 { animation-delay: 0.5s; }
+
+/* ============================================================
+   21. UTILITY CLASSES
+   ============================================================ */
+
+/* Gradient text */
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Gradient border effect */
+.gradient-border {
+    position: relative;
+    border: none;
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary);
+    border-radius: var(--radius-xl);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-light);
+}
+
+/* Selection highlight */
+::selection {
+    background: var(--primary);
+    color: white;
+}
+
+/* Loading spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary);
+    border-radius: var(--radius-full);
+    animation: spin 0.8s linear infinite;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: var(--space-3xl) var(--space-xl);
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: var(--space-md);
+    opacity: 0.3;
+}
+
+.empty-state h5 {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-sm);
+}
+
+/* Notification dot */
+.notification-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    display: inline-block;
+}
+
+/* Truncate text with ellipsis */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

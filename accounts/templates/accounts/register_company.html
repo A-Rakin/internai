@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Register Company - InternAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-illustration">
+        <div class="auth-illustration-content">
+            <h2>Find Top Talents</h2>
+            <p>Post internships and let our AI models screen, match, and rank applicants for you.</p>
+        </div>
+    </div>
+    <div class="auth-form-panel">
+        <div class="auth-form-card">
+            <div class="auth-logo">
+                <h3>Company Registration</h3>
+                <p>Hire the best interns for your team</p>
+            </div>
+            
+            <form method="post" action="{% url 'accounts:register_company' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="auth-form-group">
+                    <label for="company_name">Company Name</label>
+                    <input type="text" id="company_name" name="company_name" class="form-control" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="email">HR/Contact Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="industry">Industry</label>
+                    <select id="industry" name="industry" class="form-select" required>
+                        <option value="">Select industry</option>
+                        <option value="technology">Technology</option>
+                        <option value="finance">Finance</option>
+                        <option value="healthcare">Healthcare</option>
+                    </select>
+                </div>
+                <div class="auth-form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="auth-submit-btn">Register Company</button>
+            </form>
+            <div class="auth-footer">
+                Already have an account? <a href="{% url 'accounts:login' %}">Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

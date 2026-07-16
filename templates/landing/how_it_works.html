@@ -1,0 +1,40 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}How It Works{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}">{% endblock %}
+{% block content %}
+{% include 'components/navbar.html' %}
+<!-- Page Header with breadcrumb navigation -->
+<div class="page-header">
+    <div class="container">
+        <h1>How <span class="gradient-text">InternAI</span> Works</h1>
+        <p>A simple 4-step process for each user role to get started</p>
+    </div>
+</div>
+<!-- Student Workflow -->
+<section style="padding: 4rem 0;">
+    <div class="container">
+        <div class="section-header animate-on-scroll">
+            <span class="section-subtitle"><i class="fas fa-user-graduate me-2"></i>For Students</span>
+            <h2 class="section-title">Your Internship Journey</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6 animate-on-scroll"><div class="step-card"><div class="step-number">1</div><h5>Register & Profile</h5><p style="color:var(--text-muted);font-size:var(--fs-sm);">Create your account, fill in academic details, upload your resume, and add skills to your profile.</p></div></div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll"><div class="step-card"><div class="step-number">2</div><h5>Browse & Apply</h5><p style="color:var(--text-muted);font-size:var(--fs-sm);">Search internship listings, filter by skills and location, and submit applications with cover letters.</p></div></div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll"><div class="step-card"><div class="step-number">3</div><h5>Interview & Accept</h5><p style="color:var(--text-muted);font-size:var(--fs-sm);">Attend scheduled interviews, receive offers from companies, and accept your preferred internship.</p></div></div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll"><div class="step-card"><div class="step-number">4</div><h5>Report & Evaluate</h5><p style="color:var(--text-muted);font-size:var(--fs-sm);">Submit weekly reports, receive supervisor feedback, and complete your internship successfully.</p></div></div>
+        </div>
+        <!-- Company Workflow -->
+        <div class="section-header animate-on-scroll mt-5 pt-5">
+            <span class="section-subtitle"><i class="fas fa-building me-2"></i>For Companies</span>
+            <h2 class="section-title">Recruitment Made Easy</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6 animate-on-scroll"><div class="step-card"><div class="step-number">1</div><h5>Register Company</h5><p style="color:var(--text-muted);font-size:var(--fs-sm);">Create your company account, add organization details, and verify your profile.</p></div></div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll"><div class="step-card"><div class="step-number">2</div><h5>Post Internships</h5><p style="color:var(--text-muted);font-size:var(--fs-sm);">Create detailed internship listings with requirements, skills needed, and compensation details.</p></div></div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll"><div class="step-card"><div class="step-number">3</div><h5>Review & Interview</h5><p style="color:var(--text-muted);font-size:var(--fs-sm);">Use AI to rank candidates, review applications, schedule interviews, and select the best fit.</p></div></div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll"><div class="step-card"><div class="step-number">4</div><h5>Manage Interns</h5><p style="color:var(--text-muted);font-size:var(--fs-sm);">Track intern performance, communicate with supervisors, and provide final evaluations.</p></div></div>
+        </div>
+    </div>
+</section>
+{% include 'components/footer.html' %}
+{% endblock %}

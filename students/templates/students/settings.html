@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Account Settings{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar"><h4 class="page-title">Account Settings</h4></div>
+    
+    <div class="card mt-4"><div class="card-body">
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Change Password</label>
+                <input type="password" class="form-control" placeholder="Current Password" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" class="form-control" placeholder="New Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary-custom">Update Account</button>
+        </form>
+    </div></div>
+</div>
+{% endblock %}

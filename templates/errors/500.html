@@ -1,0 +1,12 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}Server Error{% endblock %}
+{% block content %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;">
+    <div>
+        <h1 style="font-size:6rem;font-weight:800;color:var(--danger);">500</h1>
+        <h3 class="mb-3">Server Error</h3>
+        <p style="color:var(--text-muted);max-width:400px;margin:0 auto var(--space-xl);">Something went wrong on our end. Please try again later.</p>
+        <a href="/" class="btn btn-primary-custom"><i class="fas fa-home me-2"></i>Go Home</a>
+    </div>
+</div>
+{% endblock %}

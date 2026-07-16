@@ -1,0 +1,30 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}Privacy Policy{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}">{% endblock %}
+{% block content %}
+{% include 'components/navbar.html' %}
+<div class="page-header"><div class="container"><h1>Privacy <span class="gradient-text">Policy</span></h1><p>Last updated: January 2024</p></div></div>
+<section style="padding: 4rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card"><div class="card-body p-4" style="line-height:1.8;">
+                    <h4 class="mb-3">1. Information We Collect</h4>
+                    <p style="color:var(--text-secondary);">We collect information you provide directly, including your name, email address, academic details, professional information, and uploaded documents such as resumes and certificates.</p>
+                    <h4 class="mb-3 mt-4">2. How We Use Your Information</h4>
+                    <p style="color:var(--text-secondary);">Your information is used to provide and improve our internship management services, match students with relevant opportunities, facilitate communication between users, and send important notifications.</p>
+                    <h4 class="mb-3 mt-4">3. Data Security</h4>
+                    <p style="color:var(--text-secondary);">We implement industry-standard security measures to protect your personal data, including encryption, secure authentication, and regular security audits.</p>
+                    <h4 class="mb-3 mt-4">4. Data Sharing</h4>
+                    <p style="color:var(--text-secondary);">We do not sell your personal data. Your information may be shared with companies you apply to and supervisors assigned to your internship, as necessary for the internship management process.</p>
+                    <h4 class="mb-3 mt-4">5. Your Rights</h4>
+                    <p style="color:var(--text-secondary);">You have the right to access, update, or delete your personal information at any time through your account settings. You can also contact us to exercise your data protection rights.</p>
+                    <h4 class="mb-3 mt-4">6. Contact</h4>
+                    <p style="color:var(--text-secondary);">For privacy-related questions, contact us at <a href="mailto:privacy@internai.com">privacy@internai.com</a>.</p>
+                </div></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% include 'components/footer.html' %}
+{% endblock %}

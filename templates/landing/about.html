@@ -1,0 +1,76 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}About Us{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}">{% endblock %}
+{% block content %}
+{% include 'components/navbar.html' %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="animate-on-scroll">About <span class="gradient-text">InternAI</span></h1>
+        <p class="animate-on-scroll">Empowering the future of internship management with artificial intelligence</p>
+        <div class="breadcrumb-custom animate-on-scroll">
+            <a href="{% url 'landing:home' %}">Home</a>
+            <span class="separator"><i class="fas fa-chevron-right"></i></span>
+            <span>About</span>
+        </div>
+    </div>
+</div>
+<!-- Mission Section -->
+<section class="about-section">
+    <div class="container">
+        <div class="row g-4 mb-5">
+            <div class="col-lg-6 animate-on-scroll">
+                <span class="section-subtitle">Our Mission</span>
+                <h2 style="font-size: var(--fs-2xl); font-weight: 700;">Bridging the Gap Between Academia and Industry</h2>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    InternAI was built to solve the challenges students, companies, and academic supervisors
+                    face during the internship process. Our AI-powered platform streamlines every step — from
+                    finding the right opportunity to submitting final evaluations.
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    We believe that internships are the foundation of professional growth, and managing them
+                    shouldn't be a burden. InternAI automates the tedious parts so everyone can focus on what
+                    matters — learning, mentoring, and building careers.
+                </p>
+            </div>
+            <div class="col-lg-6 animate-on-scroll">
+                <div class="row g-3">
+                    <!-- Value Card 1 -->
+                    <div class="col-6">
+                        <div class="about-card">
+                            <div class="icon"><i class="fas fa-lightbulb"></i></div>
+                            <h5>Innovation</h5>
+                            <p style="color: var(--text-muted); font-size: var(--fs-sm);">AI-driven solutions for modern internship challenges</p>
+                        </div>
+                    </div>
+                    <!-- Value Card 2 -->
+                    <div class="col-6">
+                        <div class="about-card">
+                            <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                            <h5>Security</h5>
+                            <p style="color: var(--text-muted); font-size: var(--fs-sm);">Enterprise-grade security for all user data</p>
+                        </div>
+                    </div>
+                    <!-- Value Card 3 -->
+                    <div class="col-6">
+                        <div class="about-card">
+                            <div class="icon"><i class="fas fa-handshake"></i></div>
+                            <h5>Collaboration</h5>
+                            <p style="color: var(--text-muted); font-size: var(--fs-sm);">Connecting students, companies, and supervisors</p>
+                        </div>
+                    </div>
+                    <!-- Value Card 4 -->
+                    <div class="col-6">
+                        <div class="about-card">
+                            <div class="icon"><i class="fas fa-chart-pie"></i></div>
+                            <h5>Analytics</h5>
+                            <p style="color: var(--text-muted); font-size: var(--fs-sm);">Data-driven insights for better decisions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% include 'components/footer.html' %}
+{% endblock %}

@@ -1,0 +1,37 @@
+# ============================================================
+# InternAI - Git Ignore Rules
+# ============================================================
+
+# Python bytecode files - generated automatically when Python runs
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment directories
+venv/
+env/
+.env
+
+# Django specific
+*.sqlite3
+db.sqlite3
+media/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Static files collected by Django (production)
+staticfiles/
+
+# Migration files (optional - remove this line if you want to track migrations)
+# */migrations/
+
+# Log files
+*.log

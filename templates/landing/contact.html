@@ -1,0 +1,37 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}Contact Us{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}">{% endblock %}
+{% block content %}
+{% include 'components/navbar.html' %}
+<div class="page-header"><div class="container"><h1>Get In <span class="gradient-text">Touch</span></h1><p>Have questions or feedback? We would love to hear from you.</p></div></div>
+<section class="contact-section">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Contact Form -->
+            <div class="col-lg-7 animate-on-scroll">
+                <div class="card"><div class="card-body p-4">
+                    <h4 class="mb-4">Send us a Message</h4>
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label">Full Name</label><input type="text" class="form-control" placeholder="Your name" required></div>
+                            <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" placeholder="your@email.com" required></div>
+                            <div class="col-12"><label class="form-label">Subject</label><input type="text" class="form-control" placeholder="How can we help?" required></div>
+                            <div class="col-12"><label class="form-label">Message</label><textarea class="form-control" rows="5" placeholder="Write your message here..." required></textarea></div>
+                            <div class="col-12"><button type="submit" class="btn btn-primary-custom"><i class="fas fa-paper-plane me-2"></i>Send Message</button></div>
+                        </div>
+                    </form>
+                </div></div>
+            </div>
+            <!-- Contact Info -->
+            <div class="col-lg-5 animate-on-scroll">
+                <div class="contact-info-card"><div class="icon"><i class="fas fa-envelope"></i></div><div><h6 style="margin-bottom:4px;font-weight:600;">Email</h6><p style="color:var(--text-muted);font-size:var(--fs-sm);margin:0;">support@internai.com</p></div></div>
+                <div class="contact-info-card"><div class="icon"><i class="fas fa-phone"></i></div><div><h6 style="margin-bottom:4px;font-weight:600;">Phone</h6><p style="color:var(--text-muted);font-size:var(--fs-sm);margin:0;">+880 1234 567 890</p></div></div>
+                <div class="contact-info-card"><div class="icon"><i class="fas fa-map-marker-alt"></i></div><div><h6 style="margin-bottom:4px;font-weight:600;">Address</h6><p style="color:var(--text-muted);font-size:var(--fs-sm);margin:0;">Dhaka, Bangladesh</p></div></div>
+                <div class="contact-info-card"><div class="icon"><i class="fas fa-clock"></i></div><div><h6 style="margin-bottom:4px;font-weight:600;">Business Hours</h6><p style="color:var(--text-muted);font-size:var(--fs-sm);margin:0;">Sun - Thu: 9:00 AM - 6:00 PM</p></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% include 'components/footer.html' %}
+{% endblock %}

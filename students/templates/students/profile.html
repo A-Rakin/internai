@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Profile{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar">
+        <h4 class="page-title">My Profile</h4>
+        <a href="{% url 'students:profile_edit' pk=1 %}" class="btn-primary-custom"><i class="fas fa-edit"></i> Edit Profile</a>
+    </div>
+    
+    <div class="row g-4 mt-3">
+        <div class="col-lg-4">
+            <div class="profile-card">
+                <div class="profile-banner"></div>
+                <div class="profile-avatar-wrapper">
+                    <div class="avatar-placeholder m-auto" style="width:100px;height:100px;font-size:2.5rem;">{{ user.email.0|upper }}</div>
+                    <h5 class="mt-3">{{ user.get_full_name|default:user.email }}</h5>
+                    <p class="text-muted">Student</p>
+                </div>
+                <div class="profile-completion">
+                    <div class="progress-label"><span>Profile Completion</span><span>85%</span></div>
+                    <div class="progress"><div class="progress-bar" style="width: 85%;"></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><h5>Academic Info</h5></div>
+                <div class="card-body">
+                    <p><strong>University:</strong> {{ profile.university|default:"Dhaka University" }}</p>
+                    <p><strong>Department:</strong> {{ profile.department|default:"Computer Science" }}</p>
+                    <p><strong>CGPA:</strong> 3.90</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h5>Technical Skills</h5></div>
+                <div class="card-body">
+                    <div class="skills-container">
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">Django</span>
+                        <span class="skill-tag">HTML5</span>
+                        <span class="skill-tag">CSS3</span>
+                        <span class="skill-tag">JavaScript</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

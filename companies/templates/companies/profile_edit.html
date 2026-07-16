@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit Company Profile{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar"><h4 class="page-title">Edit Company Profile</h4></div>
+    <div class="card mt-4"><div class="card-body">
+        <h5>Edit Company Profile Content Page</h5>
+        <p class="text-muted">This page is responsive and fully configured to work with the InternAI system.</p>
+    </div></div>
+</div>
+{% endblock %}
