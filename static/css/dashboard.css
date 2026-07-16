@@ -168,7 +168,8 @@
 /* Activity content */
 .activity-content {
     flex: 1;
-    min-width: 0;               /* Allow text truncation */
+    min-width: 0;
+    /* Allow text truncation */
 }
 
 .activity-content .activity-text {
@@ -561,10 +562,8 @@
     width: 120px;
     height: 120px;
     border-radius: var(--radius-full);
-    background: conic-gradient(
-        var(--primary) calc(var(--score) * 3.6deg),
-        var(--bg-input) calc(var(--score) * 3.6deg)
-    );
+    background: conic-gradient(var(--primary) calc(var(--score) * 3.6deg),
+            var(--bg-input) calc(var(--score) * 3.6deg));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -750,6 +749,7 @@
 .score-input input[type="range"] {
     flex: 1;
     -webkit-appearance: none;
+    appearance: none;
     height: 6px;
     border-radius: var(--radius-xl);
     background: var(--bg-input);
@@ -758,6 +758,7 @@
 
 .score-input input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     width: 20px;
     height: 20px;
     border-radius: var(--radius-full);
