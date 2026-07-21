@@ -10,14 +10,17 @@
     <div class="top-navbar">
         <h4 class="page-title">Student Dashboard</h4>
         <div class="navbar-actions">
-            <button class="navbar-icon-btn"><i class="fas fa-bell"></i><span class="badge-count">3</span></button>
+            <a href="{% url 'notifications:list' %}" class="navbar-icon-btn text-decoration-none">
+                <i class="fas fa-bell"></i>
+                {% if unread_notifications_count > 0 %}<span class="badge-count">{{ unread_notifications_count }}</span>{% endif %}
+            </a>
         </div>
     </div>
     
     <div class="dashboard-header mt-4">
         <div class="greeting">
             <h2>Welcome Back, {{ user.get_full_name|default:"Student" }}!</h2>
-            <p>Here is your current internship progress and updates.</p>
+            <p>Track your internship applications, interview schedules, and weekly performance.</p>
         </div>
     </div>
     
@@ -25,59 +28,91 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon gradient-primary"><i class="fas fa-file-alt"></i></div>
-            <div class="stat-content"><h3>5</h3><p>Total Applications</p></div>
+            <div class="stat-content"><h3>{{ app_stats.total }}</h3><p>Total Applications</p></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon gradient-warning"><i class="fas fa-clock"></i></div>
-            <div class="stat-content"><h3>2</h3><p>Pending Reviews</p></div>
+            <div class="stat-content"><h3>{{ app_stats.pending }}</h3><p>Pending Reviews</p></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon gradient-success"><i class="fas fa-check-circle"></i></div>
-            <div class="stat-content"><h3>1</h3><p>Offers Extended</p></div>
+            <div class="stat-content"><h3>{{ app_stats.accepted }}</h3><p>Offers / Accepted</p></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon gradient-info"><i class="fas fa-calendar-check"></i></div>
-            <div class="stat-content"><h3>1</h3><p>Interviews Scheduled</p></div>
+            <div class="stat-content"><h3>{{ app_stats.interview }}</h3><p>Interviews Scheduled</p></div>
         </div>
     </div>
     
     <!-- Content Layout -->
-    <div class="row g-4">
+    <div class="row g-4 mt-2">
         <div class="col-lg-8">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h5>Monthly Applications Trend</h5>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-paper-plane me-2"></i>Recent Applications</h5>
+                    <a href="{% url 'students:applications' %}" class="btn btn-sm btn-outline-primary">View All</a>
                 </div>
-                <div class="chart-container">
-                    <canvas id="applicationTrendCanvas"></canvas>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Internship Title</th>
+                                    <th>Company</th>
+                                    <th>Status</th>
+                                    <th>Applied Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in recent_applications %}
+                                <tr>
+                                    <td><strong>{{ app.internship.title }}</strong></td>
+                                    <td>{{ app.internship.company.company_name }}</td>
+                                    <td><span class="badge bg-{{ app.status_color }}">{{ app.get_status_display }}</span></td>
+                                    <td>{{ app.applied_at|date:"M d, Y" }}</td>
+                                    <td><a href="{% url 'students:application_detail' app.pk %}" class="btn btn-sm btn-info text-white">View</a></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">No applications submitted yet. <a href="{% url 'internships:browse' %}">Browse internships</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
+
         <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-header"><h5>Upcoming Deadlines</h5></div>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Upcoming Interviews</h5></div>
                 <div class="card-body">
-                    <div class="deadline-list">
-                        <div class="deadline-item">
-                            <div class="deadline-date"><div class="day">20</div><div class="month">Jul</div></div>
-                            <div class="deadline-info"><h6>Weekly Report 3</h6><p>Required by supervisor</p></div>
-                        </div>
-                        <div class="deadline-item">
-                            <div class="deadline-date"><div class="day">25</div><div class="month">Jul</div></div>
-                            <div class="deadline-info"><h6>Interview call</h6><p>Google Hangout link</p></div>
-                        </div>
+                    {% for interview in upcoming_interviews %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="fw-bold">{{ interview.application.internship.title }}</div>
+                        <div class="text-muted small"><i class="fas fa-clock me-1"></i>{{ interview.scheduled_at|date:"M d, Y @ h:i A" }}</div>
+                        <div class="badge bg-info mt-1">{{ interview.get_mode_display }}</div>
+                        {% if interview.meeting_link %}<a href="{{ interview.meeting_link }}" target="_blank" class="btn btn-sm btn-success ms-2 py-0 px-2">Join</a>{% endif %}
                     </div>
+                    {% empty %}
+                    <p class="text-muted small my-3 text-center">No upcoming interviews scheduled.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Profile Strength</h5></div>
+                <div class="card-body text-center">
+                    <div class="display-6 fw-bold text-primary mb-2">{{ profile.profile_completion }}%</div>
+                    <div class="progress mb-3" style="height: 10px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ profile.profile_completion }}%;"></div>
+                    </div>
+                    <a href="{% url 'students:profile_edit' profile.pk %}" class="btn btn-sm btn-outline-secondary w-100">Complete Profile</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-{% block extra_js %}
-<script src="{% static 'js/charts.js' %}"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        initApplicationTrendChart("applicationTrendCanvas", ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], [1, 2, 4, 3, 5, 2]);
-    });
-</script>
 {% endblock %}

@@ -80,6 +80,10 @@ urlpatterns = [
     # ----- Administration -----
     # Admin portal at /administration/
     path('administration/', include('administration.urls', namespace='administration')),
+
+    # ----- Billing & Stripe Payments -----
+    # Stripe payment checkout at /billing/
+    path('billing/', include('billing.urls', namespace='billing')),
 ]
 
 # ============================================================

@@ -1,16 +1,60 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Schedule New Interview{% endblock %}
+{% block title %}Schedule Interview{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Schedule New Interview</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Schedule New Interview Content Page</h5>
-        <p class="text-muted">This page is responsive and fully configured to work with the InternAI system.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Schedule Interview</h4>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Interview for: {{ application.student.user.get_full_name|default:application.student.user.email }} — {{ application.internship.title }}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Interview Type</label>
+                        {{ form.interview_type }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Mode</label>
+                        {{ form.mode }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Scheduled Date & Time</label>
+                        {{ form.scheduled_at }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Duration (Minutes)</label>
+                        {{ form.duration_minutes }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Meeting Link (Google Meet / Zoom)</label>
+                        {{ form.meeting_link }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Location (if On-site)</label>
+                        {{ form.location }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Interviewer Name</label>
+                        {{ form.interviewer_name }}
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-calendar-check me-2"></i>Schedule & Notify Student</button>
+                    <a href="{% url 'companies:applicant_detail' application.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

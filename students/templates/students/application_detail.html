@@ -7,26 +7,57 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Application Detail</h4></div>
-    
-    <div class="card mt-4">
-        <div class="card-header"><h5>Application Status Pipeline</h5></div>
-        <div class="card-body">
-            <div class="pipeline">
-                <div class="pipeline-step completed"><div class="step-dot"></div><div class="step-label">Applied</div></div>
-                <div class="pipeline-connector completed"></div>
-                <div class="pipeline-step active"><div class="step-dot"></div><div class="step-label">Reviewing</div></div>
-                <div class="pipeline-connector"></div>
-                <div class="pipeline-step"><div class="step-dot"></div><div class="step-label">Assessment</div></div>
-                <div class="pipeline-connector"></div>
-                <div class="pipeline-step"><div class="step-dot"></div><div class="step-label">Offer</div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Application Detail</h4>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ application.internship.title }}</h5>
+                    <span class="badge bg-{{ application.status_color }} fs-6">{{ application.get_status_display }}</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3"><i class="fas fa-building me-1"></i>{{ application.internship.company.company_name }} | <i class="fas fa-map-marker-alt me-1"></i>{{ application.internship.location|default:"Remote" }}</p>
+                    <hr>
+                    <h6>Cover Letter</h6>
+                    <p class="bg-light p-3 rounded text-muted">{{ application.cover_letter|default:"No cover letter attached." }}</p>
+                    {% if application.resume %}
+                    <h6>Resume Attached</h6>
+                    <a href="{{ application.resume.url }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-download me-1"></i>Download Resume</a>
+                    {% endif %}
+                </div>
             </div>
-            
-            <div class="mt-4">
-                <p><strong>Position:</strong> Backend Developer Intern</p>
-                <p><strong>Company:</strong> Google LLC</p>
-                <p><strong>Applied Date:</strong> Jul 10, 2026</p>
-                <p><strong>Cover Letter Notes:</strong> Highly motivated student looking to work in Python/Django development environments.</p>
+
+            {% if interviews %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Scheduled Interviews</h5></div>
+                <div class="card-body">
+                    {% for interview in interviews %}
+                    <div class="border p-3 rounded mb-2">
+                        <div class="d-flex justify-content-between">
+                            <h6>{{ interview.get_interview_type_display }}</h6>
+                            <span class="badge bg-info">{{ interview.get_outcome_display }}</span>
+                        </div>
+                        <p class="mb-1 text-muted"><i class="fas fa-clock me-1"></i>{{ interview.scheduled_at|date:"M d, Y @ h:i A" }} ({{ interview.duration_minutes }} mins)</p>
+                        {% if interview.meeting_link %}<a href="{{ interview.meeting_link }}" target="_blank" class="btn btn-sm btn-success mt-2">Join Meeting</a>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0">Internship Summary</h5></div>
+                <div class="card-body">
+                    <p><strong>Stipend:</strong> {{ application.internship.stipend|default:"Unpaid" }} BDT/mo</p>
+                    <p><strong>Duration:</strong> {{ application.internship.duration }}</p>
+                    <p><strong>Applied On:</strong> {{ application.applied_at|date:"M d, Y" }}</p>
+                    <a href="{% url 'internships:detail' application.internship.pk %}" class="btn btn-sm btn-outline-primary w-100 mt-2">View Internship Listing</a>
+                </div>
             </div>
         </div>
     </div>

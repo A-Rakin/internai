@@ -1,16 +1,73 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Edit Internship Listing{% endblock %}
+{% block title %}Edit Internship{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Edit Internship Listing</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Edit Internship Listing Content Page</h5>
-        <p class="text-muted">This page is responsive and fully configured to work with the InternAI system.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Edit Internship Listing</h4>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Internship Title</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Role Description</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Requirements</label>
+                        {{ form.requirements }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Skills Required (comma-separated)</label>
+                        {{ form.skills_required }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Type</label>
+                        {{ form.internship_type }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Location</label>
+                        {{ form.location }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Duration</label>
+                        {{ form.duration }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Monthly Stipend (BDT)</label>
+                        {{ form.stipend }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Positions Available</label>
+                        {{ form.positions }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Application Deadline</label>
+                        {{ form.deadline }}
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Changes</button>
+                    <a href="{% url 'companies:internship_list' %}" class="btn btn-secondary ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

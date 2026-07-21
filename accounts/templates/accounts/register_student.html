@@ -10,39 +10,80 @@
         <div class="auth-illustration-content">
             <h2>Start Your Career Today</h2>
             <p>Fill out the profile builder and search hundreds of relevant internships.</p>
+            <ul class="auth-features animate-fade-in animate-delay-1">
+                <li><i class="fas fa-check-circle"></i> Browse and apply to internships</li>
+                <li><i class="fas fa-check-circle"></i> Track application status in real-time</li>
+                <li><i class="fas fa-check-circle"></i> Submit weekly reports to your supervisor</li>
+            </ul>
         </div>
     </div>
     <div class="auth-form-panel">
         <div class="auth-form-card">
             <div class="auth-logo">
-                <h3>Student Registration</h3>
+                <h3><i class="fas fa-user-graduate me-2"></i>Student Registration</h3>
                 <p>Build your career path with InternAI</p>
             </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
             
             <form method="post" action="{% url 'accounts:register_student' %}" class="needs-validation" novalidate>
                 {% csrf_token %}
-                <div class="auth-form-group">
-                    <label for="first_name">First Name</label>
-                    <input type="text" id="first_name" name="first_name" class="form-control" required>
-                </div>
-                <div class="auth-form-group">
-                    <label for="last_name">Last Name</label>
-                    <input type="text" id="last_name" name="last_name" class="form-control" required>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="auth-form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" id="first_name" name="first_name" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" placeholder="First name" required>
+                            {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="auth-form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" placeholder="Last name" required>
+                            {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
                 </div>
                 <div class="auth-form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
+                    <input type="email" id="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" placeholder="your.email@example.com" required>
+                    {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>{% endif %}
                 </div>
                 <div class="auth-form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" name="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" placeholder="Minimum 8 characters" required>
+                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                    </div>
+                    {% if form.password.errors %}<div class="invalid-feedback d-block">{{ form.password.errors.0 }}</div>{% endif %}
                 </div>
-                <button type="submit" class="auth-submit-btn">Create Account</button>
+                <div class="auth-form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control {% if form.confirm_password.errors %}is-invalid{% endif %}" placeholder="Re-enter your password" required>
+                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                    </div>
+                    {% if form.confirm_password.errors %}<div class="invalid-feedback d-block">{{ form.confirm_password.errors.0 }}</div>{% endif %}
+                </div>
+                <button type="submit" class="auth-submit-btn">Create Student Account</button>
             </form>
             <div class="auth-footer">
-                Already have an account? <a href="{% url 'accounts:login' %}">Login</a>
+                Already have an account? <a href="{% url 'accounts:login' %}">Login</a><br>
+                Register as <a href="{% url 'accounts:register_company' %}">Company</a> | 
+                <a href="{% url 'accounts:register_supervisor' %}">Supervisor</a>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/forms.js' %}"></script>
 {% endblock %}

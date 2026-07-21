@@ -7,29 +7,51 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Submit Report</h4></div>
-    
-    <div class="card mt-4"><div class="card-body">
-        <form method="post" class="needs-validation" novalidate>
-            {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label">Week Number</label>
-                <input type="number" class="form-control" required placeholder="e.g. 3">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Report Title</label>
-                <input type="text" class="form-control" required placeholder="e.g. Backend API Optimization">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Activities Completed</label>
-                <textarea class="form-control" rows="5" required placeholder="Describe what you worked on this week..."></textarea>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Challenges Faced</label>
-                <textarea class="form-control" rows="3" placeholder="Any issues or blockages..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary-custom">Submit Report</button>
-        </form>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Submit Weekly Report</h4>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Internship</label>
+                        {{ form.internship }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Week Number</label>
+                        {{ form.week_number }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Hours Worked</label>
+                        {{ form.hours_worked }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Report Title</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Activities Completed</label>
+                        {{ form.activities }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Challenges Faced</label>
+                        {{ form.challenges }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Plan for Next Week</label>
+                        {{ form.next_week_plan }}
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-2"></i>Submit Report</button>
+                    <a href="{% url 'students:reports' %}" class="btn btn-secondary ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

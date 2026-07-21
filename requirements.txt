@@ -27,3 +27,16 @@ django-widget-tweaks>=1.5
 # python-decouple - Separate configuration from code
 # Reads settings from .env files for security
 python-decouple>=3.8
+
+# mysqlclient - MySQL database adapter for Python
+# Required for Django's MySQL database backend (via XAMPP)
+mysqlclient>=2.2
+
+# pypdf - PDF parsing library for AI resume text extraction
+pypdf>=4.0
+
+# stripe - Stripe payment gateway integration
+stripe>=8.0
+
+# groq - Groq Cloud LLM API SDK (llama-3.3-70b-versatile)
+groq>=1.5

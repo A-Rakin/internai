@@ -1,16 +1,99 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Applicant Detail{% endblock %}
+{% block title %}Applicant Review{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Applicant Detail</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Applicant Detail Content Page</h5>
-        <p class="text-muted">This page is responsive and fully configured to work with the InternAI system.</p>
-    </div></div>
+    <div class="top-navbar d-flex justify-content-between align-items-center">
+        <h4 class="page-title">Applicant Review</h4>
+        <a href="{% url 'companies:interview_schedule' application.pk %}" class="btn btn-success"><i class="fas fa-calendar-plus me-2"></i>Schedule Interview</a>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ application.student.user.get_full_name|default:application.student.user.email }}</h5>
+                    <div>
+                        {% if application.ai_match_score %}
+                        <span class="badge bg-primary fs-6 me-2"><i class="fas fa-brain me-1"></i>AI Score: {{ application.ai_match_score }}%</span>
+                        {% endif %}
+                        <span class="badge bg-{{ application.status_color }} fs-6">{{ application.get_status_display }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Applied for: <strong>{{ application.internship.title }}</strong> on {{ application.applied_at|date:"M d, Y" }}</p>
+                    <hr>
+                    <h6>Cover Letter / Statement</h6>
+                    <p class="bg-light p-3 rounded text-muted">{{ application.cover_letter|default:"No cover letter submitted." }}</p>
+
+                    {% if application.resume %}
+                    <h6 class="mt-3">Resume Document</h6>
+                    <a href="{{ application.resume.url }}" target="_blank" class="btn btn-outline-primary"><i class="fas fa-file-download me-2"></i>Download Resume PDF</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-edit me-2"></i>Update Application Pipeline</h5></div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Application Status</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Internal Recruiter Notes</label>
+                            {{ form.company_notes }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rejection Reason (if rejecting)</label>
+                            {{ form.rejection_reason }}
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Update Status & Notes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0">Student Profile Summary</h5></div>
+                <div class="card-body">
+                    <p><strong>University:</strong> {{ application.student.university|default:"N/A" }}</p>
+                    <p><strong>Department:</strong> {{ application.student.department|default:"N/A" }}</p>
+                    <p><strong>GPA:</strong> {{ application.student.gpa|default:"N/A" }}</p>
+                    <p><strong>Email:</strong> {{ application.student.user.email }}</p>
+                    <p><strong>Phone:</strong> {{ application.student.user.phone|default:"N/A" }}</p>
+                    <hr>
+                    <h6>Skills</h6>
+                    {% for skill in application.student.get_skills_list %}
+                    <span class="badge bg-secondary me-1 mb-1">{{ skill }}</span>
+                    {% empty %}
+                    <span class="text-muted small">No skills specified</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if interviews %}
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0">Interviews History</h5></div>
+                <div class="card-body">
+                    {% for interview in interviews %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="fw-bold">{{ interview.get_interview_type_display }}</div>
+                        <div class="small text-muted">{{ interview.scheduled_at|date:"M d, Y @ h:i A" }}</div>
+                        <span class="badge bg-info mt-1">{{ interview.get_outcome_display }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

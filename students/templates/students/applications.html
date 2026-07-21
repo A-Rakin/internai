@@ -7,39 +7,65 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">My Applications</h4></div>
-    
-    <div class="table-wrapper mt-4">
-        <div class="table-toolbar">
-            <h5>Applications Status</h5>
+    <div class="top-navbar d-flex justify-content-between align-items-center">
+        <h4 class="page-title">My Applications</h4>
+        <a href="{% url 'internships:browse' %}" class="btn btn-primary"><i class="fas fa-search me-2"></i>Find Internships</a>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if not status_filter %}active{% endif %}" href="{% url 'students:applications' %}">All</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status_filter == 'pending' %}active{% endif %}" href="?status=pending">Pending</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status_filter == 'interview' %}active{% endif %}" href="?status=interview">Interview</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status_filter == 'accepted' %}active{% endif %}" href="?status=accepted">Accepted</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status_filter == 'rejected' %}active{% endif %}" href="?status=rejected">Rejected</a>
+                </li>
+            </ul>
         </div>
-        <table class="table-dark-custom">
-            <thead>
-                <tr>
-                    <th>Internship</th>
-                    <th>Company</th>
-                    <th>Date Applied</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Backend Developer Intern</td>
-                    <td>Google LLC</td>
-                    <td>Jul 10, 2026</td>
-                    <td><span class="badge-status badge-reviewing">Under Review</span></td>
-                    <td><a href="{% url 'students:application_detail' pk=1 %}" class="btn-primary-custom" style="padding:0.25rem 0.5rem; font-size:var(--fs-xs);">View Detail</a></td>
-                </tr>
-                <tr>
-                    <td>Frontend Developer Intern</td>
-                    <td>Microsoft Corp</td>
-                    <td>Jul 08, 2026</td>
-                    <td><span class="badge-status badge-accepted">Offer Extended</span></td>
-                    <td><a href="{% url 'students:application_detail' pk=2 %}" class="btn-primary-custom" style="padding:0.25rem 0.5rem; font-size:var(--fs-xs);">View Detail</a></td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Internship</th>
+                            <th>Company</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td><strong>{{ app.internship.title }}</strong></td>
+                            <td>{{ app.internship.company.company_name }}</td>
+                            <td><span class="badge bg-secondary">{{ app.internship.get_internship_type_display }}</span></td>
+                            <td><span class="badge bg-{{ app.status_color }}">{{ app.get_status_display }}</span></td>
+                            <td>{{ app.applied_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'students:application_detail' app.pk %}" class="btn btn-sm btn-outline-primary">Details</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No applications found in this section.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

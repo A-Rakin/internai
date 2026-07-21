@@ -7,10 +7,71 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">User Management</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>User Management Portal</h5>
-        <p class="text-muted">System administration panel for database oversight, account checks, configurations, and moderation.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">User Account Management</h4>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <input type="text" name="q" class="form-control form-control-sm" placeholder="Search by name or email..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="role" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Roles</option>
+                        <option value="student" {% if role_filter == 'student' %}selected{% endif %}>Student</option>
+                        <option value="company" {% if role_filter == 'company' %}selected{% endif %}>Company</option>
+                        <option value="supervisor" {% if role_filter == 'supervisor' %}selected{% endif %}>Supervisor</option>
+                        <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                </div>
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>User Name / Email</th>
+                            <th>Role</th>
+                            <th>Active?</th>
+                            <th>Date Joined</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>
+                                <strong>{{ u.get_full_name|default:u.username }}</strong><br>
+                                <span class="text-muted small">{{ u.email }}</span>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ u.get_role_display }}</span></td>
+                            <td>
+                                {% if u.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger">Disabled</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ u.date_joined|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'administration:user_detail' u.pk %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit me-1"></i>Manage</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No users found matching query.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

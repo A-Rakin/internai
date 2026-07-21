@@ -7,31 +7,55 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar">
+    <div class="top-navbar d-flex justify-content-between align-items-center">
         <h4 class="page-title">Weekly Reports</h4>
-        <a href="{% url 'students:report_submit' %}" class="btn-primary-custom"><i class="fas fa-plus"></i> Submit Report</a>
+        <a href="{% url 'students:report_submit' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Submit Weekly Report</a>
     </div>
-    
-    <div class="mt-4">
-        <div class="report-card">
-            <div class="report-info">
-                <div class="report-week">2</div>
-                <div>
-                    <h6 style="margin:0;font-weight:600;">Week 2 Performance & Accomplishments</h6>
-                    <p style="margin:0;color:var(--text-muted);font-size:var(--fs-sm);">Submitted on Jul 14, 2026</p>
-                </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Week #</th>
+                            <th>Title</th>
+                            <th>Internship</th>
+                            <th>Hours</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                            <th>Submitted Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td><strong>Week {{ report.week_number }}</strong></td>
+                            <td>{{ report.title }}</td>
+                            <td>{{ report.internship.title }}</td>
+                            <td>{{ report.hours_worked }} hrs</td>
+                            <td>
+                                {% if report.status == 'approved' %}
+                                <span class="badge bg-success">Approved</span>
+                                {% elif report.status == 'submitted' %}
+                                <span class="badge bg-warning">Pending Review</span>
+                                {% elif report.status == 'rejected' %}
+                                <span class="badge bg-danger">Needs Revision</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ report.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ report.score|default:"-" }}/100</td>
+                            <td>{{ report.submitted_at|date:"M d, Y"|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No weekly reports submitted yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div><span class="badge-status badge-approved">Approved</span></div>
-        </div>
-        <div class="report-card">
-            <div class="report-info">
-                <div class="report-week">1</div>
-                <div>
-                    <h6 style="margin:0;font-weight:600;">Week 1 Overview & Setup</h6>
-                    <p style="margin:0;color:var(--text-muted);font-size:var(--fs-sm);">Submitted on Jul 07, 2026</p>
-                </div>
-            </div>
-            <div><span class="badge-status badge-approved">Approved</span></div>
         </div>
     </div>
 </div>

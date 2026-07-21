@@ -25,6 +25,14 @@
                 <h3><i class="fas fa-robot me-2"></i>InternAI</h3>
                 <p>Welcome back! Please login to your account.</p>
             </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
             
             <form method="post" action="{% url 'accounts:login' %}" class="needs-validation" novalidate>
                 {% csrf_token %}
@@ -32,16 +40,22 @@
                     <label for="email">Email Address</label>
                     <div class="input-icon-wrapper">
                         <i class="fas fa-envelope input-icon"></i>
-                        <input type="email" id="email" name="username" class="form-control" placeholder="enter your email" required>
+                        <input type="email" id="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" placeholder="enter your email" value="{{ form.email.value|default:'' }}" required>
                     </div>
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+                    {% endif %}
                 </div>
                 <div class="auth-form-group">
                     <label for="password">Password</label>
                     <div class="input-icon-wrapper">
                         <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                        <input type="password" id="password" name="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" placeholder="••••••••" required>
                         <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
                     </div>
+                    {% if form.password.errors %}
+                    <div class="invalid-feedback d-block">{{ form.password.errors.0 }}</div>
+                    {% endif %}
                 </div>
                 
                 <div class="auth-options">
@@ -55,9 +69,6 @@
                 <button type="submit" class="auth-submit-btn">Login</button>
             </form>
             
-            <div class="auth-divider">or login with</div>
-            <button class="social-btn"><i class="fab fa-google"></i> Login with Google</button>
-            
             <div class="auth-footer">
                 Don't have an account? <br>
                 Register as <a href="{% url 'accounts:register_student' %}">Student</a> | 
@@ -67,4 +78,7 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/forms.js' %}"></script>
 {% endblock %}

@@ -7,10 +7,55 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Internship Listings</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Internship Listings Content Page</h5>
-        <p class="text-muted">This page is responsive and fully configured to work with the InternAI system.</p>
-    </div></div>
+    <div class="top-navbar d-flex justify-content-between align-items-center">
+        <h4 class="page-title">Internship Listings</h4>
+        <a href="{% url 'companies:internship_create' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Post Internship</a>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Applicants</th>
+                            <th>Status</th>
+                            <th>Approved</th>
+                            <th>Deadline</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in internships %}
+                        <tr>
+                            <td><strong>{{ item.title }}</strong></td>
+                            <td><span class="badge bg-secondary">{{ item.get_internship_type_display }}</span></td>
+                            <td><span class="badge bg-primary fs-6">{{ item.application_count }}</span></td>
+                            <td><span class="badge bg-info">{{ item.get_status_display }}</span></td>
+                            <td>
+                                {% if item.is_approved %}
+                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Approved</span>
+                                {% else %}
+                                <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.deadline|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'companies:internship_edit' item.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'companies:applicants' %}?internship={{ item.pk }}" class="btn btn-sm btn-outline-primary ms-1"><i class="fas fa-users"></i> Applicants</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No internship listings created yet. <a href="{% url 'companies:internship_create' %}">Post your first listing</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

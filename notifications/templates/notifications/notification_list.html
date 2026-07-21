@@ -1,16 +1,56 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Notifications{% endblock %}
+{% block title %}Notifications Center{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Notifications</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Notifications Center</h5>
-        <p>No new notifications at this time.</p>
-    </div></div>
+    <div class="top-navbar d-flex justify-content-between align-items-center">
+        <h4 class="page-title">Notifications Center</h4>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="mark_all_read">
+            <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fas fa-check-double me-1"></i>Mark All Read</button>
+        </form>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                {% for notif in notifications %}
+                <div class="list-group-item p-3 {% if not notif.is_read %}bg-light border-start border-primary border-4{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex">
+                            <div class="me-3 fs-4 text-{{ notif.type_color }}">
+                                <i class="{{ notif.type_icon }}"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">{{ notif.title }}</h6>
+                                <p class="mb-1 text-muted small">{{ notif.message }}</p>
+                                <span class="text-muted small"><i class="fas fa-clock me-1"></i>{{ notif.created_at|timesince }} ago</span>
+                            </div>
+                        </div>
+                        <div>
+                            {% if notif.link %}
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="notification_id" value="{{ notif.pk }}">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">View Page</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-bell-slash display-4 mb-3 d-block"></i>
+                    <p>You have no notifications at this time.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

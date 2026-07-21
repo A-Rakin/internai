@@ -1,16 +1,101 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Internship Performance Evaluation{% endblock %}
+{% block title %}Student Evaluations{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Internship Performance Evaluation</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Internship Performance Evaluation Dashboard</h5>
-        <p class="text-muted">This page provides academic supervisors with student performance logs, report approvals, and evaluations.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Student Performance Evaluations</h4>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-history me-2"></i>Submitted Evaluations</h5></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Internship Role</th>
+                                    <th>Overall Score</th>
+                                    <th>Final?</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ev in evaluations %}
+                                <tr>
+                                    <td><strong>{{ ev.student.user.get_full_name|default:ev.student.user.email }}</strong></td>
+                                    <td>{{ ev.internship.title }}</td>
+                                    <td><span class="badge bg-primary fs-6">{{ ev.overall_score }}/10</span></td>
+                                    <td>{% if ev.is_final %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                                    <td>{{ ev.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">No evaluations submitted yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>New Evaluation</h5></div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Select Student</label>
+                            <select name="student_id" class="form-select" required>
+                                <option value="">Select Student</option>
+                                {% for st in students %}
+                                <option value="{{ st.pk }}">{{ st.user.get_full_name|default:st.user.email }} ({{ st.university }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Technical Competency Score (1-10)</label>
+                            {{ form.technical_score }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Communication Score (1-10)</label>
+                            {{ form.communication_score }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Professionalism Score (1-10)</label>
+                            {{ form.professionalism_score }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Attendance Score (1-10)</label>
+                            {{ form.attendance_score }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Overall Performance Score (1-10)</label>
+                            {{ form.overall_score }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Comments & Remarks</label>
+                            {{ form.comments }}
+                        </div>
+                        <div class="mb-3 form-check">
+                            {{ form.is_final }}
+                            <label class="form-check-label">Mark as Final Evaluation</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-paper-plane me-2"></i>Submit Evaluation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -7,10 +7,54 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">System Analytics</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Analytics Dashboard</h5>
-        <p class="text-muted">View platform-wide charts, performance statistics, and usage logs.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Platform Analytics & Data Insights</h4>
+    </div>
+
+    <div class="stats-grid mt-4">
+        <div class="stat-card">
+            <div class="stat-icon gradient-primary"><i class="fas fa-users"></i></div>
+            <div class="stat-content"><h3>{{ total_users }}</h3><p>Total Platform Users</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-success"><i class="fas fa-briefcase"></i></div>
+            <div class="stat-content"><h3>{{ open_positions }}</h3><p>Active Job Positions</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-warning"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-content"><h3>{{ total_applications }}</h3><p>Total Applications</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-info"><i class="fas fa-building"></i></div>
+            <div class="stat-content"><h3>{{ total_internships }}</h3><p>Total Listings Posted</p></div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Platform Engagement Trends</h5></div>
+                <div class="card-body">
+                    <canvas id="platformMetricsChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-pie-chart me-2"></i>Role Distribution</h5></div>
+                <div class="card-body">
+                    <canvas id="roleDistributionChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/charts.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        initApplicationTrendChart("platformMetricsChart", ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], [12, 19, 25, 32, 45, 60]);
+    });
+</script>
 {% endblock %}

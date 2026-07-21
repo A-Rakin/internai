@@ -7,20 +7,44 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Account Settings</h4></div>
-    
-    <div class="card mt-4"><div class="card-body">
-        <form method="post" class="needs-validation" novalidate>
-            {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label">Change Password</label>
-                <input type="password" class="form-control" placeholder="Current Password" required>
+    <div class="top-navbar">
+        <h4 class="page-title">Account Settings</h4>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>Account Information</h5></div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" name="phone" class="form-control" value="{{ user.phone|default:'' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Profile Photo</label>
+                            <input type="file" name="avatar" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Account Settings</button>
+                    </form>
+                </div>
             </div>
-            <div class="mb-3">
-                <input type="password" class="form-control" placeholder="New Password" required>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-lock me-2"></i>Security</h5></div>
+                <div class="card-body">
+                    <p class="text-muted">Want to change your account password?</p>
+                    <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-primary"><i class="fas fa-key me-2"></i>Change Password</a>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary-custom">Update Account</button>
-        </form>
-    </div></div>
+        </div>
+    </div>
 </div>
 {% endblock %}

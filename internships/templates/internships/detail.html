@@ -1,16 +1,104 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Internship Details{% endblock %}
+{% block title %}{{ internship.title }} at {{ internship.company.company_name }}{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
+{% if user.is_authenticated %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Internship Details</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Listing Specification Detail</h5>
-        <p class="text-muted">Explore requirements, skills, location, stipend details, and company details.</p>
-    </div></div>
+{% else %}
+<div class="container py-5">
+{% endif %}
+
+    <div class="row mt-3">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="text-primary mb-1">{{ internship.title }}</h3>
+                            <h5 class="text-muted"><i class="fas fa-building me-2"></i>{{ internship.company.company_name }}</h5>
+                        </div>
+                        <span class="badge bg-success fs-6">{{ internship.get_internship_type_display }}</span>
+                    </div>
+
+                    <div class="row g-3 py-3 border-top border-bottom my-3 bg-light rounded">
+                        <div class="col-6 col-md-3">
+                            <span class="text-muted small d-block">Location</span>
+                            <strong>{{ internship.location|default:"Remote" }}</strong>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <span class="text-muted small d-block">Stipend</span>
+                            <strong>{% if internship.stipend %}{{ internship.stipend }} BDT/mo{% else %}Unpaid{% endif %}</strong>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <span class="text-muted small d-block">Duration</span>
+                            <strong>{{ internship.duration }}</strong>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <span class="text-muted small d-block">Positions</span>
+                            <strong>{{ internship.positions }} open</strong>
+                        </div>
+                    </div>
+
+                    <h5 class="mt-4"><i class="fas fa-file-alt me-2"></i>Role Description</h5>
+                    <p class="text-muted" style="white-space: pre-line;">{{ internship.description }}</p>
+
+                    <h5 class="mt-4"><i class="fas fa-check-square me-2"></i>Requirements</h5>
+                    <p class="text-muted" style="white-space: pre-line;">{{ internship.requirements }}</p>
+
+                    <h5 class="mt-4"><i class="fas fa-tools me-2"></i>Required Skills</h5>
+                    <div>
+                        {% for skill in internship.get_skills_list %}
+                        <span class="badge bg-primary me-1 mb-1 fs-6">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0">Application Summary</h5></div>
+                <div class="card-body">
+                    <p><strong>Deadline:</strong> {{ internship.deadline|date:"M d, Y" }}</p>
+                    <p><strong>Posted:</strong> {{ internship.created_at|date:"M d, Y" }}</p>
+                    <p><strong>Views:</strong> {{ internship.views_count }}</p>
+                    <hr>
+                    {% if user.is_authenticated %}
+                        {% if user.is_student %}
+                            {% if has_applied %}
+                            <div class="alert alert-info text-center mb-0"><i class="fas fa-check-circle me-1"></i>You have already applied!</div>
+                            {% else %}
+                            <a href="{% url 'applications:submit' internship.pk %}" class="btn btn-success w-100 py-2 fs-5"><i class="fas fa-paper-plane me-2"></i>Apply Now</a>
+                            {% endif %}
+                        {% else %}
+                        <div class="text-muted small text-center">Only student accounts can submit applications.</div>
+                        {% endif %}
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary w-100">Login to Apply</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0">About Company</h5></div>
+                <div class="card-body">
+                    <h6>{{ internship.company.company_name }}</h6>
+                    <p class="text-muted small">{{ internship.company.description|truncatewords:30|default:"Verified employer listing on InternAI." }}</p>
+                    {% if internship.company.website %}
+                    <a href="{{ internship.company.website }}" target="_blank" class="btn btn-sm btn-outline-secondary w-100"><i class="fas fa-globe me-1"></i>Company Website</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% if user.is_authenticated %}
 </div>
+{% else %}
+</div>
+{% endif %}
 {% endblock %}

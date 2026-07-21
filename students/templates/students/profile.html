@@ -1,51 +1,68 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}My Profile{% endblock %}
+{% block title %}My Student Profile{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar">
+    <div class="top-navbar d-flex justify-content-between align-items-center">
         <h4 class="page-title">My Profile</h4>
-        <a href="{% url 'students:profile_edit' pk=1 %}" class="btn-primary-custom"><i class="fas fa-edit"></i> Edit Profile</a>
+        <a href="{% url 'students:profile_edit' profile.pk %}" class="btn btn-primary"><i class="fas fa-edit me-2"></i>Edit Profile</a>
     </div>
-    
-    <div class="row g-4 mt-3">
-        <div class="col-lg-4">
-            <div class="profile-card">
-                <div class="profile-banner"></div>
-                <div class="profile-avatar-wrapper">
-                    <div class="avatar-placeholder m-auto" style="width:100px;height:100px;font-size:2.5rem;">{{ user.email.0|upper }}</div>
-                    <h5 class="mt-3">{{ user.get_full_name|default:user.email }}</h5>
-                    <p class="text-muted">Student</p>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-4">
+                <div class="avatar-lg mx-auto mb-3">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" class="rounded-circle img-fluid" style="width: 120px; height: 120px; object-fit: cover;" alt="Avatar">
+                    {% else %}
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto" style="width: 120px; height: 120px; font-size: 2.5rem;">
+                        {{ user.email.0|upper }}
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="profile-completion">
-                    <div class="progress-label"><span>Profile Completion</span><span>85%</span></div>
-                    <div class="progress"><div class="progress-bar" style="width: 85%;"></div></div>
+                <h5>{{ user.get_full_name|default:user.email }}</h5>
+                <p class="text-muted mb-2">{{ profile.university|default:"Student" }}</p>
+                <div class="badge bg-secondary mb-3">{{ profile.get_education_level_display|default:"Undergraduate" }}</div>
+                
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    {% if profile.linkedin_url %}<a href="{{ profile.linkedin_url }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fab fa-linkedin"></i></a>{% endif %}
+                    {% if profile.github_url %}<a href="{{ profile.github_url }}" target="_blank" class="btn btn-sm btn-outline-dark"><i class="fab fa-github"></i></a>{% endif %}
+                    {% if profile.portfolio_url %}<a href="{{ profile.portfolio_url }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-globe"></i></a>{% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-lg-8">
-            <div class="card mb-4">
-                <div class="card-header"><h5>Academic Info</h5></div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-academic me-2"></i>Academic Details</h5></div>
                 <div class="card-body">
-                    <p><strong>University:</strong> {{ profile.university|default:"Dhaka University" }}</p>
-                    <p><strong>Department:</strong> {{ profile.department|default:"Computer Science" }}</p>
-                    <p><strong>CGPA:</strong> 3.90</p>
+                    <div class="row g-3">
+                        <div class="col-6"><strong>University:</strong> {{ profile.university|default:"Not specified" }}</div>
+                        <div class="col-6"><strong>Department:</strong> {{ profile.department|default:"Not specified" }}</div>
+                        <div class="col-6"><strong>Student ID:</strong> {{ profile.student_id|default:"Not specified" }}</div>
+                        <div class="col-6"><strong>GPA/CGPA:</strong> {{ profile.gpa|default:"N/A" }}</div>
+                        <div class="col-6"><strong>Semester:</strong> {{ profile.current_semester|default:"N/A" }}</div>
+                        <div class="col-6"><strong>Graduation:</strong> {{ profile.expected_graduation|date:"M Y"|default:"N/A" }}</div>
+                    </div>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header"><h5>Technical Skills</h5></div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-tools me-2"></i>Skills & Bio</h5></div>
                 <div class="card-body">
-                    <div class="skills-container">
-                        <span class="skill-tag">Python</span>
-                        <span class="skill-tag">Django</span>
-                        <span class="skill-tag">HTML5</span>
-                        <span class="skill-tag">CSS3</span>
-                        <span class="skill-tag">JavaScript</span>
-                    </div>
+                    <h6>Biography</h6>
+                    <p class="text-muted">{{ profile.bio|default:"No bio provided yet." }}</p>
+                    <hr>
+                    <h6>Technical Skills</h6>
+                    {% for skill in profile.get_skills_list %}
+                    <span class="badge bg-primary me-1 mb-1">{{ skill }}</span>
+                    {% empty %}
+                    <p class="text-muted small">No skills added yet.</p>
+                    {% endfor %}
                 </div>
             </div>
         </div>

@@ -7,10 +7,17 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">AI Candidate Ranking</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>AI Candidate Ranking Content Page</h5>
-        <p class="text-muted">This page is responsive and fully configured to work with the InternAI system.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">AI Candidate Ranking</h4>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body text-center py-5">
+            <div class="display-3 text-success mb-3"><i class="fas fa-chart-bar"></i></div>
+            <h4>Automated Candidate Ranking Engine</h4>
+            <p class="text-muted max-w-lg mx-auto" style="max-width: 600px;">Rank applicants based on multi-variable matching: technical skills overlap, education relevance, and experience criteria.</p>
+            <div class="badge bg-success p-2 mt-2">Active AI Ranking Engine</div>
+        </div>
+    </div>
 </div>
 {% endblock %}

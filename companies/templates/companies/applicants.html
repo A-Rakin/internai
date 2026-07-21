@@ -1,16 +1,66 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Job Applicants{% endblock %}
+{% block title %}Applicants Management{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Job Applicants</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Job Applicants Content Page</h5>
-        <p class="text-muted">This page is responsive and fully configured to work with the InternAI system.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Applicants Pool</h4>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="reviewing" {% if status_filter == 'reviewing' %}selected{% endif %}>Reviewing</option>
+                        <option value="interview" {% if status_filter == 'interview' %}selected{% endif %}>Interview</option>
+                        <option value="offer" {% if status_filter == 'offer' %}selected{% endif %}>Offer Extended</option>
+                        <option value="accepted" {% if status_filter == 'accepted' %}selected{% endif %}>Accepted</option>
+                        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>University</th>
+                            <th>Applied Role</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td><strong>{{ app.student.user.get_full_name|default:app.student.user.email }}</strong></td>
+                            <td>{{ app.student.university|default:"-" }}</td>
+                            <td>{{ app.internship.title }}</td>
+                            <td><span class="badge bg-{{ app.status_color }}">{{ app.get_status_display }}</span></td>
+                            <td>{{ app.applied_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'companies:applicant_detail' app.pk %}" class="btn btn-sm btn-primary">Review Applicant</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No applicants found matching filter criteria.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

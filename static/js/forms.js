@@ -18,17 +18,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add click handler to each toggle button
     togglePasswordBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            // Find the associated password input (previous sibling or within wrapper)
-            const input = this.closest('.input-icon-wrapper').querySelector('input');
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-            // Toggle between 'password' and 'text' type
-            if (input.type === 'password') {
-                input.type = 'text';                   // Show password
-                this.innerHTML = '<i class="fas fa-eye-slash"></i>'; // Change icon
-            } else {
-                input.type = 'password';               // Hide password
-                this.innerHTML = '<i class="fas fa-eye"></i>';      // Change icon
+            // Find the associated password input inside parent or wrapper
+            const wrapper = this.closest('.input-icon-wrapper') || this.parentElement;
+            const input = wrapper ? wrapper.querySelector('input') : null;
+
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                } else {
+                    input.type = 'password';
+                    this.innerHTML = '<i class="fas fa-eye"></i>';
+                }
             }
         });
     });

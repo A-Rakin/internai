@@ -1,66 +1,381 @@
-{% extends 'base.html' %}{% load static %}
-{% block title %}Pricing{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}">{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Pricing Plans — InternAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+<style>
+    /* Billing Switch Toggle Styling */
+    .billing-toggle-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+        margin-bottom: 3rem;
+    }
+    .billing-toggle {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 32px;
+    }
+    .billing-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: var(--bg-input);
+        border: 1px solid var(--border-color);
+        transition: 0.3s;
+        border-radius: 34px;
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 24px;
+        width: 24px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #ffffff;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+    input:checked + .toggle-slider {
+        background: var(--gradient-primary);
+    }
+    input:checked + .toggle-slider:before {
+        transform: translateX(28px);
+    }
+    .discount-badge {
+        background: linear-gradient(135deg, #00C9A7, #00E4BF);
+        color: #000;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        margin-left: 5px;
+    }
+
+    /* Modern Pricing Card Glow Effects */
+    .pricing-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 2.5rem 2rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    .pricing-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(108, 99, 255, 0.5);
+        box-shadow: 0 12px 40px rgba(108, 99, 255, 0.2);
+    }
+    .pricing-card.featured {
+        background: linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(108, 99, 255, 0.15) 100%);
+        border: 2px solid #6C63FF;
+        box-shadow: 0 8px 32px rgba(108, 99, 255, 0.25);
+    }
+    .popular-badge {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gradient-primary);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 4px 16px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(108, 99, 255, 0.4);
+    }
+    .price-amount {
+        font-family: var(--font-heading);
+        font-size: 3.2rem;
+        font-weight: 800;
+        color: #ffffff;
+        line-height: 1;
+    }
+    .price-amount span {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    .pricing-features {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+        flex-grow: 1;
+    }
+    .pricing-features li {
+        padding: 0.6rem 0;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+    }
+    .pricing-features li i.fa-check {
+        color: var(--success);
+        margin-right: 0.75rem;
+    }
+    .pricing-features li.disabled {
+        color: var(--text-muted);
+    }
+    .pricing-features li.disabled i {
+        color: var(--text-muted);
+        margin-right: 0.75rem;
+    }
+
+    /* Comparison Table */
+    .comparison-table {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+    .comparison-table th, .comparison-table td {
+        padding: 1.2rem 1.5rem;
+        border-color: var(--border-color);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 {% include 'components/navbar.html' %}
-<div class="page-header"><div class="container"><h1>Simple <span class="gradient-text">Pricing</span></h1><p>Choose the plan that fits your needs. Start free, upgrade anytime.</p></div></div>
-<section class="pricing-section">
+
+<!-- Page Header -->
+<div class="page-header py-5 text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Flexible & Transparent <span class="gradient-text">Pricing</span></h1>
+        <p class="lead text-muted max-w-2xl mx-auto" style="max-width: 600px;">
+            Choose the plan that fits your career goals or recruiting volume. Upgrade, downgrade, or cancel anytime.
+        </p>
+
+        <!-- Billing Switch -->
+        <div class="billing-toggle-wrapper">
+            <span class="fw-semibold text-light">Monthly Billing</span>
+            <label class="billing-toggle">
+                <input type="checkbox" id="billingCycleToggle" onchange="toggleBillingCycle(this)">
+                <span class="toggle-slider"></span>
+            </label>
+            <span class="fw-semibold text-light">
+                Annual Billing <span class="discount-badge">SAVE 20%</span>
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Pricing Cards Section -->
+<section class="pricing-section pb-5">
     <div class="container">
         <div class="row g-4 justify-content-center">
-            <!-- Free Plan -->
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
+
+            <!-- 1. BASIC PLAN ($0 / month) -->
+            <div class="col-lg-4 col-md-6">
                 <div class="pricing-card">
-                    <h4 style="color:var(--text-muted);font-weight:600;">Free</h4>
-                    <p style="color:var(--text-muted);font-size:var(--fs-sm);">Perfect for getting started</p>
-                    <div class="price">$0<span>/month</span></div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="fw-bold mb-0 text-white">Basic</h4>
+                        <span class="badge bg-secondary">Free Forever</span>
+                    </div>
+                    <p class="text-muted small">Ideal for students & early career explorers</p>
+
+                    <div class="my-3">
+                        <div class="price-amount" id="price-basic">$0<span>/month</span></div>
+                        <div class="text-muted small mt-1">No credit card required</div>
+                    </div>
+
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> 5 Internship Applications</li>
-                        <li><i class="fas fa-check"></i> Basic Profile</li>
-                        <li><i class="fas fa-check"></i> Resume Upload</li>
-                        <li><i class="fas fa-check"></i> Email Notifications</li>
-                        <li class="disabled"><i class="fas fa-times"></i> AI Resume Analysis</li>
-                        <li class="disabled"><i class="fas fa-times"></i> Priority Support</li>
+                        <li><i class="fas fa-check"></i> Up to 5 Internship Applications / mo</li>
+                        <li><i class="fas fa-check"></i> Standard Student Profile Builder</li>
+                        <li><i class="fas fa-check"></i> Single PDF Resume Storage</li>
+                        <li><i class="fas fa-check"></i> Standard Internship Search & Filters</li>
+                        <li><i class="fas fa-check"></i> Email Notifications & Status Alerts</li>
+                        <li class="disabled"><i class="fas fa-times"></i> AI Resume Match Score</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Priority Application Flagging</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Direct HR Messaging</li>
                     </ul>
-                    <a href="{% url 'accounts:register_student' %}" class="btn btn-outline-custom w-100">Get Started</a>
+
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'students:dashboard' %}" class="btn btn-outline-light w-100 py-2 fw-semibold">Current Active Tier</a>
+                    {% else %}
+                        <a href="{% url 'accounts:register_student' %}" class="btn btn-outline-light w-100 py-2 fw-semibold">Get Started Free</a>
+                    {% endif %}
                 </div>
             </div>
-            <!-- Pro Plan (Featured) -->
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
+
+            <!-- 2. PRO PLAN ($20 / month) - MOST POPULAR -->
+            <div class="col-lg-4 col-md-6">
                 <div class="pricing-card featured">
                     <div class="popular-badge">MOST POPULAR</div>
-                    <h4 style="color:var(--primary);font-weight:600;">Pro</h4>
-                    <p style="color:var(--text-muted);font-size:var(--fs-sm);">For active job seekers</p>
-                    <div class="price">$19<span>/month</span></div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+                        <h4 class="fw-bold mb-0 text-primary">Pro Recruiter & Student</h4>
+                        <span class="badge bg-primary">Full Features</span>
+                    </div>
+                    <p class="text-muted small">For active job seekers & growing HR teams</p>
+
+                    <div class="my-3">
+                        <div class="price-amount" id="price-pro">$20<span>/month</span></div>
+                        <div class="text-muted small mt-1" id="subtext-pro">Billed monthly</div>
+                    </div>
+
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Unlimited Applications</li>
-                        <li><i class="fas fa-check"></i> Complete Profile</li>
-                        <li><i class="fas fa-check"></i> AI Resume Analysis</li>
-                        <li><i class="fas fa-check"></i> Priority Notifications</li>
-                        <li><i class="fas fa-check"></i> Advanced Analytics</li>
-                        <li class="disabled"><i class="fas fa-times"></i> Dedicated Support</li>
+                        <li><i class="fas fa-check"></i> <strong>Unlimited</strong> Internship Applications</li>
+                        <li><i class="fas fa-check"></i> <strong>AI Resume Match Score</strong> & Insights</li>
+                        <li><i class="fas fa-check"></i> <strong>AI Resume Analysis</strong> for recruiters</li>
+                        <li><i class="fas fa-check"></i> Priority Application Review Flagging</li>
+                        <li><i class="fas fa-check"></i> Multi-document Vault (Resumes, Certificates)</li>
+                        <li><i class="fas fa-check"></i> Real-time In-App Notification Center</li>
+                        <li><i class="fas fa-check"></i> Weekly Report & Evaluation Tracker</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Dedicated Account Manager</li>
                     </ul>
-                    <a href="{% url 'accounts:register_student' %}" class="btn btn-primary-custom w-100">Start Pro Trial</a>
+
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'billing:create_checkout_session' 'pro' %}" class="btn btn-primary w-100 py-2 fw-bold text-white shadow"><i class="fas fa-bolt me-2"></i>Upgrade to Pro ($20)</a>
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={% url 'billing:create_checkout_session' 'pro' %}" class="btn btn-primary w-100 py-2 fw-bold text-white shadow"><i class="fas fa-bolt me-2"></i>Start Pro Plan ($20)</a>
+                    {% endif %}
                 </div>
             </div>
-            <!-- Enterprise Plan -->
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
+
+            <!-- 3. ULTIMATE PLAN ($80 / month) -->
+            <div class="col-lg-4 col-md-6">
                 <div class="pricing-card">
-                    <h4 style="color:var(--text-muted);font-weight:600;">Enterprise</h4>
-                    <p style="color:var(--text-muted);font-size:var(--fs-sm);">For companies & institutions</p>
-                    <div class="price">$99<span>/month</span></div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="fw-bold mb-0 text-white">Ultimate Enterprise</h4>
+                        <span class="badge bg-info">Enterprise</span>
+                    </div>
+                    <p class="text-muted small">For universities, corporations & multi-recruiter teams</p>
+
+                    <div class="my-3">
+                        <div class="price-amount" id="price-ultimate">$80<span>/month</span></div>
+                        <div class="text-muted small mt-1" id="subtext-ultimate">Billed monthly</div>
+                    </div>
+
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Everything in Pro</li>
-                        <li><i class="fas fa-check"></i> AI Candidate Ranking</li>
-                        <li><i class="fas fa-check"></i> Custom Branding</li>
-                        <li><i class="fas fa-check"></i> API Access</li>
-                        <li><i class="fas fa-check"></i> Dedicated Support</li>
-                        <li><i class="fas fa-check"></i> Custom Integrations</li>
+                        <li><i class="fas fa-check"></i> <strong>Everything in Pro Tier</strong></li>
+                        <li><i class="fas fa-check"></i> <strong>AI Candidate Ranking Engine</strong></li>
+                        <li><i class="fas fa-check"></i> Unlimited Active Internship Listings</li>
+                        <li><i class="fas fa-check"></i> Automated Interview Scheduling Engine</li>
+                        <li><i class="fas fa-check"></i> Supervisor & Roster Management Dashboard</li>
+                        <li><i class="fas fa-check"></i> Platform Audit & Activity Log Analytics</li>
+                        <li><i class="fas fa-check"></i> Dedicated Account Manager & 24/7 Support</li>
+                        <li><i class="fas fa-check"></i> Custom University / Company Branding</li>
                     </ul>
-                    <a href="{% url 'landing:contact' %}" class="btn btn-ghost w-100">Contact Sales</a>
+
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'billing:create_checkout_session' 'ultimate' %}" class="btn btn-outline-info w-100 py-2 fw-semibold"><i class="fas fa-building me-2"></i>Subscribe Ultimate ($80)</a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}?next={% url 'billing:create_checkout_session' 'ultimate' %}" class="btn btn-outline-info w-100 py-2 fw-semibold"><i class="fas fa-building me-2"></i>Subscribe Ultimate ($80)</a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Feature Comparison Matrix -->
+        <div class="row mt-5 pt-4">
+            <div class="col-12 text-center mb-4">
+                <h3 class="fw-bold">Detailed Plan <span class="gradient-text">Comparison</span></h3>
+                <p class="text-muted">Compare features side by side across all tiers.</p>
+            </div>
+            <div class="col-12">
+                <div class="table-responsive comparison-table shadow">
+                    <table class="table table-dark table-hover mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;">Feature</th>
+                                <th class="text-center" style="width: 20%;">Basic ($0)</th>
+                                <th class="text-center text-primary" style="width: 20%;">Pro ($20)</th>
+                                <th class="text-center text-info" style="width: 20%;">Ultimate ($80)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Monthly Applications</td>
+                                <td class="text-center">5 / month</td>
+                                <td class="text-center text-success fw-bold">Unlimited</td>
+                                <td class="text-center text-success fw-bold">Unlimited</td>
+                            </tr>
+                            <tr>
+                                <td>Active Job Listings</td>
+                                <td class="text-center">1 listing</td>
+                                <td class="text-center">10 listings</td>
+                                <td class="text-center text-success fw-bold">Unlimited</td>
+                            </tr>
+                            <tr>
+                                <td>AI Resume Match Score</td>
+                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
+                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
+                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>AI Candidate Ranking Engine</td>
+                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
+                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
+                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Interview Scheduling Tool</td>
+                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
+                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
+                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Academic Supervisor Reviews</td>
+                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
+                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
+                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Dedicated Account Support</td>
+                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
+                                <td class="text-center text-muted">Email Support</td>
+                                <td class="text-center text-success fw-bold">24/7 Priority Support</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
+
     </div>
 </section>
+
 {% include 'components/footer.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleBillingCycle(toggleInput) {
+        const isAnnual = toggleInput.checked;
+
+        const pricePro = document.getElementById('price-pro');
+        const subtextPro = document.getElementById('subtext-pro');
+
+        const priceUltimate = document.getElementById('price-ultimate');
+        const subtextUltimate = document.getElementById('subtext-ultimate');
+
+        if (isAnnual) {
+            // 20% discount on annual: Pro $16/mo ($192/yr), Ultimate $64/mo ($768/yr)
+            pricePro.innerHTML = '$16<span>/month</span>';
+            subtextPro.innerText = 'Billed annually ($192/yr)';
+
+            priceUltimate.innerHTML = '$64<span>/month</span>';
+            subtextUltimate.innerText = 'Billed annually ($768/yr)';
+        } else {
+            pricePro.innerHTML = '$20<span>/month</span>';
+            subtextPro.innerText = 'Billed monthly';
+
+            priceUltimate.innerHTML = '$80<span>/month</span>';
+            subtextUltimate.innerText = 'Billed monthly';
+        }
+    }
+</script>
 {% endblock %}

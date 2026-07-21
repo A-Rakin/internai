@@ -476,12 +476,27 @@ class CompanyProfile(models.Model):
         blank=True,
     )
 
-    # ---- Verification ----
+    # ---- Subscription Plan Choices ----
+    PLAN_CHOICES = [
+        ('basic', 'Basic Free ($0/mo)'),
+        ('pro', 'Pro Recruiter ($20/mo)'),
+        ('ultimate', 'Ultimate Enterprise ($80/mo)'),
+    ]
+
+    # ---- Verification & Subscription ----
     # Whether the company has been verified by admin
     is_verified = models.BooleanField(
         'verified',
         default=False,
         help_text='Whether the company has been verified by administrators',
+    )
+
+    # Active subscription plan
+    subscription_plan = models.CharField(
+        'subscription plan',
+        max_length=20,
+        choices=PLAN_CHOICES,
+        default='basic',
     )
 
     # ---- Timestamps ----

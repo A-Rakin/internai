@@ -7,24 +7,94 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Edit Profile</h4></div>
-    
-    <div class="card mt-4"><div class="card-body">
-        <form method="post" class="needs-validation" novalidate>
-            {% csrf_token %}
-            <div class="row g-3">
-                <div class="col-md-6"><label class="form-label">First Name</label><input type="text" class="form-control" value="{{ user.first_name }}" required></div>
-                <div class="col-md-6"><label class="form-label">Last Name</label><input type="text" class="form-control" value="{{ user.last_name }}" required></div>
-                <div class="col-md-6"><label class="form-label">University</label><input type="text" class="form-control" value="Dhaka University" required></div>
-                <div class="col-md-6"><label class="form-label">Department</label><input type="text" class="form-control" value="Computer Science" required></div>
-                <div class="col-md-4"><label class="form-label">CGPA</label><input type="text" class="form-control" value="3.90" required></div>
-                <div class="col-12">
-                    <label class="form-label">Technical Skills (Comma separated)</label>
-                    <input type="text" class="form-control" value="Python, Django, Javascript" required>
+    <div class="top-navbar">
+        <h4 class="page-title">Edit Profile</h4>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h5 class="mb-3"><i class="fas fa-id-card me-2"></i>Personal Info</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Phone</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Profile Avatar</label>
+                        <input type="file" name="avatar" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Date of Birth</label>
+                        {{ form.date_of_birth }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Gender</label>
+                        {{ form.gender }}
+                    </div>
                 </div>
-                <div class="col-12"><button type="submit" class="btn btn-primary-custom">Save Changes</button></div>
-            </div>
-        </form>
-    </div></div>
+
+                <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Academic Info</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">University</label>
+                        {{ form.university }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Department</label>
+                        {{ form.department }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Student ID</label>
+                        {{ form.student_id }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Education Level</label>
+                        {{ form.education_level }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">GPA/CGPA</label>
+                        {{ form.gpa }}
+                    </div>
+                </div>
+
+                <h5 class="mb-3"><i class="fas fa-code me-2"></i>Skills & Links</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-12">
+                        <label class="form-label">Technical Skills (comma-separated)</label>
+                        {{ form.skills }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">LinkedIn URL</label>
+                        {{ form.linkedin_url }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">GitHub URL</label>
+                        {{ form.github_url }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Portfolio URL</label>
+                        {{ form.portfolio_url }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Biography</label>
+                        {{ form.bio }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Profile Changes</button>
+                <a href="{% url 'students:profile' %}" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

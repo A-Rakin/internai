@@ -17,6 +17,8 @@ import os
 # ============================================================
 # BASE DIRECTORY
 # ============================================================
+from decouple import config, Csv
+
 # Build the base directory path - this points to the project root
 # where manage.py is located. All other paths are relative to this.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,17 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ============================================================
 # SECURITY SETTINGS
 # ============================================================
-# SECURITY WARNING: This secret key is for development only!
-# In production, use environment variables to store this securely.
-SECRET_KEY = 'django-insecure-internai-dev-key-change-in-production-2024!'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# Debug mode shows detailed error pages - disable in production
-DEBUG = True
-
-# List of host/domain names that this Django site can serve
-# '*' allows all hosts in development - restrict in production
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-internai-dev-key-change-in-production-2026!')
+DEBUG = config('DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
 # ============================================================
 # APPLICATION DEFINITION
@@ -93,6 +87,8 @@ INSTALLED_APPS = [
     'administration.apps.AdministrationConfig',
     # Common utilities shared across apps
     'common.apps.CommonConfig',
+    # Billing & Stripe Payments
+    'billing.apps.BillingConfig',
 ]
 
 # ============================================================
@@ -169,15 +165,21 @@ WSGI_APPLICATION = 'internai.wsgi.application'
 # ============================================================
 # DATABASE CONFIGURATION
 # ============================================================
-# Using SQLite for development - easy setup, no external dependencies
-# Switch to PostgreSQL for production by changing this configuration
+# Using MySQL via XAMPP for development
+# Ensure XAMPP MySQL service is running before starting Django
 
 DATABASES = {
     'default': {
-        # SQLite database engine - file-based, zero configuration
-        'ENGINE': 'django.db.backends.sqlite3',
-        # Database file location - stored in the project root
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME', default='internai_db'),
+        'USER': config('DB_USER', default='root'),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'HOST': config('DB_HOST', default='127.0.0.1'),
+        'PORT': config('DB_PORT', default='3306'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
@@ -304,3 +306,17 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',      # Warning messages - yellow
     messages.ERROR: 'alert-danger',         # Error messages - red
 }
+
+# ============================================================
+# STRIPE PAYMENT GATEWAY CONFIGURATION
+# ============================================================
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', default='')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+
+# ============================================================
+# GROQ CLOUD AI API CONFIGURATION
+# ============================================================
+GROQ_API_KEY = config('GROQ_API_KEY', default='')
+
+

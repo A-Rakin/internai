@@ -1,16 +1,138 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Review Weekly Reports{% endblock %}
+{% block title %}Review Reports{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Review Weekly Reports</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Review Weekly Reports Dashboard</h5>
-        <p class="text-muted">This page provides academic supervisors with student performance logs, report approvals, and evaluations.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Weekly Report Review</h4>
+    </div>
+
+    {% if report %}
+    <!-- Single Report Review View -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Week {{ report.week_number }}: {{ report.title }}</h5>
+            <span class="badge bg-warning fs-6">Pending Review</span>
+        </div>
+        <div class="card-body">
+            <p><strong>Student:</strong> {{ report.student.user.get_full_name|default:report.student.user.email }} ({{ report.student.university }})</p>
+            <p><strong>Internship:</strong> {{ report.internship.title }}</p>
+            <p><strong>Hours Worked:</strong> {{ report.hours_worked }} hrs</p>
+            <hr>
+            <h6>Activities Completed</h6>
+            <p class="bg-light p-3 rounded text-muted">{{ report.activities }}</p>
+
+            {% if report.challenges %}
+            <h6>Challenges Faced</h6>
+            <p class="bg-light p-3 rounded text-muted">{{ report.challenges }}</p>
+            {% endif %}
+
+            {% if report.next_week_plan %}
+            <h6>Next Week Plan</h6>
+            <p class="bg-light p-3 rounded text-muted">{{ report.next_week_plan }}</p>
+            {% endif %}
+
+            <hr>
+            <h5 class="mb-3"><i class="fas fa-edit me-2"></i>Supervisor Evaluation Form</h5>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Score (0-100)</label>
+                        {{ form.score }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        {{ form.status }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Feedback & Guidance</label>
+                        {{ form.feedback }}
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check-circle me-2"></i>Submit Review</button>
+                    <a href="{% url 'supervisors:report_review' %}" class="btn btn-secondary ms-2">Back to Queue</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Reports Queue View -->
+    <div class="card shadow-sm mt-4 mb-4">
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-clock me-2"></i>Reports Awaiting Review</h5></div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Week</th>
+                            <th>Title</th>
+                            <th>Submitted Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in pending_reports %}
+                        <tr>
+                            <td><strong>{{ r.student.user.get_full_name|default:r.student.user.email }}</strong></td>
+                            <td>Week {{ r.week_number }}</td>
+                            <td>{{ r.title }}</td>
+                            <td>{{ r.submitted_at|date:"M d, Y" }}</td>
+                            <td><a href="{% url 'supervisors:report_review_detail' r.pk %}" class="btn btn-sm btn-primary">Review Report</a></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No reports currently waiting for review.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-check-double me-2"></i>Reviewed Reports History</h5></div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Week</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                            <th>Reviewed Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reviewed_reports %}
+                        <tr>
+                            <td>{{ r.student.user.get_full_name|default:r.student.user.email }}</td>
+                            <td>Week {{ r.week_number }}</td>
+                            <td>{{ r.title }}</td>
+                            <td><span class="badge bg-{% if r.status == 'approved' %}success{% else %}danger{% endif %}">{{ r.get_status_display }}</span></td>
+                            <td>{{ r.score }}/100</td>
+                            <td>{{ r.reviewed_at|date:"M d, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-3 text-muted">No report review history found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

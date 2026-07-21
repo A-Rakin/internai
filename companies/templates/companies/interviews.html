@@ -1,16 +1,53 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Interviews Schedule{% endblock %}
+{% block title %}Scheduled Interviews{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Interviews Schedule</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Interviews Schedule Content Page</h5>
-        <p class="text-muted">This page is responsive and fully configured to work with the InternAI system.</p>
-    </div></div>
+    <div class="top-navbar">
+        <h4 class="page-title">Scheduled Interviews</h4>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Role</th>
+                            <th>Interview Type</th>
+                            <th>Date & Time</th>
+                            <th>Mode</th>
+                            <th>Outcome</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for interview in interviews %}
+                        <tr>
+                            <td><strong>{{ interview.application.student.user.get_full_name|default:interview.application.student.user.email }}</strong></td>
+                            <td>{{ interview.application.internship.title }}</td>
+                            <td>{{ interview.get_interview_type_display }}</td>
+                            <td>{{ interview.scheduled_at|date:"M d, Y @ h:i A" }}</td>
+                            <td><span class="badge bg-secondary">{{ interview.get_mode_display }}</span></td>
+                            <td><span class="badge bg-info">{{ interview.get_outcome_display }}</span></td>
+                            <td>
+                                {% if interview.meeting_link %}<a href="{{ interview.meeting_link }}" target="_blank" class="btn btn-sm btn-outline-success">Link</a>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No interviews scheduled yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -7,10 +7,98 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar"><h4 class="page-title">Supervisor Dashboard</h4></div>
-    <div class="card mt-4"><div class="card-body">
-        <h5>Supervisor Dashboard Dashboard</h5>
-        <p class="text-muted">This page provides academic supervisors with student performance logs, report approvals, and evaluations.</p>
-    </div></div>
+    <div class="top-navbar d-flex justify-content-between align-items-center">
+        <h4 class="page-title">Academic Supervisor Portal</h4>
+        <a href="{% url 'supervisors:report_review' %}" class="btn btn-primary"><i class="fas fa-clipboard-check me-2"></i>Review Reports</a>
+    </div>
+
+    <div class="dashboard-header mt-4">
+        <div class="greeting">
+            <h2>Welcome Back, {{ user.get_full_name|default:user.email }}!</h2>
+            <p>Monitor student progress, evaluate weekly reports, and submit internship evaluations.</p>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon gradient-primary"><i class="fas fa-user-graduate"></i></div>
+            <div class="stat-content"><h3>{{ stats.assigned_students }}</h3><p>Assigned Students</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-warning"><i class="fas fa-clock"></i></div>
+            <div class="stat-content"><h3>{{ stats.pending_reports }}</h3><p>Pending Reports</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-success"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-content"><h3>{{ stats.reviewed_reports }}</h3><p>Reviewed Reports</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-info"><i class="fas fa-star"></i></div>
+            <div class="stat-content"><h3>{{ stats.evaluations }}</h3><p>Evaluations Completed</p></div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Reports Pending Review</h5>
+                    <a href="{% url 'supervisors:report_review' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Week #</th>
+                                    <th>Title</th>
+                                    <th>Submitted Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in pending_reports %}
+                                <tr>
+                                    <td><strong>{{ report.student.user.get_full_name|default:report.student.user.email }}</strong></td>
+                                    <td>Week {{ report.week_number }}</td>
+                                    <td>{{ report.title }}</td>
+                                    <td>{{ report.submitted_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'supervisors:report_review_detail' report.pk %}" class="btn btn-sm btn-primary">Review</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">No reports currently pending review.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-users me-2"></i>My Students</h5></div>
+                <div class="card-body">
+                    {% for student in assigned_students %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <div>
+                            <div class="fw-bold">{{ student.user.get_full_name|default:student.user.email }}</div>
+                            <div class="small text-muted">{{ student.university }}</div>
+                        </div>
+                        <a href="{% url 'supervisors:student_detail' student.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small text-center my-3">No students assigned yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
