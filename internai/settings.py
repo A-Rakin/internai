@@ -29,6 +29,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-internai-dev-key-change-in-production-2026!')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://*.ngrok-free.app,https://*.ngrok-free.dev,https://*.ngrok.io,http://127.0.0.1,http://localhost',
+    cast=Csv()
+)
+
 
 # ============================================================
 # APPLICATION DEFINITION
