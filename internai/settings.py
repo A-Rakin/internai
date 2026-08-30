@@ -95,6 +95,10 @@ INSTALLED_APPS = [
     'common.apps.CommonConfig',
     # Billing & Stripe Payments
     'billing.apps.BillingConfig',
+    # Internal messaging system
+    'messaging',
+    # AI-powered chatbot assistant
+    'chatbot',
 ]
 
 # ============================================================

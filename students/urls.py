@@ -13,4 +13,13 @@ urlpatterns = [
     path('reports/', views.reports, name='reports'),
     path('report-submit/', views.report_submit, name='report_submit'),
     path('settings/', views.settings, name='settings'),
+
+    # AI Interview Preparation
+    path('interview-prep/<int:pk>/', views.interview_prep, name='interview_prep'),
+    path('interview-prep-grade/', views.interview_prep_grade, name='interview_prep_grade'),
+
+    # Saved Internships (Bookmarks)
+    path('saved/', views.saved_internships, name='saved_internships'),
+    path('toggle-bookmark/', views.toggle_bookmark, name='toggle_bookmark'),
 ]
+

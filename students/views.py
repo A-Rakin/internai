@@ -218,3 +218,102 @@ def settings(request):
         return redirect('students:settings')
 
     return render(request, 'students/settings.html')
+
+
+@login_required
+@role_required('student')
+def interview_prep(request, pk=None):
+    """AI Interview Prep Coach for a specific interview or internship."""
+    from common.ai_engine import generate_interview_questions
+
+    interview = None
+    internship = None
+
+    if pk:
+        # Check if pk is interview pk or internship pk
+        interview = Interview.objects.filter(pk=pk, application__student__user=request.user).first()
+        if interview:
+            internship = interview.application.internship
+        else:
+            internship = get_object_or_404(Internship, pk=pk)
+
+    if not internship:
+        messages.error(request, 'Internship position not found for practice.')
+        return redirect('students:interviews')
+
+    questions = generate_interview_questions(internship)
+
+    context = {
+        'interview': interview,
+        'internship': internship,
+        'questions': questions,
+    }
+    return render(request, 'students/interview_prep.html', context)
+
+
+@login_required
+@role_required('student')
+def interview_prep_grade(request):
+    """AJAX endpoint to grade an interview answer."""
+    import json
+    from django.http import JsonResponse
+    from common.ai_engine import grade_interview_answer
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            question = data.get('question', '')
+            answer = data.get('answer', '')
+            internship_id = data.get('internship_id')
+
+            internship = get_object_or_404(Internship, pk=internship_id)
+            result = grade_interview_answer(question, answer, internship)
+            return JsonResponse({'success': True, 'result': result})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@login_required
+@role_required('student')
+def saved_internships(request):
+    """View student's saved/bookmarked internships."""
+    from internships.models import SavedInternship
+    student_profile = get_object_or_404(StudentProfile, user=request.user)
+    saved_list = SavedInternship.objects.filter(student=student_profile).select_related('internship__company')
+
+    context = {'saved_list': saved_list}
+    return render(request, 'students/saved_internships.html', context)
+
+
+@login_required
+@role_required('student')
+def toggle_bookmark(request):
+    """AJAX view to toggle bookmarking an internship."""
+    import json
+    from django.http import JsonResponse
+    from internships.models import SavedInternship
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            internship_id = data.get('internship_id')
+            student_profile = get_object_or_404(StudentProfile, user=request.user)
+            internship = get_object_or_404(Internship, pk=internship_id)
+
+            saved, created = SavedInternship.objects.get_or_create(
+                student=student_profile,
+                internship=internship,
+            )
+
+            if not created:
+                saved.delete()
+                is_saved = False
+            else:
+                is_saved = True
+
+            return JsonResponse({'success': True, 'is_saved': is_saved})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+

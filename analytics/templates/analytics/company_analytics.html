@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Recruitment Analytics{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .chart-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .chart-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+    .chart-card h5 { font-family: 'Outfit', sans-serif; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); }
+    .chart-card .chart-subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .analytics-hero {
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(78, 205, 196, 0.1));
+        border-radius: 20px; padding: 2rem; margin-bottom: 2rem; border: 1px solid var(--border-color);
+    }
+    .analytics-hero h2 { font-family: 'Outfit', sans-serif; font-weight: 700; }
+    canvas { max-height: 350px; }
+    .candidate-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);
+    }
+    .candidate-item:last-child { border-bottom: none; }
+    .score-badge {
+        font-weight: 700; font-size: 0.9rem; padding: 0.35rem 0.75rem; border-radius: 20px;
+    }
+    .score-high { background: rgba(40, 167, 69, 0.15); color: #28a745; }
+    .score-mid { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+    .score-low { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar">
+        <h4 class="page-title"><i class="fas fa-chart-bar me-2"></i>Recruitment Analytics</h4>
+        <div class="navbar-actions">
+            <a href="{% url 'notifications:list' %}" class="navbar-icon-btn text-decoration-none">
+                <i class="fas fa-bell"></i>
+                {% if unread_notifications_count > 0 %}<span class="badge-count">{{ unread_notifications_count }}</span>{% endif %}
+            </a>
+        </div>
+    </div>
+
+    <div class="analytics-hero mt-4">
+        <h2><i class="fas fa-chart-pie me-2"></i>Recruitment Intelligence</h2>
+        <p class="text-muted mb-0">Monitor your company's recruitment pipeline and candidate quality metrics.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon gradient-primary"><i class="fas fa-briefcase"></i></div>
+            <div class="stat-content"><h3>{{ stats.total_internships }}</h3><p>Total Listings</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-info"><i class="fas fa-users"></i></div>
+            <div class="stat-content"><h3>{{ stats.total_applications }}</h3><p>Applications Received</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-warning"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-content"><h3>{{ stats.interviews_scheduled }}</h3><p>Pending Interviews</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-success"><i class="fas fa-handshake"></i></div>
+            <div class="stat-content"><h3>{{ stats.offers_extended }}</h3><p>Offers Extended</p></div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-filter me-2 text-primary"></i>Recruitment Pipeline</h5>
+                <p class="chart-subtitle">Application flow across stages</p>
+                <canvas id="funnelChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-chart-area me-2 text-success"></i>Applications Trend</h5>
+                <p class="chart-subtitle">Monthly applications received (last 6 months)</p>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-lg-7">
+            <div class="chart-card">
+                <h5><i class="fas fa-briefcase me-2 text-info"></i>Applications per Listing</h5>
+                <p class="chart-subtitle">Number of applicants per internship position</p>
+                <canvas id="perInternshipChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="chart-card">
+                <h5><i class="fas fa-trophy me-2 text-warning"></i>Top Candidates by AI Score</h5>
+                <p class="chart-subtitle">Highest AI-ranked applicants</p>
+                {% for candidate in top_candidates %}
+                <div class="candidate-item">
+                    <div>
+                        <div class="fw-semibold" style="color: var(--text-primary);">
+                            {{ candidate.student__user__first_name }} {{ candidate.student__user__last_name }}
+                        </div>
+                        <small class="text-muted">{{ candidate.internship__title }}</small>
+                    </div>
+                    <span class="score-badge {% if candidate.ai_match_score >= 85 %}score-high{% elif candidate.ai_match_score >= 70 %}score-mid{% else %}score-low{% endif %}">
+                        {{ candidate.ai_match_score }}%
+                    </span>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">No scored candidates yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartColors = [
+        'rgba(108, 99, 255, 0.8)', 'rgba(78, 205, 196, 0.8)', 'rgba(255, 107, 107, 0.8)',
+        'rgba(255, 193, 7, 0.8)', 'rgba(40, 167, 69, 0.8)', 'rgba(23, 162, 184, 0.8)',
+        'rgba(255, 159, 64, 0.8)', 'rgba(153, 102, 255, 0.8)',
+    ];
+
+    const funnelData = JSON.parse('{{ funnel_data|escapejs }}');
+    new Chart(document.getElementById('funnelChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(funnelData),
+            datasets: [{
+                label: 'Count',
+                data: Object.values(funnelData),
+                backgroundColor: chartColors,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            }
+        }
+    });
+
+    const monthlyApps = JSON.parse('{{ monthly_apps|escapejs }}');
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: monthlyApps.map(d => d.month),
+            datasets: [{
+                label: 'Applications',
+                data: monthlyApps.map(d => d.count),
+                borderColor: 'rgba(78, 205, 196, 1)',
+                backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                fill: true, tension: 0.4, pointRadius: 5,
+                pointBackgroundColor: 'rgba(78, 205, 196, 1)',
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#ccc' } } },
+            scales: {
+                x: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            }
+        }
+    });
+
+    const perInternship = JSON.parse('{{ per_internship|escapejs }}');
+    new Chart(document.getElementById('perInternshipChart'), {
+        type: 'bar',
+        data: {
+            labels: perInternship.map(d => d.title.length > 25 ? d.title.substring(0, 25) + '...' : d.title),
+            datasets: [{
+                label: 'Applicants',
+                data: perInternship.map(d => d.app_count),
+                backgroundColor: 'rgba(108, 99, 255, 0.7)',
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

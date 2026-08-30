@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}AI Interview Prep Coach{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .prep-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .question-box {
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    .score-badge-big {
+        font-size: 2rem;
+        font-weight: 800;
+        font-family: 'Outfit', sans-serif;
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        border-radius: 12px;
+    }
+    .score-high { background: rgba(40, 167, 69, 0.15); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.3); }
+    .score-mid { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+    .score-low { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar">
+        <h4 class="page-title"><i class="fas fa-user-ninja me-2"></i>AI Interview Prep Coach</h4>
+        <div class="navbar-actions">
+            <a href="{% url 'students:interviews' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Interviews
+            </a>
+        </div>
+    </div>
+
+    <div class="prep-card mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3><i class="fas fa-robot text-primary me-2"></i>Mock Interview Practice</h3>
+                <p class="text-muted mb-0">Role: <strong>{{ internship.title }}</strong> at <strong>{{ internship.company.company_name }}</strong></p>
+            </div>
+            <span class="badge bg-primary fs-6 px-3 py-2"><i class="fas fa-sparkles me-1"></i>Powered by Groq AI</span>
+        </div>
+        <p class="text-muted small">Practice answering these role-specific AI generated questions. Submit your answer to get instant AI grading and feedback!</p>
+    </div>
+
+    <div id="questionsContainer">
+        {% for q in questions %}
+        <div class="prep-card question-card" id="qCard_{{ forloop.counter }}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0 text-primary"><i class="fas fa-question-circle me-2"></i>Question {{ forloop.counter }} of {{ questions|length }}</h5>
+            </div>
+            <div class="question-box fw-semibold fs-5 mb-3" style="color: var(--text-primary);">
+                {{ q }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted small fw-bold">YOUR RESPONSE:</label>
+                <textarea class="form-control user-answer" rows="4" placeholder="Type your answer here using STAR method (Situation, Task, Action, Result)..." style="background: var(--bg-body); border-color: var(--border-color); color: var(--text-primary);"></textarea>
+            </div>
+
+            <button class="btn btn-primary grade-btn" data-q-index="{{ forloop.counter }}" data-question="{{ q }}">
+                <i class="fas fa-paper-plane me-1"></i>Submit Answer for AI Grading
+            </button>
+
+            <!-- Feedback Area -->
+            <div class="feedback-area mt-3 p-3 border rounded-3" style="display: none; background: var(--bg-body);">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="score-badge-big score-mid score-display">0/10</div>
+                    <div>
+                        <h6 class="mb-1 text-primary"><i class="fas fa-clipboard-check me-1"></i>AI Feedback</h6>
+                        <p class="feedback-text mb-0 text-muted small"></p>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2 pt-2 border-top">
+                    <div class="col-md-6">
+                        <small class="fw-bold text-success"><i class="fas fa-thumbs-up me-1"></i>Strengths:</small>
+                        <p class="strengths-text small text-muted mb-0"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="fw-bold text-warning"><i class="fas fa-lightbulb me-1"></i>Improvement:</small>
+                        <p class="improvement-text small text-muted mb-0"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const internshipId = {{ internship.pk }};
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                      document.cookie.split('csrftoken=')[1]?.split(';')[0];
+
+    document.querySelectorAll('.grade-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const card = this.closest('.question-card');
+            const answer = card.querySelector('.user-answer').value.trim();
+            const question = this.dataset.question;
+            const feedbackArea = card.querySelector('.feedback-area');
+
+            if (!answer) {
+                alert('Please type an answer before submitting.');
+                return;
+            }
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Grading with AI...';
+
+            try {
+                const res = await fetch('{% url "students:interview_prep_grade" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        answer: answer,
+                        internship_id: internshipId,
+                    }),
+                });
+
+                const data = await res.json();
+                if (data.success && data.result) {
+                    const r = data.result;
+                    feedbackArea.style.display = 'block';
+
+                    const scoreBadge = feedbackArea.querySelector('.score-display');
+                    scoreBadge.textContent = `${r.score}/10`;
+                    scoreBadge.className = 'score-badge-big ' + (r.score >= 8 ? 'score-high' : r.score >= 5 ? 'score-mid' : 'score-low');
+
+                    feedbackArea.querySelector('.feedback-text').textContent = r.feedback || 'Good attempt!';
+                    feedbackArea.querySelector('.strengths-text').textContent = r.strengths || 'N/A';
+                    feedbackArea.querySelector('.improvement-text').textContent = r.improvement || 'N/A';
+                } else {
+                    alert('Error grading answer. Please try again.');
+                }
+            } catch (err) {
+                alert('Server error occurred.');
+            } finally {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-redo me-1"></i>Re-submit Answer';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

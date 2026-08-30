@@ -80,8 +80,29 @@ Used on: Student, Company, Supervisor, Admin dashboards.
             <span>Documents</span>
         </a>
 
+        <!-- Analytics -->
+        <div class="nav-section">Insights</div>
+
+        <a href="{% url 'analytics:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <span>My Analytics</span>
+        </a>
+
         <!-- Other section -->
         <div class="nav-section">Other</div>
+
+        <!-- Messages -->
+        <a href="{% url 'messaging:inbox' %}" class="nav-link {% if request.resolver_match.app_name == 'messaging' %}active{% endif %}">
+            <i class="fas fa-comments"></i>
+            <span>Messages</span>
+            {% if unread_messages_count > 0 %}<span class="badge bg-danger ms-auto" style="font-size: 0.65rem;">{{ unread_messages_count }}</span>{% endif %}
+        </a>
+
+        <!-- AI Assistant -->
+        <a href="{% url 'chatbot:chat' %}" class="nav-link {% if request.resolver_match.app_name == 'chatbot' %}active{% endif %}">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+        </a>
 
         <!-- Notifications -->
         <a href="{% url 'notifications:list' %}" class="nav-link">
@@ -140,11 +161,27 @@ Used on: Student, Company, Supervisor, Admin dashboards.
             <span>AI Ranking</span>
         </a>
 
+        <a href="{% url 'analytics:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <span>Analytics</span>
+        </a>
+
         <div class="nav-section">Other</div>
 
         <a href="{% url 'documents:list' %}" class="nav-link">
             <i class="fas fa-folder-open"></i>
             <span>Documents</span>
+        </a>
+
+        <a href="{% url 'messaging:inbox' %}" class="nav-link {% if request.resolver_match.app_name == 'messaging' %}active{% endif %}">
+            <i class="fas fa-comments"></i>
+            <span>Messages</span>
+            {% if unread_messages_count > 0 %}<span class="badge bg-danger ms-auto" style="font-size: 0.65rem;">{{ unread_messages_count }}</span>{% endif %}
+        </a>
+
+        <a href="{% url 'chatbot:chat' %}" class="nav-link {% if request.resolver_match.app_name == 'chatbot' %}active{% endif %}">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
         </a>
 
         <a href="{% url 'notifications:list' %}" class="nav-link">
@@ -185,7 +222,23 @@ Used on: Student, Company, Supervisor, Admin dashboards.
             <span>Evaluations</span>
         </a>
 
+        <a href="{% url 'analytics:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <span>Analytics</span>
+        </a>
+
         <div class="nav-section">Other</div>
+
+        <a href="{% url 'messaging:inbox' %}" class="nav-link {% if request.resolver_match.app_name == 'messaging' %}active{% endif %}">
+            <i class="fas fa-comments"></i>
+            <span>Messages</span>
+            {% if unread_messages_count > 0 %}<span class="badge bg-danger ms-auto" style="font-size: 0.65rem;">{{ unread_messages_count }}</span>{% endif %}
+        </a>
+
+        <a href="{% url 'chatbot:chat' %}" class="nav-link {% if request.resolver_match.app_name == 'chatbot' %}active{% endif %}">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+        </a>
 
         <a href="{% url 'notifications:list' %}" class="nav-link">
             <i class="fas fa-bell"></i>

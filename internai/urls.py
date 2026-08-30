@@ -84,6 +84,14 @@ urlpatterns = [
     # ----- Billing & Stripe Payments -----
     # Stripe payment checkout at /billing/
     path('billing/', include('billing.urls', namespace='billing')),
+
+    # ----- Messaging -----
+    # Internal messaging system at /messages/
+    path('messages/', include('messaging.urls', namespace='messaging')),
+
+    # ----- AI Chatbot -----
+    # AI-powered chatbot at /chatbot/
+    path('chatbot/', include('chatbot.urls', namespace='chatbot')),
 ]
 
 # ============================================================

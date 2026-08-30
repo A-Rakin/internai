@@ -195,3 +195,32 @@ class Internship(models.Model):
     def is_open(self):
         """Check if the internship is currently accepting applications."""
         return self.status == 'open' and self.is_approved
+
+
+class SavedInternship(models.Model):
+    """
+    Bookmark / saved internship by a student.
+    """
+    student = models.ForeignKey(
+        'accounts.StudentProfile',
+        on_delete=models.CASCADE,
+        related_name='saved_internships',
+        verbose_name='student',
+    )
+    internship = models.ForeignKey(
+        Internship,
+        on_delete=models.CASCADE,
+        related_name='saved_by_students',
+        verbose_name='internship',
+    )
+    saved_at = models.DateTimeField('saved at', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Saved Internship'
+        verbose_name_plural = 'Saved Internships'
+        unique_together = ['student', 'internship']
+        ordering = ['-saved_at']
+
+    def __str__(self):
+        return f"{self.student.user.get_full_name()} saved {self.internship.title}"
+

@@ -149,3 +149,229 @@ def _local_skill_match(resume_text, internship):
         'missing_skills': missing_skills,
         'recommendation': recommendation,
     }
+
+
+def generate_cover_letter(student_profile, internship):
+    """
+    Generate a tailored cover letter using AI based on student profile
+    and internship requirements.
+    """
+    groq_api_key = getattr(settings, 'GROQ_API_KEY', '')
+
+    student_info = (
+        f"Name: {student_profile.user.get_full_name()}\n"
+        f"University: {student_profile.university}\n"
+        f"Department: {student_profile.department}\n"
+        f"Education Level: {student_profile.get_education_level_display() if student_profile.education_level else 'N/A'}\n"
+        f"Skills: {student_profile.skills}\n"
+        f"Experience: {student_profile.experience}\n"
+        f"GPA: {student_profile.gpa or 'N/A'}\n"
+    )
+
+    internship_info = (
+        f"Title: {internship.title}\n"
+        f"Company: {internship.company.company_name}\n"
+        f"Industry: {internship.company.get_industry_display() if internship.company.industry else 'N/A'}\n"
+        f"Required Skills: {internship.skills_required}\n"
+        f"Requirements: {internship.requirements}\n"
+        f"Description: {internship.description[:500]}\n"
+    )
+
+    if groq_api_key and not groq_api_key.startswith('gsk_your_groq'):
+        try:
+            from groq import Groq
+            client = Groq(api_key=groq_api_key)
+
+            prompt = f"""
+Write a professional, compelling internship cover letter (200-300 words) based on:
+
+STUDENT PROFILE:
+{student_info}
+
+INTERNSHIP POSITION:
+{internship_info}
+
+Guidelines:
+- Address it to the hiring manager at {internship.company.company_name}
+- Open with enthusiasm for the specific role
+- Connect student's skills and experience to the job requirements
+- Mention relevant coursework or projects
+- Close with a call to action
+- Professional but not overly formal tone
+- Do NOT include placeholders like [Your Name] — use the student's actual name
+"""
+            response = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "You are an expert career counselor. Write polished, personalized cover letters."},
+                    {"role": "user", "content": prompt}
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.7,
+                max_tokens=1024,
+            )
+            return response.choices[0].message.content
+
+        except Exception as e:
+            print(f"Groq Cover Letter Error: {e}")
+
+    # Fallback template-based cover letter
+    skills_list = student_profile.get_skills_list()
+    matched = [s for s in skills_list if s.lower() in internship.skills_required.lower()]
+
+    return (
+        f"Dear Hiring Manager at {internship.company.company_name},\n\n"
+        f"I am writing to express my enthusiastic interest in the {internship.title} internship position "
+        f"at {internship.company.company_name}. As a {student_profile.get_education_level_display() if student_profile.education_level else ''} "
+        f"student at {student_profile.university or 'my university'}, studying {student_profile.department or 'my field'}, "
+        f"I am eager to apply my academic knowledge in a professional setting.\n\n"
+        f"My technical skill set includes {', '.join(skills_list[:5]) if skills_list else 'various relevant technologies'}, "
+        f"which align well with the requirements for this role. "
+        f"{'I am particularly confident in ' + ', '.join(matched[:3]) + ' which are directly relevant to this position. ' if matched else ''}"
+        f"{'My previous experience includes ' + student_profile.experience[:200] + '. ' if student_profile.experience else ''}\n\n"
+        f"I am particularly drawn to {internship.company.company_name} because of the opportunity to work on "
+        f"meaningful projects and grow professionally. I am confident that my passion for learning "
+        f"and strong work ethic would make me a valuable addition to your team.\n\n"
+        f"Thank you for considering my application. I look forward to discussing how I can contribute "
+        f"to your team.\n\n"
+        f"Sincerely,\n"
+        f"{student_profile.user.get_full_name()}"
+    )
+
+
+def generate_interview_questions(internship):
+    """
+    Generate role-specific practice interview questions using AI.
+    Returns a list of 5 questions.
+    """
+    groq_api_key = getattr(settings, 'GROQ_API_KEY', '')
+
+    if groq_api_key and not groq_api_key.startswith('gsk_your_groq'):
+        try:
+            from groq import Groq
+            client = Groq(api_key=groq_api_key)
+
+            prompt = f"""
+Generate exactly 5 interview questions for this internship position:
+
+Title: {internship.title}
+Required Skills: {internship.skills_required}
+Requirements: {internship.requirements}
+Description: {internship.description[:500]}
+
+Mix of:
+- 2 technical questions related to the required skills
+- 1 behavioral/situational question
+- 1 problem-solving question
+- 1 motivation/fit question
+
+Respond ONLY with a valid JSON array of 5 question strings. Example:
+["Question 1?", "Question 2?", "Question 3?", "Question 4?", "Question 5?"]
+"""
+            response = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "You are an expert HR interviewer. Respond in valid JSON format only."},
+                    {"role": "user", "content": prompt}
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.6,
+                response_format={"type": "json_object"}
+            )
+
+            result = json.loads(response.choices[0].message.content)
+            # Handle various response formats
+            if isinstance(result, list):
+                return result[:5]
+            elif isinstance(result, dict):
+                for key in ['questions', 'interview_questions', 'data']:
+                    if key in result and isinstance(result[key], list):
+                        return result[key][:5]
+            return list(result.values())[:5] if isinstance(result, dict) else []
+
+        except Exception as e:
+            print(f"Groq Interview Questions Error: {e}")
+
+    # Fallback questions
+    title = internship.title.lower()
+    skills = internship.skills_required or ''
+
+    questions = [
+        f"Tell me about yourself and why you're interested in the {internship.title} position.",
+        f"What relevant skills or projects do you have that make you a good fit for this role?",
+        "Describe a challenging project you've worked on. What was your role and what was the outcome?",
+        "How do you handle tight deadlines and competing priorities?",
+        f"Where do you see yourself in 5 years, and how does this internship at {internship.company.company_name} fit into your plans?",
+    ]
+
+    if 'python' in skills.lower() or 'django' in skills.lower():
+        questions[1] = "Explain the difference between a list and a tuple in Python. When would you use each?"
+    elif 'javascript' in skills.lower() or 'react' in skills.lower():
+        questions[1] = "What is the Virtual DOM in React and why is it important for performance?"
+    elif 'data' in title or 'machine learning' in title:
+        questions[1] = "Explain the difference between supervised and unsupervised learning with examples."
+
+    return questions
+
+
+def grade_interview_answer(question, answer, internship):
+    """
+    Grade a practice interview answer using AI.
+    Returns a dict with score (1-10) and feedback.
+    """
+    groq_api_key = getattr(settings, 'GROQ_API_KEY', '')
+
+    if groq_api_key and not groq_api_key.startswith('gsk_your_groq'):
+        try:
+            from groq import Groq
+            client = Groq(api_key=groq_api_key)
+
+            prompt = f"""
+Grade this interview answer for the {internship.title} position:
+
+QUESTION: {question}
+ANSWER: {answer}
+
+Respond ONLY with a valid JSON object:
+{{
+    "score": <integer 1-10>,
+    "feedback": "<2-3 sentences of constructive feedback>",
+    "strengths": "<what the candidate did well>",
+    "improvement": "<specific suggestion for improvement>"
+}}
+"""
+            response = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "You are an expert HR interviewer. Grade answers honestly. Respond in valid JSON only."},
+                    {"role": "user", "content": prompt}
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.3,
+                response_format={"type": "json_object"}
+            )
+
+            return json.loads(response.choices[0].message.content)
+
+        except Exception as e:
+            print(f"Groq Grading Error: {e}")
+
+    # Fallback grading
+    word_count = len(answer.split())
+    if word_count < 20:
+        score = 3
+        feedback = "Your answer is too brief. Try to provide more detail and examples."
+    elif word_count < 50:
+        score = 5
+        feedback = "Your answer covers the basics but could benefit from more specific examples."
+    elif word_count < 100:
+        score = 7
+        feedback = "Good answer with reasonable detail. Consider adding a concrete example from your experience."
+    else:
+        score = 8
+        feedback = "Comprehensive answer with good detail. Focus on being more concise while maintaining key points."
+
+    return {
+        'score': score,
+        'feedback': feedback,
+        'strengths': 'Shows willingness to engage with the question.',
+        'improvement': 'Add specific examples from projects or coursework to strengthen your response.',
+    }
+

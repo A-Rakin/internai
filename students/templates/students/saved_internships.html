@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Saved Internships{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .saved-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .saved-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar">
+        <h4 class="page-title"><i class="fas fa-bookmark me-2 text-warning"></i>Saved Internships</h4>
+        <div class="navbar-actions">
+            <a href="{% url 'internships:browse' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-search me-1"></i>Browse More
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        {% for item in saved_list %}
+        <div class="saved-card" id="savedItem_{{ item.internship.pk }}">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary">
+                    <i class="fas fa-briefcase fa-lg"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1"><a href="{% url 'internships:detail' item.internship.pk %}" class="text-decoration-none" style="color: var(--text-primary);">{{ item.internship.title }}</a></h5>
+                    <div class="text-muted small">
+                        <i class="fas fa-building me-1"></i>{{ item.internship.company.company_name }}
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-map-marker-alt me-1"></i>{{ item.internship.location|default:"Remote" }}
+                        <span class="mx-2">•</span>
+                        <span class="badge bg-secondary">{{ item.internship.get_internship_type_display }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'internships:detail' item.internship.pk %}" class="btn btn-outline-primary btn-sm">
+                    View Details
+                </a>
+                <button class="btn btn-outline-danger btn-sm remove-bookmark-btn" data-internship-id="{{ item.internship.pk }}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+            <i class="fas fa-bookmark fa-4x text-muted mb-3"></i>
+            <h5>No saved internships yet</h5>
+            <p class="text-muted">Bookmark positions while browsing so you can easily apply later!</p>
+            <a href="{% url 'internships:browse' %}" class="btn btn-primary mt-2">
+                <i class="fas fa-search me-1"></i>Browse Internships
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                      document.cookie.split('csrftoken=')[1]?.split(';')[0];
+
+    document.querySelectorAll('.remove-bookmark-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.dataset.internshipId;
+            const itemCard = document.getElementById(`savedItem_${id}`);
+
+            try {
+                const res = await fetch('{% url "students:toggle_bookmark" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({ internship_id: id }),
+                });
+                const data = await res.json();
+                if (data.success && !data.is_saved) {
+                    itemCard.remove();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

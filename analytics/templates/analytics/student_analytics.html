@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Analytics{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .chart-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .chart-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .chart-card h5 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+    .chart-card .chart-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+    .analytics-hero {
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(78, 205, 196, 0.1));
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+    .analytics-hero h2 { font-family: 'Outfit', sans-serif; font-weight: 700; }
+    .big-stat { text-align: center; padding: 1.5rem; }
+    .big-stat .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        font-family: 'Outfit', sans-serif;
+        background: linear-gradient(135deg, var(--primary), var(--info));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .big-stat .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+    canvas { max-height: 350px; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar">
+        <h4 class="page-title"><i class="fas fa-chart-bar me-2"></i>My Analytics</h4>
+        <div class="navbar-actions">
+            <a href="{% url 'notifications:list' %}" class="navbar-icon-btn text-decoration-none">
+                <i class="fas fa-bell"></i>
+                {% if unread_notifications_count > 0 %}<span class="badge-count">{{ unread_notifications_count }}</span>{% endif %}
+            </a>
+        </div>
+    </div>
+
+    <div class="analytics-hero mt-4">
+        <h2><i class="fas fa-chart-line me-2"></i>Your Application Insights</h2>
+        <p class="text-muted mb-0">Track your progress across all internship applications and weekly performance.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon gradient-primary"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-content"><h3>{{ stats.total_applications }}</h3><p>Total Applications</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-success"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-content"><h3>{{ stats.accepted }}</h3><p>Accepted</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-info"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-content"><h3>{{ stats.interviews }}</h3><p>Interviews</p></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon gradient-warning"><i class="fas fa-robot"></i></div>
+            <div class="stat-content"><h3>{{ stats.avg_match_score|floatformat:0 }}%</h3><p>Avg AI Score</p></div>
+        </div>
+    </div>
+
+    <!-- Secondary Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="chart-card text-center">
+                <div class="big-stat">
+                    <div class="stat-value">{{ stats.total_reports }}</div>
+                    <div class="stat-label"><i class="fas fa-clipboard-list me-1"></i>Reports Submitted</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="chart-card text-center">
+                <div class="big-stat">
+                    <div class="stat-value">{{ stats.avg_report_score|floatformat:0 }}</div>
+                    <div class="stat-label"><i class="fas fa-star me-1"></i>Avg Report Score</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="chart-card text-center">
+                <div class="big-stat">
+                    <div class="stat-value">{{ stats.rejected }}</div>
+                    <div class="stat-label"><i class="fas fa-times-circle me-1"></i>Rejected</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-chart-pie me-2 text-primary"></i>Application Status Breakdown</h5>
+                <p class="chart-subtitle">Your applications distributed by current status</p>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-chart-area me-2 text-success"></i>Applications Over Time</h5>
+                <p class="chart-subtitle">Monthly application submissions (last 6 months)</p>
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-lg-12">
+            <div class="chart-card">
+                <h5><i class="fas fa-chart-line me-2 text-warning"></i>Weekly Report Scores</h5>
+                <p class="chart-subtitle">Your supervisor-graded report scores across weeks</p>
+                <canvas id="reportScoresChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartColors = [
+        'rgba(108, 99, 255, 0.8)', 'rgba(78, 205, 196, 0.8)', 'rgba(255, 107, 107, 0.8)',
+        'rgba(255, 193, 7, 0.8)', 'rgba(40, 167, 69, 0.8)', 'rgba(23, 162, 184, 0.8)',
+        'rgba(255, 159, 64, 0.8)', 'rgba(153, 102, 255, 0.8)',
+    ];
+
+    // Status Breakdown
+    const statusData = JSON.parse('{{ status_data|escapejs }}');
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(statusData),
+            datasets: [{
+                data: Object.values(statusData),
+                backgroundColor: chartColors,
+                borderWidth: 0,
+                hoverOffset: 10,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { position: 'right', labels: { color: '#ccc', font: { family: 'Inter' }, padding: 15 } } },
+        }
+    });
+
+    // Applications Over Time
+    const monthlyApps = JSON.parse('{{ monthly_apps|escapejs }}');
+    new Chart(document.getElementById('timelineChart'), {
+        type: 'line',
+        data: {
+            labels: monthlyApps.map(d => d.month),
+            datasets: [{
+                label: 'Applications',
+                data: monthlyApps.map(d => d.count),
+                borderColor: 'rgba(78, 205, 196, 1)',
+                backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointBackgroundColor: 'rgba(78, 205, 196, 1)',
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#ccc' } } },
+            scales: {
+                x: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            }
+        }
+    });
+
+    // Report Scores
+    const reportScores = JSON.parse('{{ report_scores|escapejs }}');
+    new Chart(document.getElementById('reportScoresChart'), {
+        type: 'line',
+        data: {
+            labels: reportScores.map(d => 'Week ' + d.week_number),
+            datasets: [{
+                label: 'Score',
+                data: reportScores.map(d => d.score),
+                borderColor: 'rgba(255, 193, 7, 1)',
+                backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 6,
+                pointBackgroundColor: 'rgba(255, 193, 7, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#ccc' } } },
+            scales: {
+                x: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { min: 0, max: 100, ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,60 +1,442 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}System Analytics{% endblock %}
+{% block title %}Platform Analytics{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .chart-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .chart-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .chart-card h5 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+    .chart-card .chart-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+    .analytics-hero {
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(78, 205, 196, 0.1));
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+    .analytics-hero h2 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+    }
+    .big-stat {
+        text-align: center;
+        padding: 1.5rem;
+    }
+    .big-stat .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        font-family: 'Outfit', sans-serif;
+        background: linear-gradient(135deg, var(--primary), var(--info));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .big-stat .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+    canvas {
+        max-height: 350px;
+    }
+    .leaderboard-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .leaderboard-item:last-child { border-bottom: none; }
+    .leaderboard-rank {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.8rem;
+        margin-right: 0.75rem;
+        flex-shrink: 0;
+    }
+    .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+    .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: #000; }
+    .rank-3 { background: linear-gradient(135deg, #CD7F32, #B8860B); color: #fff; }
+    .rank-default { background: var(--bg-hover); color: var(--text-muted); }
+</style>
 {% endblock %}
+
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
     <div class="top-navbar">
-        <h4 class="page-title">Platform Analytics & Data Insights</h4>
+        <h4 class="page-title"><i class="fas fa-chart-line me-2"></i>Platform Analytics</h4>
+        <div class="navbar-actions">
+            <a href="{% url 'notifications:list' %}" class="navbar-icon-btn text-decoration-none">
+                <i class="fas fa-bell"></i>
+                {% if unread_notifications_count > 0 %}<span class="badge-count">{{ unread_notifications_count }}</span>{% endif %}
+            </a>
+        </div>
     </div>
 
-    <div class="stats-grid mt-4">
+    <!-- Analytics Hero -->
+    <div class="analytics-hero mt-4">
+        <h2><i class="fas fa-chart-pie me-2"></i>InternAI Platform Intelligence</h2>
+        <p class="text-muted mb-0">Real-time insights and data-driven analytics across the entire platform.</p>
+    </div>
+
+    <!-- Big Stats Row -->
+    <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon gradient-primary"><i class="fas fa-users"></i></div>
-            <div class="stat-content"><h3>{{ total_users }}</h3><p>Total Platform Users</p></div>
+            <div class="stat-content"><h3>{{ stats.total_users }}</h3><p>Total Users</p></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon gradient-success"><i class="fas fa-briefcase"></i></div>
-            <div class="stat-content"><h3>{{ open_positions }}</h3><p>Active Job Positions</p></div>
+            <div class="stat-content"><h3>{{ stats.total_internships }}</h3><p>Total Internships</p></div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon gradient-warning"><i class="fas fa-file-alt"></i></div>
-            <div class="stat-content"><h3>{{ total_applications }}</h3><p>Total Applications</p></div>
+            <div class="stat-icon gradient-info"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-content"><h3>{{ stats.total_applications }}</h3><p>Total Applications</p></div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon gradient-info"><i class="fas fa-building"></i></div>
-            <div class="stat-content"><h3>{{ total_internships }}</h3><p>Total Listings Posted</p></div>
+            <div class="stat-icon gradient-warning"><i class="fas fa-handshake"></i></div>
+            <div class="stat-content"><h3>{{ stats.accepted_offers }}</h3><p>Accepted Offers</p></div>
         </div>
     </div>
 
-    <div class="row g-4 mt-2">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Platform Engagement Trends</h5></div>
-                <div class="card-body">
-                    <canvas id="platformMetricsChart" style="height: 300px;"></canvas>
+    <!-- Secondary Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="chart-card text-center">
+                <div class="big-stat">
+                    <div class="stat-value">{{ stats.total_students }}</div>
+                    <div class="stat-label"><i class="fas fa-user-graduate me-1"></i>Students</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-pie-chart me-2"></i>Role Distribution</h5></div>
-                <div class="card-body">
-                    <canvas id="roleDistributionChart" style="height: 300px;"></canvas>
+        <div class="col-lg-3 col-md-6">
+            <div class="chart-card text-center">
+                <div class="big-stat">
+                    <div class="stat-value">{{ stats.total_companies }}</div>
+                    <div class="stat-label"><i class="fas fa-building me-1"></i>Companies</div>
                 </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="chart-card text-center">
+                <div class="big-stat">
+                    <div class="stat-value">{{ stats.open_positions }}</div>
+                    <div class="stat-label"><i class="fas fa-door-open me-1"></i>Open Positions</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="chart-card text-center">
+                <div class="big-stat">
+                    <div class="stat-value">{{ stats.avg_match_score|floatformat:0 }}%</div>
+                    <div class="stat-label"><i class="fas fa-robot me-1"></i>Avg AI Match</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row g-4">
+        <!-- Application Funnel -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-filter me-2 text-primary"></i>Application Pipeline Funnel</h5>
+                <p class="chart-subtitle">Application flow through recruitment stages</p>
+                <canvas id="funnelChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Category Distribution -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-pie-chart me-2 text-success"></i>Internships by Category</h5>
+                <p class="chart-subtitle">Distribution across industry categories</p>
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row g-4 mt-1">
+        <!-- Top Skills Demand -->
+        <div class="col-lg-8">
+            <div class="chart-card">
+                <h5><i class="fas fa-code me-2 text-warning"></i>Top Skills in Demand</h5>
+                <p class="chart-subtitle">Most requested skills across all internship listings</p>
+                <canvas id="skillsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Internship Type -->
+        <div class="col-lg-4">
+            <div class="chart-card">
+                <h5><i class="fas fa-map-marker-alt me-2 text-info"></i>Work Type</h5>
+                <p class="chart-subtitle">Onsite vs Remote vs Hybrid</p>
+                <canvas id="typeChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="row g-4 mt-1">
+        <!-- Monthly Registrations -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-user-plus me-2 text-success"></i>Monthly Registrations</h5>
+                <p class="chart-subtitle">New user signups over the last 6 months</p>
+                <canvas id="registrationsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Monthly Postings -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-plus-circle me-2 text-primary"></i>Monthly Internship Postings</h5>
+                <p class="chart-subtitle">New internship listings over the last 6 months</p>
+                <canvas id="postingsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 4 -->
+    <div class="row g-4 mt-1">
+        <!-- AI Score Distribution -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-robot me-2 text-primary"></i>AI Match Score Distribution</h5>
+                <p class="chart-subtitle">Distribution of AI-calculated compatibility scores</p>
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
+
+        <!-- University Leaderboard -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h5><i class="fas fa-trophy me-2 text-warning"></i>University Leaderboard</h5>
+                <p class="chart-subtitle">Top universities by accepted internship offers</p>
+                <div id="universityLeaderboard"></div>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
-<script src="{% static 'js/charts.js' %}"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        initApplicationTrendChart("platformMetricsChart", ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], [12, 19, 25, 32, 45, 60]);
+document.addEventListener('DOMContentLoaded', function() {
+    const chartColors = [
+        'rgba(108, 99, 255, 0.8)',
+        'rgba(78, 205, 196, 0.8)',
+        'rgba(255, 107, 107, 0.8)',
+        'rgba(255, 193, 7, 0.8)',
+        'rgba(40, 167, 69, 0.8)',
+        'rgba(23, 162, 184, 0.8)',
+        'rgba(255, 159, 64, 0.8)',
+        'rgba(153, 102, 255, 0.8)',
+        'rgba(255, 99, 132, 0.8)',
+        'rgba(54, 162, 235, 0.8)',
+    ];
+
+    const chartDefaults = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { labels: { color: '#ccc', font: { family: 'Inter' } } },
+        },
+        scales: {
+            x: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#999' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        }
+    };
+
+    // Application Funnel
+    const funnelData = JSON.parse('{{ funnel_data|escapejs }}');
+    new Chart(document.getElementById('funnelChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(funnelData),
+            datasets: [{
+                label: 'Applications',
+                data: Object.values(funnelData),
+                backgroundColor: chartColors,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: false } } }
     });
+
+    // Category Distribution
+    const categoryData = JSON.parse('{{ category_data|escapejs }}');
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: categoryData.map(d => d.name),
+            datasets: [{
+                data: categoryData.map(d => d.count),
+                backgroundColor: chartColors,
+                borderWidth: 0,
+                hoverOffset: 10,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { position: 'right', labels: { color: '#ccc', font: { family: 'Inter' }, padding: 15 } } },
+        }
+    });
+
+    // Top Skills
+    const topSkills = JSON.parse('{{ top_skills|escapejs }}');
+    new Chart(document.getElementById('skillsChart'), {
+        type: 'bar',
+        data: {
+            labels: topSkills.map(d => d.skill.charAt(0).toUpperCase() + d.skill.slice(1)),
+            datasets: [{
+                label: 'Demand Count',
+                data: topSkills.map(d => d.count),
+                backgroundColor: 'rgba(108, 99, 255, 0.7)',
+                borderColor: 'rgba(108, 99, 255, 1)',
+                borderWidth: 1,
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            ...chartDefaults,
+            indexAxis: 'y',
+            plugins: { ...chartDefaults.plugins, legend: { display: false } },
+        }
+    });
+
+    // Internship Type
+    const typeData = JSON.parse('{{ type_data|escapejs }}');
+    const typeLabels = { 'onsite': 'On-site', 'remote': 'Remote', 'hybrid': 'Hybrid' };
+    new Chart(document.getElementById('typeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: typeData.map(d => typeLabels[d.internship_type] || d.internship_type),
+            datasets: [{
+                data: typeData.map(d => d.count),
+                backgroundColor: ['rgba(108, 99, 255, 0.8)', 'rgba(78, 205, 196, 0.8)', 'rgba(255, 193, 7, 0.8)'],
+                borderWidth: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { position: 'bottom', labels: { color: '#ccc', font: { family: 'Inter' } } } },
+        }
+    });
+
+    // Monthly Registrations
+    const regData = JSON.parse('{{ monthly_registrations|escapejs }}');
+    new Chart(document.getElementById('registrationsChart'), {
+        type: 'line',
+        data: {
+            labels: regData.map(d => d.month),
+            datasets: [{
+                label: 'New Users',
+                data: regData.map(d => d.count),
+                borderColor: 'rgba(78, 205, 196, 1)',
+                backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointBackgroundColor: 'rgba(78, 205, 196, 1)',
+            }]
+        },
+        options: chartDefaults,
+    });
+
+    // Monthly Postings
+    const postData = JSON.parse('{{ monthly_postings|escapejs }}');
+    new Chart(document.getElementById('postingsChart'), {
+        type: 'line',
+        data: {
+            labels: postData.map(d => d.month),
+            datasets: [{
+                label: 'Internships Posted',
+                data: postData.map(d => d.count),
+                borderColor: 'rgba(108, 99, 255, 1)',
+                backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointBackgroundColor: 'rgba(108, 99, 255, 1)',
+            }]
+        },
+        options: chartDefaults,
+    });
+
+    // AI Score Distribution
+    const scoreData = JSON.parse('{{ score_distribution|escapejs }}');
+    new Chart(document.getElementById('scoreChart'), {
+        type: 'bar',
+        data: {
+            labels: scoreData.map(d => d.range),
+            datasets: [{
+                label: 'Applicants',
+                data: scoreData.map(d => d.count),
+                backgroundColor: [
+                    'rgba(255, 107, 107, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(78, 205, 196, 0.7)',
+                    'rgba(108, 99, 255, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                ],
+                borderRadius: 8,
+            }]
+        },
+        options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: false } } },
+    });
+
+    // University Leaderboard
+    const uniData = JSON.parse('{{ university_data|escapejs }}');
+    const container = document.getElementById('universityLeaderboard');
+    if (uniData.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center py-3">No university data available yet.</p>';
+    } else {
+        uniData.forEach((uni, idx) => {
+            const rankClass = idx < 3 ? `rank-${idx + 1}` : 'rank-default';
+            container.innerHTML += `
+                <div class="leaderboard-item">
+                    <div class="d-flex align-items-center">
+                        <div class="leaderboard-rank ${rankClass}">${idx + 1}</div>
+                        <div>
+                            <div class="fw-semibold" style="color: var(--text-primary);">${uni.university}</div>
+                            <small class="text-muted">${uni.student_count} students</small>
+                        </div>
+                    </div>
+                    <div class="badge bg-success">${uni.accepted_count} accepted</div>
+                </div>
+            `;
+        });
+    }
+});
 </script>
 {% endblock %}

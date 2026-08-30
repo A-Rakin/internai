@@ -97,3 +97,21 @@ def detail(request, pk=None):
         return redirect('companies:applicant_detail', pk=pk)
     else:
         return redirect(request.user.get_dashboard_url())
+
+
+@login_required
+@role_required('student')
+def generate_cover_letter_view(request, internship_id=None):
+    """AJAX endpoint to generate an AI cover letter for an internship."""
+    from django.http import JsonResponse
+    from common.ai_engine import generate_cover_letter
+
+    internship = get_object_or_404(Internship, pk=internship_id)
+    student_profile = get_object_or_404(StudentProfile, user=request.user)
+
+    try:
+        cover_letter = generate_cover_letter(student_profile, internship)
+        return JsonResponse({'success': True, 'cover_letter': cover_letter})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
