@@ -326,12 +326,8 @@ Used on: Student, Company, Supervisor, Admin dashboards.
             <div class="user-name">{{ user.get_full_name|default:user.email }}</div>
             <div class="user-role">{{ user.get_role_display }}</div>
         </div>
-        <!-- Theme Toggle button -->
-        <button class="btn btn-sm p-0 me-2 theme-toggle-btn" onclick="toggleTheme()" type="button" title="Toggle Dark/Light Theme" style="color: var(--text-muted); background:none; border:none;">
-            <i class="fas fa-sun text-warning"></i>
-        </button>
         <!-- Logout button -->
-        <a href="{% url 'accounts:logout' %}" style="color: var(--text-muted);"
+        <a href="{% url 'accounts:logout' %}" class="ms-auto" style="color: var(--text-muted);"
            data-bs-toggle="tooltip" title="Logout">
             <i class="fas fa-sign-out-alt"></i>
         </a>

@@ -7,8 +7,11 @@
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar">
+    <div class="top-navbar d-flex justify-content-between align-items-center">
         <h4 class="page-title">Platform Administration</h4>
+        <button class="btn btn-sm btn-outline-secondary theme-toggle-btn rounded-pill px-3 py-1" onclick="toggleTheme()" type="button" title="Toggle Light/Dark Theme">
+            <i class="fas fa-sun text-warning me-1"></i> <span class="theme-btn-text">Light Mode</span>
+        </button>
     </div>
 
     <div class="dashboard-header mt-4">

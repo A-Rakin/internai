@@ -67,9 +67,9 @@ Used on: home, about, features, pricing, FAQ, contact pages.
 
                 <!-- ---- Auth & Theme Buttons ---- -->
                 <div class="d-lg-flex align-items-center gap-2 ms-lg-4 mt-3 mt-lg-0">
-                    <!-- Theme Toggle Button -->
-                    <button class="btn btn-sm btn-outline-secondary theme-toggle-btn rounded-circle me-1" onclick="toggleTheme()" type="button" style="width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;" title="Toggle Light/Dark Theme">
-                        <i class="fas fa-sun text-warning"></i>
+                    <!-- Theme Toggle Button (Available before login on public navbar) -->
+                    <button class="btn btn-sm btn-outline-secondary theme-toggle-btn rounded-pill px-3 py-1 me-1 d-inline-flex align-items-center" onclick="toggleTheme()" type="button" title="Toggle Light/Dark Theme">
+                        <i class="fas fa-sun text-warning me-1"></i><span class="theme-btn-text">Light Mode</span>
                     </button>
                     <!-- Login button - outline style -->
                     <a href="{% url 'accounts:login' %}" class="nav-link">

@@ -13,13 +13,63 @@ and content blocks that child templates override.
 <!-- Set the document language to English -->
 <html lang="en" data-bs-theme="dark">
 <head>
-    <!-- Instant Theme Detection Script (Prevents Dark/Light flash before render) -->
+    <!-- Theme Management Engine (Instant detection + global toggle) -->
     <script>
         (function() {
             var theme = localStorage.getItem('internai_theme') || 'dark';
             document.documentElement.setAttribute('data-bs-theme', theme);
             document.documentElement.setAttribute('data-theme', theme);
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            }
         })();
+
+        window.applyTheme = function(theme) {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+                if (document.body) {
+                    document.body.classList.add('light-theme');
+                    document.body.classList.remove('dark-theme');
+                }
+            } else {
+                document.documentElement.classList.remove('light-theme');
+                if (document.body) {
+                    document.body.classList.add('dark-theme');
+                    document.body.classList.remove('light-theme');
+                }
+            }
+            try {
+                localStorage.setItem('internai_theme', theme);
+            } catch(e) {}
+
+            // Update all toggle buttons across current DOM
+            document.querySelectorAll('.theme-toggle-btn').forEach(function(btn) {
+                var icon = btn.querySelector('i');
+                var text = btn.querySelector('.theme-btn-text');
+                if (theme === 'light') {
+                    if (icon) icon.className = 'fas fa-moon text-primary me-1';
+                    if (text) text.innerText = 'Dark Mode';
+                    btn.setAttribute('title', 'Switch to Dark Mode');
+                } else {
+                    if (icon) icon.className = 'fas fa-sun text-warning me-1';
+                    if (text) text.innerText = 'Light Mode';
+                    btn.setAttribute('title', 'Switch to Light Mode');
+                }
+            });
+        };
+
+        window.toggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-bs-theme') || 'dark';
+            var next = (current === 'dark') ? 'light' : 'dark';
+            window.applyTheme(next);
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var theme = localStorage.getItem('internai_theme') || 'dark';
+            window.applyTheme(theme);
+        });
     </script>
     <!-- ============================================================
          META TAGS
@@ -66,11 +116,11 @@ and content blocks that child templates override.
          CUSTOM STYLESHEETS
          ============================================================ -->
     <!-- Main design system stylesheet -->
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=3.0">
     <!-- Extra CSS block - child templates add page-specific CSS here -->
     {% block extra_css %}{% endblock %}
     <!-- Responsive styles loaded last to override other styles -->
-    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=3.0">
 </head>
 
 <body>
@@ -115,17 +165,6 @@ and content blocks that child templates override.
     {% include 'components/chat_widget.html' %}
 
     <!-- ============================================================
-         FLOATING THEME TOGGLE (Universal Light / Dark Mode)
-         ============================================================ -->
-    <div class="floating-theme-switch" style="position: fixed; bottom: 24px; left: 24px; z-index: 1040;">
-        <button class="btn theme-toggle-btn shadow-lg rounded-circle" onclick="toggleTheme()" type="button"
-                style="width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; background: var(--bg-surface); border: 2px solid var(--border-color); color: var(--text-primary); transition: all 0.3s ease; cursor: pointer;"
-                title="Toggle Light / Dark Mode" aria-label="Toggle Light / Dark Mode">
-            <i class="fas fa-sun text-warning fs-5"></i>
-        </button>
-    </div>
-
-    <!-- ============================================================
          BOOTSTRAP 5 JAVASCRIPT
          ============================================================ -->
     <!-- Bootstrap JS bundle includes Popper.js for dropdowns and tooltips -->
@@ -141,7 +180,7 @@ and content blocks that child templates override.
          CUSTOM JAVASCRIPT
          ============================================================ -->
     <!-- Main JavaScript file - sidebar, tooltips, CSRF, etc. -->
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/main.js' %}?v=3.0"></script>
     <!-- Extra JS block - child templates add page-specific scripts here -->
     {% block extra_js %}{% endblock %}
 </body>

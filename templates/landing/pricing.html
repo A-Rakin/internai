@@ -130,13 +130,44 @@
         font-family: var(--font-heading);
         font-size: 3rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-heading);
         line-height: 1;
     }
     .price-amount span {
         font-size: 1rem;
         color: var(--text-secondary);
         font-weight: 500;
+    }
+
+    /* Light Theme Overrides for Pricing */
+    [data-bs-theme="light"] .pricing-card,
+    body.light-theme .pricing-card {
+        background: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+    }
+    [data-bs-theme="light"] .pricing-card.featured,
+    body.light-theme .pricing-card.featured {
+        background: linear-gradient(180deg, #FFFFFF 0%, #EEF2FF 100%) !important;
+        border: 2px solid #4F46E5 !important;
+        box-shadow: 0 8px 32px rgba(79, 70, 229, 0.15) !important;
+    }
+    [data-bs-theme="light"] .price-amount,
+    body.light-theme .price-amount {
+        color: #0F172A !important;
+    }
+    [data-bs-theme="light"] .role-toggle-container,
+    body.light-theme .role-toggle-container {
+        background: #E2E8F0 !important;
+        border-color: #CBD5E1 !important;
+    }
+    [data-bs-theme="light"] .role-tab-btn,
+    body.light-theme .role-tab-btn {
+        color: #475569 !important;
+    }
+    [data-bs-theme="light"] .role-tab-btn.active,
+    body.light-theme .role-tab-btn.active {
+        color: #FFFFFF !important;
     }
     .pricing-features {
         list-style: none;

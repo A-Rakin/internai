@@ -9,7 +9,10 @@
 <div class="main-content">
     <div class="top-navbar">
         <h4 class="page-title">Student Dashboard</h4>
-        <div class="navbar-actions">
+        <div class="navbar-actions d-flex align-items-center">
+            <button class="btn btn-sm btn-outline-secondary theme-toggle-btn rounded-pill px-3 py-1 me-2" onclick="toggleTheme()" type="button" title="Toggle Light/Dark Theme">
+                <i class="fas fa-sun text-warning me-1"></i> <span class="theme-btn-text">Light Mode</span>
+            </button>
             <a href="{% url 'notifications:list' %}" class="navbar-icon-btn text-decoration-none">
                 <i class="fas fa-bell"></i>
                 {% if unread_notifications_count > 0 %}<span class="badge-count">{{ unread_notifications_count }}</span>{% endif %}
