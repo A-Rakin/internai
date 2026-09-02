@@ -66,11 +66,23 @@ class InternshipForm(forms.ModelForm):
             'internship_type': forms.Select(attrs={'class': 'form-select'}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
             'duration': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 3 months'}),
-            'stipend': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'positions': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'stipend': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'positions': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
             'deadline': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
+
+    def clean_stipend(self):
+        stipend = self.cleaned_data.get('stipend')
+        if stipend is not None and stipend < 0:
+            raise forms.ValidationError('Stipend cannot be negative. Enter 0 or a positive value.')
+        return stipend
+
+    def clean_positions(self):
+        positions = self.cleaned_data.get('positions')
+        if positions is not None and positions < 1:
+            raise forms.ValidationError('Positions available must be at least 1.')
+        return positions
 
 
 class InterviewScheduleForm(forms.ModelForm):

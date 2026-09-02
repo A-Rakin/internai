@@ -152,7 +152,7 @@ def _get_ai_response(user, history):
 
             response = client.chat.completions.create(
                 messages=messages,
-                model="llama-3.3-70b-versatile",
+                model="groq/compound-mini",
                 temperature=0.7,
                 max_tokens=1024,
             )

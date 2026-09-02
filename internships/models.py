@@ -7,7 +7,9 @@ including categories, requirements, and status tracking.
 ============================================================
 """
 
+from decimal import Decimal
 from django.db import models
+from django.core.validators import MinValueValidator
 from django.urls import reverse
 from accounts.models import CompanyProfile
 
@@ -133,6 +135,7 @@ class Internship(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
+        validators=[MinValueValidator(Decimal('0.00'))],
         help_text='Monthly stipend amount in BDT',
     )
 
@@ -140,6 +143,7 @@ class Internship(models.Model):
     positions = models.PositiveIntegerField(
         'positions available',
         default=1,
+        validators=[MinValueValidator(1)],
     )
 
     # ---- Status & Dates ----

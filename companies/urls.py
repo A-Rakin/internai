@@ -9,6 +9,7 @@ urlpatterns = [
     path('profile-edit/<int:pk>/', views.profile_edit, name='profile_edit'),
     path('internship-create/', views.internship_create, name='internship_create'),
     path('internship-edit/<int:pk>/', views.internship_edit, name='internship_edit'),
+    path('internship-delete/<int:pk>/', views.internship_delete, name='internship_delete'),
     path('internship-list/', views.internship_list, name='internship_list'),
     path('applicants/', views.applicants, name='applicants'),
     path('applicant-detail/<int:pk>/', views.applicant_detail, name='applicant_detail'),

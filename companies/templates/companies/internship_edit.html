@@ -15,10 +15,23 @@
         <div class="card-body">
             <form method="post">
                 {% csrf_token %}
+                {% if form.errors %}
+                <div class="alert alert-danger mb-4">
+                    <strong>Please correct the errors below:</strong>
+                    <ul class="mb-0 mt-1 ps-3">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
                 <div class="row g-3">
                     <div class="col-md-8">
                         <label class="form-label">Internship Title</label>
                         {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Category</label>
@@ -51,10 +64,12 @@
                     <div class="col-md-4">
                         <label class="form-label">Monthly Stipend (BDT)</label>
                         {{ form.stipend }}
+                        {% if form.stipend.errors %}<div class="text-danger small mt-1">{{ form.stipend.errors.0 }}</div>{% endif %}
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Positions Available</label>
                         {{ form.positions }}
+                        {% if form.positions.errors %}<div class="text-danger small mt-1">{{ form.positions.errors.0 }}</div>{% endif %}
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Application Deadline</label>

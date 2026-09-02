@@ -118,6 +118,10 @@ def internship_edit(request, pk=None):
     company = get_object_or_404(CompanyProfile, user=request.user)
     internship = get_object_or_404(Internship, pk=pk, company=company)
 
+    if internship.is_approved:
+        messages.error(request, 'This internship post has been verified and approved by admin and can no longer be edited.')
+        return redirect('companies:internship_list')
+
     if request.method == 'POST':
         form = InternshipForm(request.POST, instance=internship)
         if form.is_valid():
@@ -129,6 +133,26 @@ def internship_edit(request, pk=None):
 
     context = {'form': form, 'internship': internship, 'action': 'Edit'}
     return render(request, 'companies/internship_edit.html', context)
+
+
+@login_required
+@role_required('company')
+def internship_delete(request, pk=None):
+    """Delete an unapproved internship listing."""
+    company = get_object_or_404(CompanyProfile, user=request.user)
+    internship = get_object_or_404(Internship, pk=pk, company=company)
+
+    if internship.is_approved:
+        messages.error(request, 'Approved internships cannot be deleted by the company.')
+        return redirect('companies:internship_list')
+
+    if request.method == 'POST':
+        title = internship.title
+        internship.delete()
+        messages.success(request, f'Internship "{title}" has been deleted successfully.')
+        return redirect('companies:internship_list')
+
+    return redirect('companies:internship_list')
 
 
 @login_required

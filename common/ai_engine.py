@@ -4,7 +4,7 @@ InternAI - AI Resume Parsing & Match Scoring Engine
 ============================================================
 Extracts text from uploaded PDF resumes and calculates a
 skills-compatibility match score (0-100%) against internship role criteria.
-Supports Groq Cloud API (llama-3.3-70b-versatile) with automatic local fallback.
+Supports Groq Cloud API (groq/compound-mini) with automatic local fallback.
 ============================================================
 """
 
@@ -80,7 +80,7 @@ Respond ONLY with a valid JSON object matching this exact schema:
                     {"role": "system", "content": "You are a professional AI recruiter. Respond in valid JSON format only."},
                     {"role": "user", "content": prompt}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="groq/compound-mini",
                 temperature=0.2,
                 response_format={"type": "json_object"}
             )
@@ -205,7 +205,7 @@ Guidelines:
                     {"role": "system", "content": "You are an expert career counselor. Write polished, personalized cover letters."},
                     {"role": "user", "content": prompt}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="groq/compound-mini",
                 temperature=0.7,
                 max_tokens=1024,
             )
@@ -272,7 +272,7 @@ Respond ONLY with a valid JSON array of 5 question strings. Example:
                     {"role": "system", "content": "You are an expert HR interviewer. Respond in valid JSON format only."},
                     {"role": "user", "content": prompt}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="groq/compound-mini",
                 temperature=0.6,
                 response_format={"type": "json_object"}
             )
@@ -343,7 +343,7 @@ Respond ONLY with a valid JSON object:
                     {"role": "system", "content": "You are an expert HR interviewer. Grade answers honestly. Respond in valid JSON only."},
                     {"role": "user", "content": prompt}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="groq/compound-mini",
                 temperature=0.3,
                 response_format={"type": "json_object"}
             )
