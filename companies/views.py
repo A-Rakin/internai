@@ -18,7 +18,7 @@ from interviews.models import Interview
 from notifications.models import Notification
 from companies.forms import (
     CompanyProfileForm, InternshipForm,
-    InterviewScheduleForm, ApplicationStatusForm,
+    InterviewScheduleForm, InterviewEditForm, ApplicationStatusForm,
 )
 
 
@@ -278,6 +278,22 @@ def applicant_detail(request, pk=None):
             'rejection_reason': application.rejection_reason,
         })
 
+    # Ensure application has a complete AI multi-factor breakdown
+    if not application.ai_breakdown:
+        from common.ai_engine import extract_text_from_pdf, calculate_skill_match
+        resume_text = ""
+        if application.resume:
+            try:
+                resume_text = extract_text_from_pdf(application.resume)
+            except Exception:
+                pass
+        if not resume_text:
+            resume_text = f"{application.student.skills} {application.student.experience} {application.student.department} {application.student.university} {application.cover_letter}"
+        breakdown = calculate_skill_match(resume_text, application.internship)
+        application.ai_breakdown = breakdown
+        application.ai_match_score = breakdown.get('score', application.ai_match_score or 75)
+        application.save(update_fields=['ai_breakdown', 'ai_match_score'])
+
     interviews_list = Interview.objects.filter(application=application).order_by('-scheduled_at')
 
     context = {
@@ -304,9 +320,20 @@ def interviews(request):
 @login_required
 @role_required('company')
 def interview_schedule(request, pk=None):
-    """Schedule a new interview for an application."""
+    """Schedule a new interview for an application (with sequential flow check)."""
     company = get_object_or_404(CompanyProfile, user=request.user)
     application = get_object_or_404(Application, pk=pk, internship__company=company)
+
+    # Sequential scheduling check: Candidate must complete previous pending interview first
+    pending_interview = Interview.objects.filter(application=application, outcome='pending').first()
+    if pending_interview:
+        messages.warning(
+            request,
+            f"This candidate already has a pending scheduled interview on "
+            f"{pending_interview.scheduled_at.strftime('%b %d, %Y at %I:%M %p')}. "
+            "Please conclude or evaluate the first interview before scheduling another interview round."
+        )
+        return redirect('companies:applicant_detail', pk=pk)
 
     if request.method == 'POST':
         form = InterviewScheduleForm(request.POST)
@@ -325,7 +352,7 @@ def interview_schedule(request, pk=None):
                 notification_type='interview',
                 title=f'Interview Scheduled: {application.internship.title}',
                 message=f'An interview has been scheduled for {interview.scheduled_at.strftime("%B %d, %Y at %I:%M %p")}',
-                link=f'/student/applications/',
+                link=f'/students/application-detail/{application.pk}/',
                 priority='high',
             )
             messages.success(request, 'Interview scheduled successfully!')
@@ -338,6 +365,40 @@ def interview_schedule(request, pk=None):
         'application': application,
     }
     return render(request, 'companies/interview_schedule.html', context)
+
+
+@login_required
+@role_required('company')
+def interview_edit(request, pk=None):
+    """View, edit, reschedule, and evaluate an interview."""
+    company = get_object_or_404(CompanyProfile, user=request.user)
+    interview = get_object_or_404(Interview, pk=pk, application__internship__company=company)
+    application = interview.application
+
+    if request.method == 'POST':
+        form = InterviewEditForm(request.POST, instance=interview)
+        if form.is_valid():
+            updated_interview = form.save()
+
+            # Notify student of reschedule or status update
+            Notification.objects.create(
+                recipient=application.student.user,
+                notification_type='interview',
+                title=f'Interview Update: {application.internship.title}',
+                message=f'Interview on {updated_interview.scheduled_at.strftime("%b %d, %Y at %I:%M %p")} was updated (Outcome: {updated_interview.get_outcome_display()}).',
+                link=f'/students/application-detail/{application.pk}/',
+            )
+            messages.success(request, 'Interview details updated successfully!')
+            return redirect('companies:applicant_detail', pk=application.pk)
+    else:
+        form = InterviewEditForm(instance=interview)
+
+    context = {
+        'form': form,
+        'interview': interview,
+        'application': application,
+    }
+    return render(request, 'companies/interview_edit.html', context)
 
 
 @login_required
@@ -358,7 +419,24 @@ def ai_resume_analysis(request):
         selected_internship = get_object_or_404(Internship, pk=internship_id, company=company)
         ranked_applications = ranked_applications.filter(internship=selected_internship)
 
-    ranked_applications = ranked_applications.order_by('-ai_match_score', '-applied_at')
+    ranked_applications = list(ranked_applications.order_by('-ai_match_score', '-applied_at'))
+
+    # Ensure any applications without breakdown get computed
+    from common.ai_engine import extract_text_from_pdf, calculate_skill_match
+    for app in ranked_applications:
+        if not app.ai_breakdown:
+            resume_text = ""
+            if app.resume:
+                try:
+                    resume_text = extract_text_from_pdf(app.resume)
+                except Exception:
+                    pass
+            if not resume_text:
+                resume_text = f"{app.student.skills} {app.student.experience} {app.student.department} {app.student.university} {app.cover_letter}"
+            bd = calculate_skill_match(resume_text, app.internship)
+            app.ai_breakdown = bd
+            app.ai_match_score = bd.get('score', app.ai_match_score or 75)
+            app.save(update_fields=['ai_breakdown', 'ai_match_score'])
 
     context = {
         'company': company,

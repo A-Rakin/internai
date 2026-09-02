@@ -74,12 +74,14 @@ def submit(request, internship_id=None):
 
         # Compute AI Match Score from PDF resume
         ai_score = 75
+        ai_breakdown = {}
         if resume_file:
             try:
                 from common.ai_engine import extract_text_from_pdf, calculate_skill_match
                 resume_text = extract_text_from_pdf(resume_file)
                 match_result = calculate_skill_match(resume_text, internship)
                 ai_score = match_result['score']
+                ai_breakdown = match_result
             except Exception as e:
                 print(f"AI Analysis Error: {e}")
 
@@ -101,6 +103,7 @@ def submit(request, internship_id=None):
             assigned_supervisor=supervisor_profile,
             status='pending',
             ai_match_score=ai_score,
+            ai_breakdown=ai_breakdown,
         )
 
         # Log activity

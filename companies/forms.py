@@ -86,7 +86,7 @@ class InternshipForm(forms.ModelForm):
 
 
 class InterviewScheduleForm(forms.ModelForm):
-    """Form for scheduling interviews."""
+    """Form for scheduling interviews with collision and sequential validation."""
     class Meta:
         model = Interview
         fields = [
@@ -98,10 +98,57 @@ class InterviewScheduleForm(forms.ModelForm):
             'mode': forms.Select(attrs={'class': 'form-select'}),
             'scheduled_at': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'duration_minutes': forms.NumberInput(attrs={'class': 'form-control', 'min': 15}),
-            'meeting_link': forms.URLInput(attrs={'class': 'form-control'}),
-            'location': forms.TextInput(attrs={'class': 'form-control'}),
-            'interviewer_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'meeting_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://meet.google.com/xyz...'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Office Room / Floor / Building'}),
+            'interviewer_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Lead Interviewer Name'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        scheduled_at = cleaned_data.get('scheduled_at')
+        duration = cleaned_data.get('duration_minutes') or 60
+        interviewer = (cleaned_data.get('interviewer_name') or '').strip()
+
+        from datetime import timedelta
+        from django.utils import timezone
+
+        if scheduled_at and scheduled_at < timezone.now():
+            raise forms.ValidationError('Interview date and time cannot be in the past. Please select a future date and time.')
+
+        # Check interviewer time collision
+        if scheduled_at and interviewer:
+            start_time = scheduled_at
+            end_time = scheduled_at + timedelta(minutes=duration)
+
+            conflicts = Interview.objects.filter(
+                interviewer_name__iexact=interviewer,
+                outcome__in=['pending', 'rescheduled']
+            )
+            if self.instance and self.instance.pk:
+                conflicts = conflicts.exclude(pk=self.instance.pk)
+
+            for conf in conflicts:
+                conf_start = conf.scheduled_at
+                conf_end = conf.scheduled_at + timedelta(minutes=conf.duration_minutes or 60)
+                if conf_start < end_time and conf_end > start_time:
+                    raise forms.ValidationError(
+                        f"Interviewer collision: '{interviewer}' is already assigned to an interview on "
+                        f"{conf.scheduled_at.strftime('%b %d, %Y at %I:%M %p')}. "
+                        "The same interviewer cannot be assigned to overlapping interview slots. Please pick another time or interviewer."
+                    )
+
+        return cleaned_data
+
+
+class InterviewEditForm(InterviewScheduleForm):
+    """Form for editing/rescheduling existing interviews and updating outcomes."""
+    class Meta(InterviewScheduleForm.Meta):
+        fields = InterviewScheduleForm.Meta.fields + ['outcome', 'score', 'notes']
+        widgets = dict(InterviewScheduleForm.Meta.widgets, **{
+            'outcome': forms.Select(attrs={'class': 'form-select'}),
+            'score': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100, 'placeholder': 'Score out of 100'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Interview evaluation notes and feedback...'}),
+        })
 
 
 class ApplicationStatusForm(forms.Form):

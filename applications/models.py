@@ -111,6 +111,14 @@ class Application(models.Model):
         help_text='AI-calculated compatibility score (0-100)',
     )
 
+    # Detailed AI multi-factor breakdown (skills, experience, education, formatting, matched/missing skills, notes)
+    ai_breakdown = models.JSONField(
+        'AI match breakdown',
+        default=dict,
+        blank=True,
+        help_text='Detailed analytical scoring breakdown and CV formatting review',
+    )
+
     # ---- Timestamps ----
     applied_at = models.DateTimeField('applied at', auto_now_add=True)
     updated_at = models.DateTimeField('updated at', auto_now=True)

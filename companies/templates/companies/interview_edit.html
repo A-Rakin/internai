@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit & Reschedule Interview | InternAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar d-flex justify-content-between align-items-center mb-4">
+        <h4 class="page-title mb-0"><i class="fas fa-calendar-alt text-primary me-2"></i>Edit & Reschedule Interview</h4>
+        <a href="{% url 'companies:interviews' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Interviews
+        </a>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger shadow-sm">
+        <h6 class="fw-bold mb-1"><i class="fas fa-exclamation-triangle me-2"></i>Please resolve the following issues:</h6>
+        <ul class="mb-0 ps-3">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-white"><i class="fas fa-user-clock me-2"></i>Candidate: {{ application.student.user.get_full_name|default:application.student.user.email }} — {{ application.internship.title }}</h5>
+            <span class="badge bg-light text-primary fw-bold">{{ interview.get_outcome_display }}</span>
+        </div>
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Interview Type</label>
+                        {{ form.interview_type }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Mode</label>
+                        {{ form.mode }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Scheduled Date & Time</label>
+                        {{ form.scheduled_at }}
+                        <small class="text-muted">Pick a future date and time. Must not overlap with another interview for the same interviewer.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Duration (Minutes)</label>
+                        {{ form.duration_minutes }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Meeting Link (Google Meet / Zoom)</label>
+                        {{ form.meeting_link }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Location (if On-site)</label>
+                        {{ form.location }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Interviewer Name</label>
+                        {{ form.interviewer_name }}
+                        <small class="text-muted">Interviewer collision check will ensure this person has no overlapping interview.</small>
+                    </div>
+
+                    <div class="col-12"><hr class="my-2"></div>
+
+                    <!-- Interview Evaluation & Outcome -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-primary">Interview Outcome / Result</label>
+                        {{ form.outcome }}
+                        <small class="text-muted">Update outcome to passed, failed, or rescheduled.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-primary">Candidate Interview Score (0 - 100)</label>
+                        {{ form.score }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Interviewer Feedback & Assessment Notes</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Save & Update Interview
+                    </button>
+                    <a href="{% url 'companies:applicant_detail' application.pk %}" class="btn btn-secondary px-3">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

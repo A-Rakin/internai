@@ -63,9 +63,9 @@
                         <tr>
                             <th>Rank</th>
                             <th>Candidate Name</th>
-                            <th>Target Role Position</th>
-                            <th>AI Match Score</th>
-                            <th>Match Level</th>
+                            <th>Target Role</th>
+                            <th>Total AI Match</th>
+                            <th>Score Breakdown & CV Formatting</th>
                             <th>Application Status</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -96,7 +96,7 @@
                                 <span class="badge bg-surface border border-secondary-subtle text-primary">{{ app.internship.title }}</span>
                             </td>
                             <td>
-                                <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center gap-2 mb-1">
                                     <div class="progress flex-grow-1" style="height: 10px; min-width: 80px; background: rgba(255,255,255,0.05);">
                                         <div class="progress-bar {% if app.ai_match_score >= 85 %}bg-success{% elif app.ai_match_score >= 70 %}bg-primary{% else %}bg-warning{% endif %}" role="progressbar" style="width: {{ app.ai_match_score|default:70 }}%;"></div>
                                     </div>
@@ -104,14 +104,33 @@
                                         {{ app.ai_match_score|default:70 }}%
                                     </strong>
                                 </div>
+                                {% if app.ai_match_score >= 85 %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0">Strong Match</span>
+                                {% elif app.ai_match_score >= 70 %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0">Good Match</span>
+                                {% else %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-0">Moderate Fit</span>
+                                {% endif %}
                             </td>
                             <td>
-                                {% if app.ai_match_score >= 85 %}
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Strong Match</span>
-                                {% elif app.ai_match_score >= 70 %}
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Good Match</span>
-                                {% else %}
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">Moderate Fit</span>
+                                <div class="small">
+                                    <span class="badge bg-primary-subtle text-primary me-1 mb-1" title="Technical Skills Match">
+                                        <i class="fas fa-code me-1"></i>Skills: <strong>{{ app.ai_breakdown.skills_score|default:"--" }}</strong>/40
+                                    </span>
+                                    <span class="badge bg-info-subtle text-info me-1 mb-1" title="Experience & Projects">
+                                        <i class="fas fa-laptop-code me-1"></i>Projects: <strong>{{ app.ai_breakdown.experience_score|default:"--" }}</strong>/25
+                                    </span>
+                                    <span class="badge bg-secondary-subtle text-secondary me-1 mb-1" title="Education Alignment">
+                                        <i class="fas fa-graduation-cap me-1"></i>Education: <strong>{{ app.ai_breakdown.education_score|default:"--" }}</strong>/15
+                                    </span>
+                                    <span class="badge bg-success-subtle text-success me-1 mb-1" title="CV Formatting & Professional Presentation">
+                                        <i class="fas fa-file-invoice me-1"></i>CV Format: <strong>{{ app.ai_breakdown.formatting_score|default:"--" }}</strong>/20
+                                    </span>
+                                </div>
+                                {% if app.ai_breakdown.formatting_feedback %}
+                                <small class="text-muted d-block mt-1 text-truncate" style="max-width: 320px;" title="{{ app.ai_breakdown.formatting_feedback }}">
+                                    <i class="fas fa-info-circle me-1 text-info"></i>{{ app.ai_breakdown.formatting_feedback }}
+                                </small>
                                 {% endif %}
                             </td>
                             <td><span class="badge bg-{{ app.status_color }} px-2 py-1">{{ app.get_status_display }}</span></td>

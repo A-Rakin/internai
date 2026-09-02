@@ -33,18 +33,28 @@ def extract_text_from_pdf(pdf_file):
 
 def calculate_skill_match(resume_text, internship):
     """
-    Calculate an AI Match Score (0-100%) comparing the candidate's resume text
-    against the internship's required skills, title, and requirements.
+    Calculate an analytical AI Match Score (0-100%) with complete breakdown:
+    1. Technical Skills Match (0-40)
+    2. Experience & Practical Projects (0-25)
+    3. Education & Academic Alignment (0-15)
+    4. CV Formatting & Professional Presentation (0-20)
 
-    Attempts Groq Cloud API first if GROQ_API_KEY is present in settings,
-    otherwise falls back to high-performance local NLP keyword matching.
+    Attempts Groq Cloud API first if configured, otherwise falls back to
+    robust local NLP keyword & structure analysis.
     """
     if not resume_text:
         return {
-            'score': 70,
+            'score': 60,
+            'skills_score': 20,
+            'experience_score': 15,
+            'education_score': 10,
+            'formatting_score': 15,
             'matched_skills': [],
-            'missing_skills': [],
-            'recommendation': 'Standard applicant evaluation.',
+            'missing_skills': internship.get_skills_list()[:5],
+            'formatting_feedback': 'No readable text extracted from resume file.',
+            'strengths': ['Application submitted'],
+            'improvements': ['Upload clean text PDF resume'],
+            'recommendation': 'Standard applicant evaluation. Manual review required.',
         }
 
     groq_api_key = getattr(settings, 'GROQ_API_KEY', '')
@@ -56,28 +66,44 @@ def calculate_skill_match(resume_text, internship):
             client = Groq(api_key=groq_api_key)
 
             prompt = f"""
-You are an expert HR AI Recruiter. Analyze this candidate's resume text against the following internship position:
+You are an expert HR AI Recruiter and Resume Auditor. Perform a rigorous, multi-factor analysis of this candidate's resume against the following internship position:
 
 INTERNSHIP POSITION:
 Title: {internship.title}
+Category: {getattr(internship.category, 'name', 'General')}
 Required Skills: {internship.skills_required}
 Role Requirements: {internship.requirements}
 
 RESUME TEXT:
-{resume_text[:3000]}
+{resume_text[:3500]}
 
-Respond ONLY with a valid JSON object matching this exact schema:
+Score the candidate across these 4 distinct dimensions:
+1. "skills_score": (0 to 40) Match between candidate technical skills and role requirements.
+2. "experience_score": (0 to 25) Hands-on projects, work experience, tools, and deliverables relevant to this role.
+3. "education_score": (0 to 15) Relevant degree, coursework, department, and academic background.
+4. "formatting_score": (0 to 20) Resume formatting quality (clear section headers, readability, contact info, structure, professional presentation).
+
+The "score" must be the exact sum: skills_score + experience_score + education_score + formatting_score (max 98).
+
+Respond ONLY with a valid JSON object matching this schema:
 {{
-    "score": <integer score from 50 to 98 based on match fit>,
-    "matched_skills": [<list of matching skill strings found in resume>],
+    "skills_score": <integer 0-40>,
+    "experience_score": <integer 0-25>,
+    "education_score": <integer 0-15>,
+    "formatting_score": <integer 0-20>,
+    "score": <integer sum 45-98>,
+    "matched_skills": [<list of matched skill strings>],
     "missing_skills": [<list of missing required skills>],
-    "recommendation": "<1-2 sentence professional recruiter summary of fit>"
+    "formatting_feedback": "<1-2 sentences evaluating the CV layout, section structure, and formatting>",
+    "strengths": [<1-2 key strengths>],
+    "improvements": [<1-2 concrete suggestions for improvement>],
+    "recommendation": "<1-2 sentence recruiter summary of candidate fit>"
 }}
 """
 
             response = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "You are a professional AI recruiter. Respond in valid JSON format only."},
+                    {"role": "system", "content": "You are a professional HR AI recruiter and resume auditor. Respond in valid JSON format only."},
                     {"role": "user", "content": prompt}
                 ],
                 model="groq/compound-mini",
@@ -88,24 +114,44 @@ Respond ONLY with a valid JSON object matching this exact schema:
             response_content = response.choices[0].message.content
             ai_data = json.loads(response_content)
 
+            skills_sc = int(ai_data.get('skills_score', 28))
+            exp_sc = int(ai_data.get('experience_score', 18))
+            edu_sc = int(ai_data.get('education_score', 12))
+            fmt_sc = int(ai_data.get('formatting_score', 16))
+            total_sc = int(ai_data.get('score', skills_sc + exp_sc + edu_sc + fmt_sc))
+
             return {
-                'score': int(ai_data.get('score', 75)),
+                'score': min(max(total_sc, 45), 98),
+                'skills_score': min(max(skills_sc, 0), 40),
+                'experience_score': min(max(exp_sc, 0), 25),
+                'education_score': min(max(edu_sc, 0), 15),
+                'formatting_score': min(max(fmt_sc, 0), 20),
                 'matched_skills': ai_data.get('matched_skills', []),
                 'missing_skills': ai_data.get('missing_skills', []),
-                'recommendation': ai_data.get('recommendation', 'Evaluated by Groq Cloud AI LLM.'),
+                'formatting_feedback': ai_data.get('formatting_feedback', 'Clean section layout and readable typography.'),
+                'strengths': ai_data.get('strengths', ['Relevant academic and project background']),
+                'improvements': ai_data.get('improvements', ['Expand on quantifiable deliverables']),
+                'recommendation': ai_data.get('recommendation', 'Candidate evaluated with analytical multi-factor scoring.'),
             }
 
         except Exception as e:
             print(f"Groq API Call Error (falling back to local matcher): {e}")
 
-    # Fallback to local NLP matcher
+    # Fallback to local NLP multi-factor matcher
     return _local_skill_match(resume_text, internship)
 
 
 def _local_skill_match(resume_text, internship):
-    """Local fallback keyword & NLP matching engine."""
+    """
+    Local analytical NLP multi-factor matching engine:
+    - Technical skills: 0-40 points
+    - Experience & projects: 0-25 points
+    - Education: 0-15 points
+    - CV formatting: 0-20 points
+    """
     resume_text_lower = resume_text.lower()
 
+    # 1. Technical Skills (0-40)
     required_skills = internship.get_skills_list()
     if not required_skills:
         req_words = [w.strip() for w in re.split(r'[,;\n.]', internship.requirements) if len(w.strip()) > 2]
@@ -127,26 +173,85 @@ def _local_skill_match(resume_text, internship):
     if required_skills:
         skills_ratio = len(matched_skills) / len(required_skills)
     else:
-        skills_ratio = 0.8
+        skills_ratio = 0.75
+
+    skills_score = int(round(skills_ratio * 36)) + (4 if len(matched_skills) >= 3 else 0)
+    skills_score = min(max(skills_score, 12), 40)
+
+    # 2. Experience & Practical Projects (0-25)
+    action_words = ['developed', 'implemented', 'built', 'designed', 'managed', 'created', 'maintained', 'engineered', 'integrated', 'tested']
+    project_terms = ['project', 'github', 'git', 'application', 'system', 'api', 'database', 'frontend', 'backend', 'full stack', 'framework']
+
+    action_count = sum(1 for w in action_words if re.search(r'\b' + w + r'\b', resume_text_lower))
+    project_count = sum(1 for w in project_terms if re.search(r'\b' + w + r'\b', resume_text_lower))
 
     title_words = [w.lower() for w in internship.title.split() if len(w) > 3]
     title_matches = sum(1 for w in title_words if w in resume_text_lower)
-    title_bonus = (title_matches / max(len(title_words), 1)) * 15
 
-    raw_score = (skills_ratio * 75) + title_bonus + 10
-    final_score = int(min(max(raw_score, 50), 98))
+    raw_exp = 10 + min(action_count * 1.5, 6) + min(project_count * 1.2, 5) + min(title_matches * 2, 4)
+    experience_score = int(round(min(max(raw_exp, 10), 25)))
 
-    if final_score >= 85:
-        recommendation = "Strong Match: Candidate possesses the core technical skills and background required for this position."
-    elif final_score >= 70:
-        recommendation = "Good Match: Candidate fulfills key requirements with potential for fast onboarding."
+    # 3. Education & Academic Alignment (0-15)
+    edu_terms = ['bachelor', 'undergraduate', 'bsc', 'b.sc', 'university', 'computer science', 'engineering', 'cgpa', 'gpa', 'student', 'department']
+    edu_count = sum(1 for w in edu_terms if re.search(r'\b' + w + r'\b', resume_text_lower))
+    education_score = int(min(max(7 + (edu_count * 1.5), 8), 15))
+
+    # 4. CV Formatting & Professional Presentation (0-20)
+    has_contact = bool(re.search(r'[\w\.-]+@[\w\.-]+', resume_text) or re.search(r'\b(?:\+?\d{1,3}[- ]?)?\d{10,11}\b', resume_text))
+    has_education_sec = bool(re.search(r'\b(education|academic|qualification)\b', resume_text_lower))
+    has_skills_sec = bool(re.search(r'\b(skills|technical skills|competencies|technologies)\b', resume_text_lower))
+    has_exp_sec = bool(re.search(r'\b(experience|projects|work history|portfolio)\b', resume_text_lower))
+    has_summary_sec = bool(re.search(r'\b(summary|objective|about me|profile)\b', resume_text_lower))
+
+    formatting_points = 6  # base formatting score
+    if has_contact:
+        formatting_points += 4
+    if has_education_sec:
+        formatting_points += 3
+    if has_skills_sec:
+        formatting_points += 3
+    if has_exp_sec:
+        formatting_points += 3
+    if has_summary_sec:
+        formatting_points += 1
+
+    formatting_score = min(max(formatting_points, 10), 20)
+
+    # Generate constructive formatting feedback
+    sections_found = []
+    if has_education_sec: sections_found.append("Education")
+    if has_skills_sec: sections_found.append("Skills")
+    if has_exp_sec: sections_found.append("Projects/Experience")
+    if has_contact: sections_found.append("Contact Information")
+
+    if formatting_score >= 17:
+        formatting_feedback = f"Excellent CV layout with clear sections ({', '.join(sections_found)}) and professional presentation."
+    elif formatting_score >= 13:
+        formatting_feedback = f"Good document structure with essential sections ({', '.join(sections_found)}). Adding quantifiable impact metrics will further enhance presentation."
     else:
-        recommendation = "Moderate Match: Candidate matches partial criteria; review cover letter and experience details."
+        formatting_feedback = "Basic structure detected. Recommend organizing with standard headings (Education, Technical Skills, Projects) and bulleted descriptions."
+
+    total_score = skills_score + experience_score + education_score + formatting_score
+    total_score = int(min(max(total_score, 45), 98))
+
+    if total_score >= 85:
+        recommendation = "Strong Match: Candidate demonstrates high technical compatibility, relevant project work, and clean CV formatting."
+    elif total_score >= 70:
+        recommendation = "Good Match: Candidate fulfills key position requirements and demonstrates solid foundational background."
+    else:
+        recommendation = "Moderate Match: Meets partial criteria; review project portfolio and interview communication."
 
     return {
-        'score': final_score,
+        'score': total_score,
+        'skills_score': skills_score,
+        'experience_score': experience_score,
+        'education_score': education_score,
+        'formatting_score': formatting_score,
         'matched_skills': matched_skills,
         'missing_skills': missing_skills,
+        'formatting_feedback': formatting_feedback,
+        'strengths': [f"Matched {len(matched_skills)} core technical skills", "Relevant academic coursework"],
+        'improvements': [f"Develop proficiency in: {', '.join(missing_skills[:2]) if missing_skills else 'Advanced system design'}"],
         'recommendation': recommendation,
     }
 

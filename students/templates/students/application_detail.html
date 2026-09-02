@@ -24,11 +24,86 @@
                     <h6>Cover Letter</h6>
                     <p class="bg-light p-3 rounded text-muted">{{ application.cover_letter|default:"No cover letter attached." }}</p>
                     {% if application.resume %}
-                    <h6>Resume Attached</h6>
+                    <h6 class="mt-3">Resume Attached</h6>
                     <a href="{{ application.resume.url }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-download me-1"></i>Download Resume</a>
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Recruiter Notes & Feedback Section -->
+            <div class="card shadow-sm mb-4 {% if application.status == 'rejected' %}border-danger{% elif application.company_notes %}border-primary{% endif %}">
+                <div class="card-header {% if application.status == 'rejected' %}bg-danger text-white{% elif application.company_notes %}bg-primary text-white{% endif %} d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 {% if application.company_notes or application.status == 'rejected' %}text-white{% endif %}"><i class="fas fa-comment-dots me-2"></i>Recruiter Notes & Application Feedback</h5>
+                    <span class="badge bg-light text-dark">{{ application.get_status_display }}</span>
+                </div>
+                <div class="card-body">
+                    {% if application.company_notes %}
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-primary mb-2"><i class="fas fa-sticky-note me-1"></i>Recruiter Guidance & Notes:</h6>
+                        <div class="p-3 bg-light rounded text-dark border border-secondary-subtle" style="white-space: pre-line; line-height: 1.6;">
+                            {{ application.company_notes }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if application.rejection_reason %}
+                    <div class="mb-2">
+                        <h6 class="fw-bold text-danger mb-2"><i class="fas fa-exclamation-triangle me-1"></i>Feedback / Reason:</h6>
+                        <div class="p-3 bg-danger-subtle rounded text-danger border border-danger-subtle" style="white-space: pre-line; line-height: 1.6;">
+                            {{ application.rejection_reason }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if not application.company_notes and not application.rejection_reason %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="fas fa-hourglass-half display-6 mb-2 d-block text-muted"></i>
+                        <p class="mb-0">No specific recruiter notes have been posted yet. You will see recruiter updates and interview notices here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- AI CV Analysis & Formatting Review for Student -->
+            {% if application.ai_breakdown %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-brain text-primary me-2"></i>AI CV Feedback & Presentation Score</h5>
+                    <span class="badge bg-primary fs-6">{{ application.ai_match_score|default:70 }}% Match</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 bg-light rounded border">
+                                <small class="text-muted d-block">Skills Match</small>
+                                <strong>{{ application.ai_breakdown.skills_score|default:28 }}/40</strong>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 bg-light rounded border">
+                                <small class="text-muted d-block">Projects</small>
+                                <strong>{{ application.ai_breakdown.experience_score|default:18 }}/25</strong>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 bg-light rounded border">
+                                <small class="text-muted d-block">Education</small>
+                                <strong>{{ application.ai_breakdown.education_score|default:12 }}/15</strong>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 bg-light rounded border">
+                                <small class="text-muted d-block">CV Formatting</small>
+                                <strong class="text-success">{{ application.ai_breakdown.formatting_score|default:16 }}/20</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% if application.ai_breakdown.formatting_feedback %}
+                    <p class="small text-muted mb-0"><i class="fas fa-info-circle text-info me-1"></i><strong>Formatting Advice:</strong> {{ application.ai_breakdown.formatting_feedback }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
 
             {% if interviews %}
             <div class="card shadow-sm mb-4">
@@ -41,7 +116,7 @@
                             <span class="badge bg-info">{{ interview.get_outcome_display }}</span>
                         </div>
                         <p class="mb-1 text-muted"><i class="fas fa-clock me-1"></i>{{ interview.scheduled_at|date:"M d, Y @ h:i A" }} ({{ interview.duration_minutes }} mins)</p>
-                        {% if interview.meeting_link %}<a href="{{ interview.meeting_link }}" target="_blank" class="btn btn-sm btn-success mt-2">Join Meeting</a>{% endif %}
+                        {% if interview.meeting_link %}<a href="{{ interview.meeting_link }}" target="_blank" class="btn btn-sm btn-success mt-2"><i class="fas fa-video me-1"></i>Join Meeting</a>{% endif %}
                     </div>
                     {% endfor %}
                 </div>

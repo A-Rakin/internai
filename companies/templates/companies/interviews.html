@@ -21,9 +21,9 @@
                             <th>Role</th>
                             <th>Interview Type</th>
                             <th>Date & Time</th>
-                            <th>Mode</th>
+                            <th>Interviewer</th>
                             <th>Outcome</th>
-                            <th>Action</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,9 +34,32 @@
                             <td>{{ interview.get_interview_type_display }}</td>
                             <td>{{ interview.scheduled_at|date:"M d, Y @ h:i A" }}</td>
                             <td><span class="badge bg-secondary">{{ interview.get_mode_display }}</span></td>
-                            <td><span class="badge bg-info">{{ interview.get_outcome_display }}</span></td>
+                            <td>{{ interview.interviewer_name|default:"Unassigned" }}</td>
                             <td>
-                                {% if interview.meeting_link %}<a href="{{ interview.meeting_link }}" target="_blank" class="btn btn-sm btn-outline-success">Link</a>{% endif %}
+                                {% if interview.outcome == 'passed' %}
+                                <span class="badge bg-success">Passed</span>
+                                {% elif interview.outcome == 'failed' %}
+                                <span class="badge bg-danger">Failed</span>
+                                {% elif interview.outcome == 'rescheduled' %}
+                                <span class="badge bg-warning text-dark">Rescheduled</span>
+                                {% else %}
+                                <span class="badge bg-info">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'companies:interview_edit' interview.pk %}" class="btn btn-primary" title="Edit & Reschedule">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    {% if interview.meeting_link %}
+                                    <a href="{{ interview.meeting_link }}" target="_blank" class="btn btn-outline-success" title="Join Meeting">
+                                        <i class="fas fa-video"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'companies:applicant_detail' interview.application.pk %}" class="btn btn-outline-secondary" title="View Application">
+                                        <i class="fas fa-user"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
