@@ -86,6 +86,22 @@ class Application(models.Model):
         blank=True,
     )
 
+    # Academic Supervisor details
+    supervisor_email = models.EmailField(
+        'supervisor email',
+        blank=True,
+        help_text='Academic supervisor email provided during application',
+    )
+
+    assigned_supervisor = models.ForeignKey(
+        'accounts.SupervisorProfile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='assigned_applications',
+        verbose_name='assigned supervisor',
+    )
+
     # ---- AI Analysis (for future AI features) ----
     # AI-generated match score (0-100)
     ai_match_score = models.PositiveIntegerField(

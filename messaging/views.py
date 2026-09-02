@@ -84,9 +84,13 @@ def thread(request, pk):
 
 @login_required
 def compose(request):
-    """Compose a new message / start a new conversation."""
+    """Compose a new message / start a new conversation (Strict Role Matrix)."""
+    # 1. Students & Admins CANNOT initiate new conversations
     if request.user.role == CustomUser.STUDENT:
-        django_messages.warning(request, 'Students cannot start new conversations. You can reply to messages sent to you by recruiters or supervisors.')
+        django_messages.warning(request, 'Students cannot initiate new conversations. You can only reply to messages sent to you by recruiters or supervisors.')
+        return redirect('messaging:inbox')
+    elif request.user.role == CustomUser.ADMIN:
+        django_messages.warning(request, 'Admin accounts cannot initiate direct messaging threads.')
         return redirect('messaging:inbox')
 
     if request.method == 'POST':
@@ -102,6 +106,19 @@ def compose(request):
 
         if recipient == request.user:
             django_messages.error(request, 'You cannot message yourself.')
+            return redirect('messaging:compose')
+
+        # 2. Strict Role Matrix Validation
+        if recipient.role == CustomUser.ADMIN:
+            django_messages.error(request, 'Contacting platform administrators via direct message is not permitted.')
+            return redirect('messaging:compose')
+
+        if request.user.role == CustomUser.COMPANY and recipient.role not in [CustomUser.STUDENT, CustomUser.SUPERVISOR]:
+            django_messages.error(request, 'Company recruiters can only initiate messages with Students or Academic Supervisors.')
+            return redirect('messaging:compose')
+
+        if request.user.role == CustomUser.SUPERVISOR and recipient.role not in [CustomUser.STUDENT, CustomUser.COMPANY]:
+            django_messages.error(request, 'Supervisors can only initiate messages with Students or Company recruiters.')
             return redirect('messaging:compose')
 
         # Check if conversation already exists between these two users
@@ -151,8 +168,19 @@ def compose(request):
         if existing:
             return redirect('messaging:thread', pk=existing.pk)
 
-    # Get all users except current user for the recipient dropdown
-    users = CustomUser.objects.exclude(pk=request.user.pk).filter(is_active=True).order_by('first_name')
+    # 3. Filter dropdown users strictly based on sender role
+    if request.user.role == CustomUser.COMPANY:
+        users = CustomUser.objects.filter(
+            role__in=[CustomUser.STUDENT, CustomUser.SUPERVISOR],
+            is_active=True
+        ).order_by('first_name')
+    elif request.user.role == CustomUser.SUPERVISOR:
+        users = CustomUser.objects.filter(
+            role__in=[CustomUser.STUDENT, CustomUser.COMPANY],
+            is_active=True
+        ).order_by('first_name')
+    else:
+        users = CustomUser.objects.none()
 
     context = {
         'users': users,

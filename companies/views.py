@@ -227,13 +227,47 @@ def applicant_detail(request, pk=None):
                 application.rejection_reason = form.cleaned_data['rejection_reason']
             application.save()
 
+            if application.status == 'accepted':
+                from accounts.models import CustomUser, SupervisorProfile
+                sup_email = application.supervisor_email
+                supervisor_profile = None
+
+                if sup_email:
+                    sup_user = CustomUser.objects.filter(email__iexact=sup_email, role=CustomUser.SUPERVISOR).first()
+                    if sup_user and hasattr(sup_user, 'supervisor_profile'):
+                        supervisor_profile = sup_user.supervisor_profile
+
+                if supervisor_profile:
+                    application.assigned_supervisor = supervisor_profile
+                    application.save(update_fields=['assigned_supervisor'])
+
+                    student_prof = application.student
+                    student_prof.supervisor = supervisor_profile
+                    student_prof.save(update_fields=['supervisor'])
+
+                    Notification.objects.create(
+                        recipient=supervisor_profile.user,
+                        notification_type='system',
+                        title=f'New Student Assigned: {application.student.user.get_full_name()}',
+                        message=f'{application.student.user.get_full_name()} has been accepted for "{application.internship.title}" at {company.company_name} and assigned under your academic supervision.',
+                        link=f'/supervisors/students/{student_prof.pk}/',
+                    )
+                else:
+                    Notification.objects.create(
+                        recipient=application.student.user,
+                        notification_type='system',
+                        title='Supervisor Registration Required',
+                        message=f'Your application for "{application.internship.title}" was ACCEPTED! However, your academic supervisor ({sup_email or "not provided"}) does not have an account on InternAI yet. Please ask your supervisor to sign up on InternAI so they can observe your internship progress.',
+                        link=f'/students/applications/',
+                    )
+
             # Create notification for the student
             Notification.objects.create(
                 recipient=application.student.user,
                 notification_type='application',
                 title=f'Application Update: {application.internship.title}',
                 message=f'Your application status has been updated to: {application.get_status_display()}',
-                link=f'/student/application-detail/{application.pk}/',
+                link=f'/students/applications/',
             )
             messages.success(request, 'Application status updated.')
             return redirect('companies:applicant_detail', pk=pk)

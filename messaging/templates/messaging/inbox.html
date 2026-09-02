@@ -51,7 +51,7 @@
         <div class="card-header">
             <div class="inbox-header">
                 <h5 class="mb-0"><i class="fas fa-inbox me-2"></i>Inbox</h5>
-                {% if request.user.role != 'student' %}
+                {% if request.user.role == 'company' or request.user.role == 'supervisor' %}
                 <a href="{% url 'messaging:compose' %}" class="btn btn-primary btn-sm">
                     <i class="fas fa-pen me-1"></i>New Message
                 </a>
@@ -88,7 +88,7 @@
             <div class="empty-inbox">
                 <i class="fas fa-comment-dots"></i>
                 <h5>No conversations yet</h5>
-                {% if request.user.role != 'student' %}
+                {% if request.user.role == 'company' or request.user.role == 'supervisor' %}
                 <p class="text-muted">Start a conversation by clicking "New Message"</p>
                 <a href="{% url 'messaging:compose' %}" class="btn btn-primary mt-2">
                     <i class="fas fa-pen me-1"></i>Compose Message

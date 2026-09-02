@@ -83,11 +83,22 @@ def submit(request, internship_id=None):
             except Exception as e:
                 print(f"AI Analysis Error: {e}")
 
+        supervisor_email = request.POST.get('supervisor_email', '').strip().lower()
+
+        # Check if Supervisor account exists in system
+        from accounts.models import CustomUser, SupervisorProfile
+        supervisor_user = CustomUser.objects.filter(email__iexact=supervisor_email, role=CustomUser.SUPERVISOR).first()
+        supervisor_profile = None
+        if supervisor_user and hasattr(supervisor_user, 'supervisor_profile'):
+            supervisor_profile = supervisor_user.supervisor_profile
+
         application = Application.objects.create(
             student=student_profile,
             internship=internship,
             cover_letter=cover_letter,
             resume=resume_file,
+            supervisor_email=supervisor_email,
+            assigned_supervisor=supervisor_profile,
             status='pending',
             ai_match_score=ai_score,
         )
@@ -108,7 +119,22 @@ def submit(request, internship_id=None):
             link=f'/company/applicant-detail/{application.pk}/',
         )
 
-        messages.success(request, 'Your application has been submitted successfully!')
+        if supervisor_profile:
+            messages.success(request, f'Application submitted! Academic supervisor ({supervisor_email}) verified.')
+        else:
+            messages.warning(
+                request,
+                f"Application submitted! However, no registered supervisor account was found for '{supervisor_email}'. "
+                f"Please tell your academic supervisor to open an account on InternAI so they can track your internship progress."
+            )
+            Notification.objects.create(
+                recipient=request.user,
+                notification_type='system',
+                title='Supervisor Registration Required',
+                message=f"No account found for supervisor email '{supervisor_email}'. Please inform your supervisor to sign up on InternAI.",
+                link='/students/applications/',
+            )
+
         return redirect('students:applications')
 
     student_documents = Document.objects.filter(user=request.user).order_by('-uploaded_at')

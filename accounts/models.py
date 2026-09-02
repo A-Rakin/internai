@@ -294,10 +294,15 @@ class StudentProfile(models.Model):
         null=True,
     )
 
-    @property
-    def is_internship_eligible(self):
-        """Check if student is in their final semester and eligible for internship opportunities."""
-        return self.academic_status == 'final_semester'
+    # Assigned Academic Supervisor
+    supervisor = models.ForeignKey(
+        'SupervisorProfile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='supervised_students',
+        verbose_name='academic supervisor',
+    )
 
     # ---- Skills & Experience ----
     # Technical skills (stored as comma-separated values)
