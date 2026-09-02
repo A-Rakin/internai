@@ -886,12 +886,91 @@ body.light-theme .stat-item .stat-label {
 
 /* Features, Steps, and Sections */
 [data-bs-theme="light"] .features-section,
-[data-bs-theme="light"] .how-it-works-section,
-[data-bs-theme="light"] .cta-section,
+[data-bs-theme="light"] .how-it-works,
 body.light-theme .features-section,
-body.light-theme .how-it-works-section,
-body.light-theme .cta-section {
+body.light-theme .how-it-works {
     background: #F8FAFC !important;
+}
+
+/* CTA Section in Light Mode - Vibrant High-Contrast Gradient Banner */
+:root[data-bs-theme="light"] .cta-section,
+[data-bs-theme="light"] .cta-section,
+body.light-theme .cta-section {
+    background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%) !important;
+    text-align: center !important;
+    padding: 6rem 0 !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+[data-bs-theme="light"] .cta-section h2,
+body.light-theme .cta-section h2 {
+    color: #FFFFFF !important;
+    font-size: 2.25rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 1rem !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-bs-theme="light"] .cta-section p,
+body.light-theme .cta-section p {
+    color: rgba(255, 255, 255, 0.92) !important;
+    font-size: 1.1rem !important;
+    max-width: 520px !important;
+    margin: 0 auto 2rem auto !important;
+}
+
+[data-bs-theme="light"] .cta-section .btn,
+body.light-theme .cta-section .btn {
+    background: #FFFFFF !important;
+    color: #4F46E5 !important;
+    font-weight: 700 !important;
+    padding: 0.875rem 2.25rem !important;
+    border-radius: 50px !important;
+    border: none !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    transition: all 0.25s ease !important;
+}
+
+[data-bs-theme="light"] .cta-section .btn:hover,
+body.light-theme .cta-section .btn:hover {
+    background: #F8FAFC !important;
+    color: #3730A3 !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28) !important;
+}
+
+/* FAQ Accordion in Light Mode */
+[data-bs-theme="light"] .faq-accordion .accordion-item,
+body.light-theme .faq-accordion .accordion-item {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-bs-theme="light"] .faq-accordion .accordion-button,
+body.light-theme .faq-accordion .accordion-button {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+}
+
+[data-bs-theme="light"] .faq-accordion .accordion-button:not(.collapsed),
+body.light-theme .faq-accordion .accordion-button:not(.collapsed) {
+    background: #EEF2FF !important;
+    color: #4F46E5 !important;
+}
+
+[data-bs-theme="light"] .faq-accordion .accordion-button::after,
+body.light-theme .faq-accordion .accordion-button::after {
+    filter: none !important;
+}
+
+[data-bs-theme="light"] .faq-accordion .accordion-body,
+body.light-theme .faq-accordion .accordion-body {
+    background: #FFFFFF !important;
+    color: #475569 !important;
 }
 
 [data-bs-theme="light"] .section-title,
