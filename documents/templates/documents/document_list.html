@@ -99,19 +99,20 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Document Category</label>
-                            <select name="doc_type" class="form-select" required>
-                                <option value="resume">Resume / CV</option>
-                                <option value="formal_photo">Formal Photo / Picture</option>
-                                <option value="certificate">Certificate</option>
-                                <option value="transcript">Academic Transcript</option>
-                                <option value="portfolio">Portfolio Document</option>
-                                <option value="cover_letter">Cover Letter</option>
+                            <select name="doc_type" id="docTypeSelect" class="form-select" required>
+                                <option value="resume">Resume / CV (.pdf, .doc, .docx)</option>
+                                <option value="formal_photo">Formal Photo / Picture (.png, .jpg, .jpeg, .webp)</option>
+                                <option value="certificate">Certificate (.pdf, .png, .jpg)</option>
+                                <option value="transcript">Academic Transcript (.pdf, .png, .jpg)</option>
+                                <option value="portfolio">Portfolio Document (.pdf, .doc, .docx)</option>
+                                <option value="cover_letter">Cover Letter (.pdf, .doc, .docx)</option>
                                 <option value="other">Other Document</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">File (PDF, Image, Doc)</label>
-                            <input type="file" name="file" class="form-control" required>
+                            <label class="form-label fw-bold">File Upload</label>
+                            <input type="file" name="file" id="docFileInput" class="form-control" accept=".pdf, .doc, .docx" required>
+                            <small class="text-muted d-block mt-1" id="fileHelpText">Allowed: PDF or Word documents (.pdf, .doc, .docx)</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Notes / Description (Optional)</label>
@@ -124,4 +125,34 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const docTypeSelect = document.getElementById('docTypeSelect');
+    const docFileInput = document.getElementById('docFileInput');
+    const fileHelpText = document.getElementById('fileHelpText');
+
+    function updateFileAccept() {
+        if (!docTypeSelect || !docFileInput) return;
+        const val = docTypeSelect.value;
+        if (val === 'formal_photo') {
+            docFileInput.setAttribute('accept', 'image/png, image/jpeg, image/jpg, image/webp');
+            if (fileHelpText) fileHelpText.textContent = 'Allowed: Image files only (.png, .jpg, .jpeg, .webp)';
+        } else if (val === 'resume' || val === 'cover_letter' || val === 'portfolio') {
+            docFileInput.setAttribute('accept', '.pdf, .doc, .docx');
+            if (fileHelpText) fileHelpText.textContent = 'Allowed: PDF or Word documents (.pdf, .doc, .docx)';
+        } else {
+            docFileInput.setAttribute('accept', '.pdf, .doc, .docx, .png, .jpg, .jpeg, .webp');
+            if (fileHelpText) fileHelpText.textContent = 'Allowed: PDF, Word docs, or Image files (.pdf, .doc, .docx, .jpg, .png, .webp)';
+        }
+    }
+
+    if (docTypeSelect) {
+        docTypeSelect.addEventListener('change', updateFileAccept);
+        updateFileAccept();
+    }
+});
+</script>
 {% endblock %}

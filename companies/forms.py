@@ -26,7 +26,7 @@ class CompanyProfileForm(forms.ModelForm):
         ]
         widgets = {
             'company_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'logo': forms.FileInput(attrs={'class': 'form-control'}),
+            'logo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/png, image/jpeg, image/jpg, image/webp'}),
             'industry': forms.Select(attrs={'class': 'form-select'}),
             'company_size': forms.Select(attrs={'class': 'form-select'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),

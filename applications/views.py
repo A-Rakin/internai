@@ -48,6 +48,13 @@ def submit(request, internship_id=None):
         else:
             resume_file = request.FILES.get('resume')
             if resume_file:
+                try:
+                    from common.validators import validate_resume_file
+                    validate_resume_file(resume_file)
+                except Exception as ve:
+                    messages.error(request, str(ve).strip("['']"))
+                    return redirect('applications:submit', internship_id=internship.pk)
+
                 # Save newly uploaded file to Document Vault for future applications
                 try:
                     Document.objects.create(

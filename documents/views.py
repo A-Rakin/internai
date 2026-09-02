@@ -23,6 +23,13 @@ def list(request):
         if not title or not uploaded_file:
             messages.error(request, 'Document title and file are required.')
         else:
+            try:
+                from common.validators import validate_document_file
+                validate_document_file(uploaded_file, doc_type)
+            except Exception as ve:
+                messages.error(request, str(ve).strip("['']"))
+                return redirect('documents:list')
+
             doc = Document.objects.create(
                 user=request.user,
                 title=title,

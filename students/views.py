@@ -93,7 +93,13 @@ def profile_edit(request, pk=None):
             request.user.last_name = form.cleaned_data['last_name']
             request.user.phone = form.cleaned_data['phone']
             if 'avatar' in request.FILES:
-                request.user.avatar = request.FILES['avatar']
+                try:
+                    from common.validators import validate_image_file
+                    validate_image_file(request.FILES['avatar'])
+                    request.user.avatar = request.FILES['avatar']
+                except Exception as ve:
+                    messages.error(request, str(ve).strip("['']"))
+                    return render(request, 'students/profile_edit.html', {'form': form, 'profile': student_profile})
             request.user.save()
             messages.success(request, 'Profile updated successfully!')
             return redirect('students:profile')
@@ -208,9 +214,14 @@ def settings(request):
                 messages.success(request, 'Email updated successfully.')
 
         if 'avatar' in request.FILES:
-            request.user.avatar = request.FILES['avatar']
-            request.user.save()
-            messages.success(request, 'Profile photo updated.')
+            try:
+                from common.validators import validate_image_file
+                validate_image_file(request.FILES['avatar'])
+                request.user.avatar = request.FILES['avatar']
+                request.user.save()
+                messages.success(request, 'Profile photo updated.')
+            except Exception as ve:
+                messages.error(request, str(ve).strip("['']"))
 
         request.user.phone = phone
         request.user.save()

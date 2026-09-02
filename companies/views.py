@@ -74,6 +74,14 @@ def profile_edit(request, pk=None):
 
     if request.method == 'POST':
         form = CompanyProfileForm(request.POST, request.FILES, instance=company, user=request.user)
+        if 'logo' in request.FILES:
+            try:
+                from common.validators import validate_image_file
+                validate_image_file(request.FILES['logo'])
+            except Exception as ve:
+                messages.error(request, str(ve).strip("['']"))
+                return render(request, 'companies/profile_edit.html', {'form': form, 'company': company})
+
         if form.is_valid():
             form.save()
             request.user.first_name = form.cleaned_data['first_name']
@@ -331,7 +339,13 @@ def settings(request):
         phone = request.POST.get('phone', '').strip()
         request.user.phone = phone
         if 'avatar' in request.FILES:
-            request.user.avatar = request.FILES['avatar']
+            try:
+                from common.validators import validate_image_file
+                validate_image_file(request.FILES['avatar'])
+                request.user.avatar = request.FILES['avatar']
+            except Exception as ve:
+                messages.error(request, str(ve).strip("['']"))
+                return render(request, 'companies/settings.html', {'company': company})
         request.user.save()
         messages.success(request, 'Settings saved successfully.')
         return redirect('companies:settings')
