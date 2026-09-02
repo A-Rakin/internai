@@ -852,3 +852,81 @@
     color: var(--primary);
     border-bottom-color: var(--primary);
 }
+
+/* ============================================================
+   LIGHT THEME OVERRIDES FOR DASHBOARD
+   ============================================================ */
+[data-bs-theme="light"] .stat-card,
+html[data-theme="light"] .stat-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-bs-theme="light"] .stat-card h3,
+html[data-theme="light"] .stat-card h3 {
+    color: #0F172A;
+}
+
+[data-bs-theme="light"] .chart-card,
+[data-bs-theme="light"] .quick-action-card,
+[data-bs-theme="light"] .recent-activity-card,
+html[data-theme="light"] .chart-card,
+html[data-theme="light"] .quick-action-card,
+html[data-theme="light"] .recent-activity-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-bs-theme="light"] .navbar-icon-btn,
+html[data-theme="light"] .navbar-icon-btn {
+    background: #F1F5F9;
+    border-color: #E2E8F0;
+    color: #475569;
+}
+
+[data-bs-theme="light"] .navbar-icon-btn:hover,
+html[data-theme="light"] .navbar-icon-btn:hover {
+    background: #E2E8F0;
+    color: var(--primary);
+}
+
+[data-bs-theme="light"] .sidebar,
+html[data-theme="light"] .sidebar {
+    background: #FFFFFF !important;
+    border-right: 1px solid #E2E8F0;
+}
+
+[data-bs-theme="light"] .sidebar .sidebar-brand h4,
+html[data-theme="light"] .sidebar .sidebar-brand h4 {
+    color: #0F172A;
+}
+
+[data-bs-theme="light"] .sidebar .sidebar-nav .nav-link,
+html[data-theme="light"] .sidebar .sidebar-nav .nav-link {
+    color: #475569;
+}
+
+[data-bs-theme="light"] .sidebar .sidebar-nav .nav-link:hover,
+html[data-theme="light"] .sidebar .sidebar-nav .nav-link:hover {
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--primary);
+}
+
+[data-bs-theme="light"] .sidebar .sidebar-nav .nav-link.active,
+html[data-theme="light"] .sidebar .sidebar-nav .nav-link.active {
+    background: rgba(79, 70, 229, 0.12);
+    color: var(--primary);
+}
+
+[data-bs-theme="light"] .sidebar-user,
+html[data-theme="light"] .sidebar-user {
+    border-top: 1px solid #E2E8F0;
+    background: #F8FAFC;
+}
+
+[data-bs-theme="light"] .sidebar-user .user-name,
+html[data-theme="light"] .sidebar-user .user-name {
+    color: #0F172A;
+}

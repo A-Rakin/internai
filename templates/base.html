@@ -13,6 +13,14 @@ and content blocks that child templates override.
 <!-- Set the document language to English -->
 <html lang="en" data-bs-theme="dark">
 <head>
+    <!-- Instant Theme Detection Script (Prevents Dark/Light flash before render) -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('internai_theme') || 'dark';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <!-- ============================================================
          META TAGS
          ============================================================ -->
@@ -105,6 +113,17 @@ and content blocks that child templates override.
          FLOATING AI CHATBOT WIDGET
          ============================================================ -->
     {% include 'components/chat_widget.html' %}
+
+    <!-- ============================================================
+         FLOATING THEME TOGGLE (Universal Light / Dark Mode)
+         ============================================================ -->
+    <div class="floating-theme-switch" style="position: fixed; bottom: 24px; left: 24px; z-index: 1040;">
+        <button class="btn theme-toggle-btn shadow-lg rounded-circle" onclick="toggleTheme()" type="button"
+                style="width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; background: var(--bg-surface); border: 2px solid var(--border-color); color: var(--text-primary); transition: all 0.3s ease; cursor: pointer;"
+                title="Toggle Light / Dark Mode" aria-label="Toggle Light / Dark Mode">
+            <i class="fas fa-sun text-warning fs-5"></i>
+        </button>
+    </div>
 
     <!-- ============================================================
          BOOTSTRAP 5 JAVASCRIPT

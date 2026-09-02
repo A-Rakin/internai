@@ -317,4 +317,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // ============================================================
+    // 12. THEME SWITCHER (Dark / Light Mode Toggle)
+    // ============================================================
+    function updateThemeIcons(theme) {
+        const themeButtons = document.querySelectorAll('.theme-toggle-btn');
+        themeButtons.forEach(btn => {
+            if (theme === 'light') {
+                btn.innerHTML = '<i class="fas fa-moon text-primary"></i>';
+                btn.setAttribute('title', 'Switch to Dark Mode');
+                btn.setAttribute('aria-label', 'Switch to Dark Mode');
+            } else {
+                btn.innerHTML = '<i class="fas fa-sun text-warning"></i>';
+                btn.setAttribute('title', 'Switch to Light Mode');
+                btn.setAttribute('aria-label', 'Switch to Light Mode');
+            }
+        });
+    }
+
+    window.toggleTheme = function() {
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'dark';
+        const newTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+
+        document.documentElement.setAttribute('data-bs-theme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('internai_theme', newTheme);
+        updateThemeIcons(newTheme);
+    };
+
+    // Initial sync of icons on page load
+    const activeTheme = localStorage.getItem('internai_theme') || 'dark';
+    updateThemeIcons(activeTheme);
+
 }); // End DOMContentLoaded
+
