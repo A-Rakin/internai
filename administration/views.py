@@ -78,7 +78,7 @@ def user_management(request):
 @login_required
 @role_required('admin')
 def user_detail(request, pk=None):
-    """View and edit user details."""
+    """View and edit user details with complete admin observation audit trail."""
     user_obj = get_object_or_404(CustomUser, pk=pk)
 
     if request.method == 'POST':
@@ -90,9 +90,25 @@ def user_detail(request, pk=None):
     else:
         form = UserEditForm(instance=user_obj)
 
+    # Admin observation context data
+    observation_data = {}
+    if user_obj.is_student and hasattr(user_obj, 'student_profile'):
+        observation_data['student_profile'] = user_obj.student_profile
+        observation_data['applications'] = Application.objects.filter(student=user_obj.student_profile).select_related('internship__company').order_by('-applied_at')
+        observation_data['reports'] = WeeklyReport.objects.filter(student=user_obj.student_profile).order_by('-week_number')
+    elif user_obj.is_company and hasattr(user_obj, 'company_profile'):
+        observation_data['company_profile'] = user_obj.company_profile
+        observation_data['internships'] = Internship.objects.filter(company=user_obj.company_profile).order_by('-created_at')
+    elif user_obj.is_supervisor and hasattr(user_obj, 'supervisor_profile'):
+        observation_data['supervisor_profile'] = user_obj.supervisor_profile
+        observation_data['assigned_reports'] = WeeklyReport.objects.filter(supervisor=user_obj.supervisor_profile).order_by('-created_at')
+
+    observation_data['user_activities'] = ActivityLog.objects.filter(user=user_obj).order_by('-created_at')[:15]
+
     context = {
         'target_user': user_obj,
         'form': form,
+        'obs': observation_data,
     }
     return render(request, 'administration/user_detail.html', context)
 

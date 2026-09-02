@@ -1,28 +1,61 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}AI Candidate Ranking & Resume Analysis{% endblock %}
+{% block title %}AI Candidate Ranking & Resume Analysis | InternAI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar">
-        <h4 class="page-title">AI Candidate Ranking & Resume Analysis</h4>
+    <div class="top-navbar d-flex justify-content-between align-items-center mb-4">
+        <h4 class="page-title mb-0"><i class="fas fa-brain text-primary me-2"></i>AI Candidate Ranking & Resume Analysis</h4>
+        <span class="badge bg-success px-3 py-2 fs-6"><i class="fas fa-check-circle me-1"></i>Groq AI Engine Active</span>
     </div>
 
-    <div class="card shadow-sm mt-4 mb-4">
-        <div class="card-body d-flex align-items-center justify-content-between">
-            <div>
-                <h5 class="fw-bold mb-1"><i class="fas fa-brain text-primary me-2"></i>AI Candidate Match Scoring Engine</h5>
-                <p class="text-muted small mb-0">Resumes are automatically parsed and scored against internship skill requirements using NLP keyword extraction.</p>
+    <!-- Position Selector & Info Banner -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-7">
+                    <h5 class="fw-bold mb-1 text-heading"><i class="fas fa-bullseye text-primary me-2"></i>Role-Specific Candidate Evaluation</h5>
+                    <p class="text-muted small mb-0" style="line-height: 1.5;">
+                        CV match scores are computed strictly against the unique skill requirements and job descriptions of each specific position. Select an internship below to inspect position-specific candidate rankings.
+                    </p>
+                </div>
+                <div class="col-lg-5">
+                    <form method="get" action="{% url 'companies:ai_resume_analysis' %}">
+                        <label class="form-label fw-bold small text-muted">Filter Candidate Ranking by Position:</label>
+                        <select name="internship_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">-- All Internship Openings ({{ company_internships.count }}) --</option>
+                            {% for pos in company_internships %}
+                            <option value="{{ pos.pk }}" {% if selected_internship_id == pos.pk %}selected{% endif %}>
+                                {{ pos.title }} ({{ pos.applications.count }} Applicant{{ pos.applications.count|pluralize }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
             </div>
-            <span class="badge bg-success p-2 fs-6"><i class="fas fa-check-circle me-1"></i>Active Engine</span>
         </div>
     </div>
 
+    <!-- Active Filter Badge -->
+    {% if selected_internship %}
+    <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <i class="fas fa-filter me-2"></i>Showing ranking exclusively for: <strong>{{ selected_internship.title }}</strong>
+            <span class="ms-2 text-muted">| Required Skills: {{ selected_internship.skills_required|default:"Not specified" }}</span>
+        </div>
+        <a href="{% url 'companies:ai_resume_analysis' %}" class="btn btn-sm btn-outline-dark">Show All Positions</a>
+    </div>
+    {% endif %}
+
+    <!-- Candidate Ranking Table -->
     <div class="card shadow-sm">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Ranked Applicants</h5></div>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-trophy me-2 text-warning"></i>Position Candidate Rankings</h5>
+            <span class="badge bg-primary">{{ ranked_applications.count }} Candidate{{ ranked_applications.count|pluralize }} Evaluated</span>
+        </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -30,11 +63,11 @@
                         <tr>
                             <th>Rank</th>
                             <th>Candidate Name</th>
-                            <th>Applied Role</th>
+                            <th>Target Role Position</th>
                             <th>AI Match Score</th>
-                            <th>Status</th>
-                            <th>Applied Date</th>
-                            <th>Action</th>
+                            <th>Match Level</th>
+                            <th>Application Status</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,31 +75,59 @@
                         <tr>
                             <td>
                                 {% if forloop.counter == 1 %}
-                                <span class="badge bg-warning text-dark fs-6"><i class="fas fa-trophy me-1"></i>#1 Top Match</span>
+                                <span class="badge bg-warning text-dark px-3 py-2 fs-6" style="font-weight: 700;">
+                                    <i class="fas fa-crown me-1"></i>#1 Top Match
+                                </span>
+                                {% elif forloop.counter == 2 %}
+                                <span class="badge bg-secondary text-white px-2 py-1 fs-6">#2 Rank</span>
+                                {% elif forloop.counter == 3 %}
+                                <span class="badge bg-bronze text-white px-2 py-1 fs-6" style="background: #cd7f32;">#3 Rank</span>
                                 {% else %}
-                                <span class="fw-bold text-muted">#{{ forloop.counter }}</span>
+                                <span class="fw-bold text-muted ms-2">#{{ forloop.counter }}</span>
                                 {% endif %}
                             </td>
-                            <td><strong>{{ app.student.user.get_full_name|default:app.student.user.email }}</strong></td>
-                            <td>{{ app.internship.title }}</td>
                             <td>
-                                {% if app.ai_match_score >= 80 %}
-                                <span class="badge bg-success fs-6">{{ app.ai_match_score }}% Strong Match</span>
-                                {% elif app.ai_match_score >= 65 %}
-                                <span class="badge bg-primary fs-6">{{ app.ai_match_score }}% Good Match</span>
+                                <div>
+                                    <strong class="d-block text-heading">{{ app.student.user.get_full_name|default:app.student.user.email }}</strong>
+                                    <small class="text-muted">{{ app.student.university|default:"Student" }} {% if app.student.gpa %}(CGPA: {{ app.student.gpa }}/4.00){% endif %}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-surface border border-secondary-subtle text-primary">{{ app.internship.title }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 10px; min-width: 80px; background: rgba(255,255,255,0.05);">
+                                        <div class="progress-bar {% if app.ai_match_score >= 85 %}bg-success{% elif app.ai_match_score >= 70 %}bg-primary{% else %}bg-warning{% endif %}" role="progressbar" style="width: {{ app.ai_match_score|default:70 }}%;"></div>
+                                    </div>
+                                    <strong class="fs-6 {% if app.ai_match_score >= 85 %}text-success{% elif app.ai_match_score >= 70 %}text-primary{% else %}text-warning{% endif %}">
+                                        {{ app.ai_match_score|default:70 }}%
+                                    </strong>
+                                </div>
+                            </td>
+                            <td>
+                                {% if app.ai_match_score >= 85 %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Strong Match</span>
+                                {% elif app.ai_match_score >= 70 %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Good Match</span>
                                 {% else %}
-                                <span class="badge bg-secondary fs-6">{{ app.ai_match_score }}% Moderate</span>
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">Moderate Fit</span>
                                 {% endif %}
                             </td>
-                            <td><span class="badge bg-{{ app.status_color }}">{{ app.get_status_display }}</span></td>
-                            <td>{{ app.applied_at|date:"M d, Y" }}</td>
-                            <td>
-                                <a href="{% url 'companies:applicant_detail' app.pk %}" class="btn btn-sm btn-outline-primary">Inspect AI Details</a>
+                            <td><span class="badge bg-{{ app.status_color }} px-2 py-1">{{ app.get_status_display }}</span></td>
+                            <td class="text-end">
+                                <a href="{% url 'companies:applicant_detail' app.pk %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-microscope me-1"></i>Inspect AI Match
+                                </a>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">No applicant resumes scanned yet.</td>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fas fa-user-slash display-4 mb-3 d-block"></i>
+                                <p class="mb-1">No candidate applications found for this position filter.</p>
+                                <small>Select another internship position from the dropdown above to view applicant rankings.</small>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

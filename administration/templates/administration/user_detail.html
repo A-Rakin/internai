@@ -1,71 +1,122 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}User Detail{% endblock %}
+{% block title %}User Detail & Observation Audit | Admin{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar">
-        <h4 class="page-title">Manage User Account</h4>
+    <div class="top-navbar d-flex justify-content-between align-items-center mb-4">
+        <h4 class="page-title mb-0"><i class="fas fa-user-shield me-2 text-primary"></i>Admin User Management & Observation Audit</h4>
+        <a href="{% url 'administration:user_management' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Users
+        </a>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-user me-2"></i>Account Information</h5></div>
+    <div class="row g-4 mb-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-id-card me-2 text-primary"></i>Account Information</h5></div>
                 <div class="card-body">
-                    <h5>{{ target_user.get_full_name|default:target_user.username }}</h5>
-                    <p class="text-muted">{{ target_user.email }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        {% if target_user.avatar %}
+                        <img src="{{ target_user.avatar.url }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="Avatar">
+                        {% else %}
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: 700;">
+                            {{ target_user.first_name.0|default:target_user.email.0|upper }}
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="fw-bold mb-0 text-heading">{{ target_user.get_full_name|default:target_user.username }}</h5>
+                            <span class="badge bg-primary mt-1">{{ target_user.get_role_display }}</span>
+                        </div>
+                    </div>
                     <hr>
-                    <p><strong>Username:</strong> {{ target_user.username }}</p>
-                    <p><strong>Phone:</strong> {{ target_user.phone|default:"N/A" }}</p>
-                    <p><strong>Date Joined:</strong> {{ target_user.date_joined|date:"M d, Y @ H:i" }}</p>
-                    <p><strong>Last Login:</strong> {{ target_user.last_login|date:"M d, Y @ H:i"|default:"Never" }}</p>
+                    <p class="mb-2"><strong>Email Address:</strong> {{ target_user.email }}</p>
+                    <p class="mb-2"><strong>Username:</strong> {{ target_user.username }}</p>
+                    <p class="mb-2"><strong>Phone Number:</strong> {{ target_user.phone|default:"N/A" }}</p>
+                    <p class="mb-2"><strong>Account Status:</strong> {% if target_user.is_active %}<span class="text-success"><i class="fas fa-check-circle me-1"></i>Active</span>{% else %}<span class="text-danger"><i class="fas fa-ban me-1"></i>Suspended</span>{% endif %}</p>
+                    <p class="mb-2"><strong>Joined Platform:</strong> {{ target_user.date_joined|date:"M d, Y @ H:i" }}</p>
+                    <p class="mb-0"><strong>Last Active Login:</strong> {{ target_user.last_login|date:"M d, Y @ H:i"|default:"Never" }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>Account Permissions</h5></div>
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-cog me-2 text-primary"></i>Manage Permissions</h5></div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">First Name</label>
+                                <label class="form-label fw-bold">First Name</label>
                                 {{ form.first_name }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Last Name</label>
+                                <label class="form-label fw-bold">Last Name</label>
                                 {{ form.last_name }}
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label">Email Address</label>
+                                <label class="form-label fw-bold">Email Address</label>
                                 {{ form.email }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Phone Number</label>
+                                <label class="form-label fw-bold">Phone Number</label>
                                 {{ form.phone }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">User Role</label>
+                                <label class="form-label fw-bold">User Role</label>
                                 {{ form.role }}
                             </div>
                             <div class="col-md-12 form-check ms-2 mt-3">
                                 {{ form.is_active }}
-                                <label class="form-check-label ms-1">Account Active (Uncheck to suspend user)</label>
+                                <label class="form-check-label ms-1">Account Active (Uncheck to suspend user access)</label>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save User Information</button>
-                            <a href="{% url 'administration:user_management' %}" class="btn btn-secondary ms-2">Back</a>
+                            <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>Save Account Changes</button>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Admin Observation Audit Section -->
+    <div class="card shadow-sm">
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-microscope me-2 text-primary"></i>Admin Audit Log & Activity Observation</h5></div>
+        <div class="card-body p-0">
+            {% if obs.user_activities %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Action Type</th>
+                            <th>Description</th>
+                            <th>IP Address</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for act in obs.user_activities %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ act.get_action_display }}</span></td>
+                            <td>{{ act.description }}</td>
+                            <td><code>{{ act.ip_address|default:"127.0.0.1" }}</code></td>
+                            <td class="text-muted small">{{ act.created_at|date:"M d, Y H:i:s" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center text-muted">
+                <i class="fas fa-history display-4 mb-2 d-block"></i>
+                <p class="mb-0">No recorded audit log activities for this account yet.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

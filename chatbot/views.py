@@ -17,24 +17,31 @@ from django.conf import settings
 from chatbot.models import ChatSession, ChatMessage
 
 
+OFF_TOPIC_REFUSAL = (
+    "I am specialized strictly as the **InternAI Career Assistant**. "
+    "I can only help you with internship applications, career preparation, resume/CV optimization, "
+    "interview practice, weekly reports, and platform-related queries.\n\n"
+    "Please ask an internship or career-related question!"
+)
+
+
 def _get_system_prompt(user):
-    """Generate a role-aware system prompt for the AI assistant."""
+    """Generate a strict role-aware system prompt with domain guardrails."""
     role = user.role
     role_context = {
         'student': (
             "The user is a Student on the InternAI platform. "
-            "Help them with internship applications, resume tips, cover letter writing, "
-            "interview preparation, weekly report writing, and career guidance. "
-            "Be encouraging and supportive."
+            "Help them exclusively with internship applications, resume/CV tips, cover letter writing, "
+            "interview preparation, weekly report writing, and career guidance."
         ),
         'company': (
             "The user is a Company HR Recruiter on the InternAI platform. "
-            "Help them with writing internship descriptions, evaluating candidates, "
+            "Help them exclusively with writing internship descriptions, evaluating candidates, "
             "scheduling interviews, understanding AI match scores, and recruitment best practices."
         ),
         'supervisor': (
             "The user is an Academic Supervisor on the InternAI platform. "
-            "Help them with evaluating student reports, writing feedback, "
+            "Help them exclusively with evaluating student reports, writing feedback, "
             "grading criteria, and academic supervision best practices."
         ),
         'admin': (
@@ -45,12 +52,15 @@ def _get_system_prompt(user):
     }
 
     return (
-        "You are InternAI Assistant, a helpful AI powered by advanced language models. "
-        "You assist users of the InternAI Internship Management Platform. "
+        "You are InternAI Assistant, an AI career & internship assistant. "
+        "STRICT DOMAIN BOUNDARY REQUIREMENT: You MUST ONLY answer questions strictly related to internships, "
+        "careers, jobs, resume/CV optimization, cover letters, interviews, weekly academic reports, and the InternAI platform. "
+        "If the user asks about ANYTHING outside this domain (such as movies, films, actors, sports, entertainment, "
+        "cooking, recipes, gaming, weather, politics, jokes, personal stories, etc.), you MUST DECLINE to answer politely "
+        "and respond ONLY with: 'I am specialized strictly as the InternAI Assistant. I can only assist with internship applications, "
+        "career preparation, resume optimization, weekly reports, and platform queries. Please ask a career or internship-related question!' "
         f"{role_context.get(role, '')} "
-        "Keep responses concise, professional, and helpful. "
-        "Use markdown formatting when helpful. "
-        "If asked about something outside the platform, politely redirect to internship-related topics."
+        "Keep responses concise, professional, helpful, and formatted using clean markdown."
     )
 
 
@@ -73,28 +83,32 @@ def send_message(request):
         if not user_message:
             return JsonResponse({'error': 'Empty message'}, status=400)
 
+        # Off-topic Guardrail Check
+        msg_lower = user_message.lower()
+        off_topic_keywords = ['movie', 'film', 'cinema', 'actor', 'actress', 'cricket', 'football', 'soccer', 'recipe', 'cook', 'gaming', 'song', 'music', 'president', 'election', 'political']
+        career_keywords = ['intern', 'job', 'resume', 'cv', 'interview', 'career', 'report', 'code', 'python', 'django', 'react', 'apply', 'application', 'stipend', 'university', 'company', 'hire', 'gpa', 'student', 'work', 'project', 'skill']
+
+        is_off_topic = any(kw in msg_lower for kw in off_topic_keywords) and not any(ckw in msg_lower for ckw in career_keywords)
+
         # Get or create session
         if session_id:
             session = get_object_or_404(ChatSession, pk=session_id, user=request.user)
         else:
-            # Create new session with first message as title
             title = user_message[:50] + ('...' if len(user_message) > 50 else '')
             session = ChatSession.objects.create(user=request.user, title=title)
 
         # Save user message
         ChatMessage.objects.create(session=session, role='user', content=user_message)
 
-        # Build conversation history for context
-        history = list(session.messages.order_by('created_at').values('role', 'content'))
-        # Limit to last 10 messages for token management
-        history = history[-10:]
-
-        # Get AI response
-        ai_response = _get_ai_response(request.user, history)
+        if is_off_topic:
+            ai_response = OFF_TOPIC_REFUSAL
+        else:
+            history = list(session.messages.order_by('created_at').values('role', 'content'))[-10:]
+            ai_response = _get_ai_response(request.user, history)
 
         # Save AI response
         ChatMessage.objects.create(session=session, role='assistant', content=ai_response)
-        session.save()  # Update timestamp
+        session.save()
 
         return JsonResponse({
             'response': ai_response,

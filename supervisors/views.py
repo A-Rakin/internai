@@ -81,22 +81,32 @@ def students_list(request):
 @login_required
 @role_required('supervisor')
 def student_detail(request, pk=None):
-    """View detailed info about a specific student."""
+    """View detailed academic & internship observation data for a specific student."""
     supervisor = get_object_or_404(SupervisorProfile, user=request.user)
     student = get_object_or_404(StudentProfile, pk=pk)
 
     reports_list = WeeklyReport.objects.filter(
-        student=student, supervisor=supervisor
+        student=student
     ).order_by('-week_number')
 
     evaluations = Evaluation.objects.filter(
         student=student, supervisor=supervisor
     ).order_by('-created_at')
 
+    applications_list = Application.objects.filter(
+        student=student
+    ).select_related('internship__company').order_by('-applied_at')
+
+    accepted_application = applications_list.filter(status='accepted').first()
+    total_hours_worked = sum(r.hours_worked for r in reports_list if r.hours_worked)
+
     context = {
         'student': student,
         'reports': reports_list,
         'evaluations': evaluations,
+        'applications': applications_list,
+        'accepted_application': accepted_application,
+        'total_hours_worked': total_hours_worked,
     }
     return render(request, 'supervisors/student_detail.html', context)
 

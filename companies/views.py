@@ -309,14 +309,28 @@ def interview_schedule(request, pk=None):
 @login_required
 @role_required('company')
 def ai_resume_analysis(request):
-    """AI Resume Analysis & Candidate Ranking page."""
+    """AI Resume Analysis & Candidate Ranking page (Position Specific)."""
     company = get_object_or_404(CompanyProfile, user=request.user)
+    company_internships = Internship.objects.filter(company=company).order_by('-created_at')
+
+    internship_id = request.GET.get('internship_id', '')
+    selected_internship = None
+
     ranked_applications = Application.objects.filter(
         internship__company=company
-    ).select_related('student__user', 'internship').order_by('-ai_match_score')
+    ).select_related('student__user', 'internship', 'student')
+
+    if internship_id:
+        selected_internship = get_object_or_404(Internship, pk=internship_id, company=company)
+        ranked_applications = ranked_applications.filter(internship=selected_internship)
+
+    ranked_applications = ranked_applications.order_by('-ai_match_score', '-applied_at')
 
     context = {
         'company': company,
+        'company_internships': company_internships,
+        'selected_internship': selected_internship,
+        'selected_internship_id': int(internship_id) if internship_id and internship_id.isdigit() else '',
         'ranked_applications': ranked_applications,
     }
     return render(request, 'companies/ai_resume_analysis.html', context)
