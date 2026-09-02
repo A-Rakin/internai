@@ -29,11 +29,43 @@ def submit(request, internship_id=None):
         messages.warning(request, 'You have already applied for this internship.')
         return redirect('internships:detail', pk=internship.pk)
 
+    from documents.models import Document
+
     if request.method == 'POST':
         cover_letter = request.POST.get('cover_letter', '').strip()
-        resume_file = request.FILES.get('resume')
+        resume_source = request.POST.get('resume_source', 'upload')
+        resume_file = None
 
-        # Compute AI Match Score from uploaded PDF resume
+        if resume_source == 'vault':
+            selected_doc_id = request.POST.get('selected_doc_id')
+            if selected_doc_id:
+                try:
+                    vault_doc = Document.objects.get(pk=selected_doc_id, user=request.user)
+                    resume_file = vault_doc.file
+                except Document.DoesNotExist:
+                    messages.error(request, 'Selected document not found in your vault.')
+                    return redirect('applications:submit', internship_id=internship.pk)
+        else:
+            resume_file = request.FILES.get('resume')
+            if resume_file:
+                # Save newly uploaded file to Document Vault for future applications
+                try:
+                    Document.objects.create(
+                        user=request.user,
+                        title=f"CV - {internship.title}",
+                        doc_type='resume',
+                        description=f"Uploaded while applying for {internship.title} position.",
+                        file=resume_file,
+                        file_size=resume_file.size,
+                    )
+                except Exception as e:
+                    print(f"Error saving to vault: {e}")
+
+        if not resume_file:
+            messages.error(request, 'Please select or upload a resume file.')
+            return redirect('applications:submit', internship_id=internship.pk)
+
+        # Compute AI Match Score from PDF resume
         ai_score = 75
         if resume_file:
             try:
@@ -72,7 +104,11 @@ def submit(request, internship_id=None):
         messages.success(request, 'Your application has been submitted successfully!')
         return redirect('students:applications')
 
-    context = {'internship': internship}
+    student_documents = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+    context = {
+        'internship': internship,
+        'student_documents': student_documents,
+    }
     return render(request, 'applications/submit.html', context)
 
 

@@ -20,7 +20,7 @@ class StudentProfileForm(forms.ModelForm):
         fields = [
             'date_of_birth', 'gender', 'address', 'city', 'country',
             'university', 'department', 'student_id', 'education_level',
-            'current_semester', 'gpa', 'expected_graduation',
+            'academic_status', 'gpa', 'expected_graduation',
             'skills', 'experience', 'languages',
             'linkedin_url', 'github_url', 'portfolio_url', 'bio',
         ]
@@ -34,8 +34,8 @@ class StudentProfileForm(forms.ModelForm):
             'department': forms.TextInput(attrs={'class': 'form-control'}),
             'student_id': forms.TextInput(attrs={'class': 'form-control'}),
             'education_level': forms.Select(attrs={'class': 'form-select'}),
-            'current_semester': forms.TextInput(attrs={'class': 'form-control'}),
-            'gpa': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'academic_status': forms.Select(attrs={'class': 'form-select'}),
+            'gpa': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.00', 'max': '4.00', 'placeholder': 'Max 4.00'}),
             'expected_graduation': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'skills': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Python, JavaScript, React...'}),
             'experience': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
@@ -45,6 +45,13 @@ class StudentProfileForm(forms.ModelForm):
             'portfolio_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://...'}),
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean_gpa(self):
+        gpa = self.cleaned_data.get('gpa')
+        if gpa is not None:
+            if gpa < 0 or gpa > 4.00:
+                raise forms.ValidationError("CGPA/GPA must be between 0.00 and 4.00.")
+        return gpa
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)

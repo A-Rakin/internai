@@ -42,3 +42,13 @@ def list(request):
     docs = Document.objects.filter(user=request.user).order_by('-uploaded_at')
     context = {'documents': docs}
     return render(request, 'documents/document_list.html', context)
+
+
+@login_required
+def delete_document(request, pk):
+    """Delete a document owned by the user."""
+    doc = get_object_or_404(Document, pk=pk, user=request.user)
+    title = doc.title
+    doc.delete()
+    messages.success(request, f'Document "{title}" deleted successfully.')
+    return redirect('documents:list')

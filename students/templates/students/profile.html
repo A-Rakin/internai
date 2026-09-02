@@ -1,67 +1,263 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}My Student Profile{% endblock %}
+{% block title %}My Student Profile | InternAI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .profile-header-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .profile-cover {
+        height: 120px;
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.4), rgba(0, 242, 254, 0.3));
+        position: relative;
+    }
+    .profile-avatar-container {
+        margin-top: -55px;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 2;
+    }
+    .avatar-circle-lg {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        border: 4px solid var(--bg-surface);
+        background: linear-gradient(135deg, var(--primary), var(--info));
+        color: #ffffff;
+        font-size: 2.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .status-pill-eligible {
+        background: rgba(0, 201, 167, 0.15);
+        color: var(--success);
+        border: 1px solid rgba(0, 201, 167, 0.3);
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .status-pill-graduated {
+        background: rgba(52, 152, 219, 0.15);
+        color: var(--info);
+        border: 1px solid rgba(52, 152, 219, 0.3);
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .status-pill-continuing {
+        background: rgba(255, 179, 68, 0.15);
+        color: var(--warning);
+        border: 1px solid rgba(255, 179, 68, 0.3);
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .detail-item-box {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        transition: border-color 0.2s;
+    }
+    .detail-item-box:hover {
+        border-color: var(--primary);
+    }
+    .detail-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+    }
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-heading);
+    }
+</style>
 {% endblock %}
+
 {% block content %}
 {% include 'components/sidebar.html' %}
 <div class="main-content">
-    <div class="top-navbar d-flex justify-content-between align-items-center">
-        <h4 class="page-title">My Profile</h4>
-        <a href="{% url 'students:profile_edit' profile.pk %}" class="btn btn-primary"><i class="fas fa-edit me-2"></i>Edit Profile</a>
+    <div class="top-navbar d-flex justify-content-between align-items-center mb-4">
+        <h4 class="page-title mb-0"><i class="fas fa-user-circle me-2 text-primary"></i>My Student Profile</h4>
+        <div class="d-flex gap-2">
+            <a href="{% url 'documents:list' %}" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-folder-open me-1"></i>My Documents
+            </a>
+            <a href="{% url 'students:profile_edit' profile.pk %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-edit me-1"></i>Edit Profile
+            </a>
+        </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm text-center p-4">
-                <div class="avatar-lg mx-auto mb-3">
-                    {% if user.avatar %}
-                    <img src="{{ user.avatar.url }}" class="rounded-circle img-fluid" style="width: 120px; height: 120px; object-fit: cover;" alt="Avatar">
-                    {% else %}
-                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto" style="width: 120px; height: 120px; font-size: 2.5rem;">
-                        {{ user.email.0|upper }}
-                    </div>
-                    {% endif %}
+    <!-- Top Profile Banner & Avatar Card -->
+    <div class="profile-header-card">
+        <div class="profile-cover"></div>
+        <div class="text-center px-4 pb-4">
+            <div class="profile-avatar-container">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" class="rounded-circle" style="width: 110px; height: 110px; object-fit: cover; border: 4px solid var(--bg-surface); box-shadow: 0 4px 16px rgba(0,0,0,0.3);" alt="Avatar">
+                {% else %}
+                <div class="avatar-circle-lg">
+                    {{ user.first_name.0|default:user.email.0|upper }}
                 </div>
-                <h5>{{ user.get_full_name|default:user.email }}</h5>
-                <p class="text-muted mb-2">{{ profile.university|default:"Student" }}</p>
-                <div class="badge bg-secondary mb-3">{{ profile.get_education_level_display|default:"Undergraduate" }}</div>
-                
-                <div class="d-flex justify-content-center gap-2 mb-3">
-                    {% if profile.linkedin_url %}<a href="{{ profile.linkedin_url }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fab fa-linkedin"></i></a>{% endif %}
-                    {% if profile.github_url %}<a href="{{ profile.github_url }}" target="_blank" class="btn btn-sm btn-outline-dark"><i class="fab fa-github"></i></a>{% endif %}
-                    {% if profile.portfolio_url %}<a href="{{ profile.portfolio_url }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-globe"></i></a>{% endif %}
+                {% endif %}
+            </div>
+            <h3 class="fw-bold mb-1 text-heading">{{ user.get_full_name|default:user.email }}</h3>
+            <p class="text-muted mb-3">{{ profile.university|default:"University Student" }} {% if profile.department %}— {{ profile.department }}{% endif %}</p>
+            
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap mb-3">
+                {% if profile.academic_status == 'final_semester' %}
+                <div class="status-pill-eligible">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Final Semester (Internship Eligible)</span>
+                </div>
+                {% elif profile.academic_status == 'graduated' %}
+                <div class="status-pill-graduated">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Graduation Completed</span>
+                </div>
+                {% else %}
+                <div class="status-pill-continuing">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Continuing Studies</span>
+                </div>
+                {% endif %}
+
+                <span class="badge bg-secondary px-3 py-2 rounded-pill" style="font-size: 0.85rem;">
+                    {{ profile.get_education_level_display|default:"Undergraduate" }}
+                </span>
+            </div>
+
+            <!-- Social Links -->
+            <div class="d-flex justify-content-center gap-2">
+                {% if profile.linkedin_url %}
+                <a href="{{ profile.linkedin_url }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 36px; height: 36px; line-height: 22px;">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                {% endif %}
+                {% if profile.github_url %}
+                <a href="{{ profile.github_url }}" target="_blank" class="btn btn-sm btn-outline-light rounded-circle" style="width: 36px; height: 36px; line-height: 22px;">
+                    <i class="fab fa-github"></i>
+                </a>
+                {% endif %}
+                {% if profile.portfolio_url %}
+                <a href="{{ profile.portfolio_url }}" target="_blank" class="btn btn-sm btn-outline-info rounded-circle" style="width: 36px; height: 36px; line-height: 22px;">
+                    <i class="fas fa-globe"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Academic Details Column -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap me-2 text-primary"></i>Academic Details</h5>
+                    <span class="badge bg-primary-subtle text-primary">Verified Student</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-item-box">
+                                <div class="detail-label">University / Institution</div>
+                                <div class="detail-value">{{ profile.university|default:"Not specified" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item-box">
+                                <div class="detail-label">Department / Faculty</div>
+                                <div class="detail-value">{{ profile.department|default:"Not specified" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item-box">
+                                <div class="detail-label">Student ID</div>
+                                <div class="detail-value">{{ profile.student_id|default:"Not specified" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item-box">
+                                <div class="detail-label">CGPA / GPA (Max 4.00)</div>
+                                <div class="detail-value text-primary">
+                                    {% if profile.gpa %}
+                                        <strong>{{ profile.gpa }}</strong> <small class="text-muted">/ 4.00</small>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item-box">
+                                <div class="detail-label">Internship Eligibility Status</div>
+                                <div class="detail-value">
+                                    {% if profile.academic_status == 'final_semester' %}
+                                        <span class="text-success"><i class="fas fa-check-circle me-1"></i>Final Semester (Only Internship Left)</span>
+                                    {% elif profile.academic_status == 'graduated' %}
+                                        <span class="text-info"><i class="fas fa-user-graduate me-1"></i>Degree Complete</span>
+                                    {% else %}
+                                        <span class="text-warning"><i class="fas fa-clock me-1"></i>Continuing Coursework</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item-box">
+                                <div class="detail-label">Expected Graduation</div>
+                                <div class="detail-value">{{ profile.expected_graduation|date:"F Y"|default:"Not specified" }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8">
+        <!-- Skills & Biography Column -->
+        <div class="col-lg-5">
             <div class="card shadow-sm mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-academic me-2"></i>Academic Details</h5></div>
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-tag me-2 text-primary"></i>Biography</h5></div>
                 <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-6"><strong>University:</strong> {{ profile.university|default:"Not specified" }}</div>
-                        <div class="col-6"><strong>Department:</strong> {{ profile.department|default:"Not specified" }}</div>
-                        <div class="col-6"><strong>Student ID:</strong> {{ profile.student_id|default:"Not specified" }}</div>
-                        <div class="col-6"><strong>GPA/CGPA:</strong> {{ profile.gpa|default:"N/A" }}</div>
-                        <div class="col-6"><strong>Semester:</strong> {{ profile.current_semester|default:"N/A" }}</div>
-                        <div class="col-6"><strong>Graduation:</strong> {{ profile.expected_graduation|date:"M Y"|default:"N/A" }}</div>
-                    </div>
+                    <p class="text-secondary mb-0" style="line-height: 1.6;">
+                        {{ profile.bio|default:"No bio provided yet. Add a short summary to highlight your strengths to potential employers!" }}
+                    </p>
                 </div>
             </div>
 
-            <div class="card shadow-sm mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-tools me-2"></i>Skills & Bio</h5></div>
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-code me-2 text-primary"></i>Technical Skills</h5></div>
                 <div class="card-body">
-                    <h6>Biography</h6>
-                    <p class="text-muted">{{ profile.bio|default:"No bio provided yet." }}</p>
-                    <hr>
-                    <h6>Technical Skills</h6>
                     {% for skill in profile.get_skills_list %}
-                    <span class="badge bg-primary me-1 mb-1">{{ skill }}</span>
+                    <span class="skill-tag me-1 mb-2"><i class="fas fa-check-double me-1"></i>{{ skill }}</span>
                     {% empty %}
-                    <p class="text-muted small">No skills added yet.</p>
+                    <p class="text-muted small mb-0">No technical skills listed yet.</p>
                     {% endfor %}
                 </div>
             </div>

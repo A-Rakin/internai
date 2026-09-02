@@ -19,6 +19,7 @@ from django.contrib.auth.models import AbstractUser
 
 # Import Django's model fields and utilities
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Import reverse for generating URLs from view names
 from django.urls import reverse
@@ -243,6 +244,13 @@ class StudentProfile(models.Model):
         blank=True,
     )
 
+    # ---- Academic Status Choices ----
+    ACADEMIC_STATUS_CHOICES = [
+        ('final_semester', 'Final Semester (Internship Eligible / Only Internship Remaining)'),
+        ('graduated', 'Graduation Completed'),
+        ('continuing', 'Continuing Studies'),
+    ]
+
     # Education level
     education_level = models.CharField(
         'education level',
@@ -251,20 +259,32 @@ class StudentProfile(models.Model):
         blank=True,
     )
 
-    # Current semester/year
+    # Academic / Internship Status (Replaces semester field)
+    academic_status = models.CharField(
+        'academic status',
+        max_length=30,
+        choices=ACADEMIC_STATUS_CHOICES,
+        default='final_semester',
+        help_text='Indicates whether only the internship semester remains for graduation.',
+    )
+
+    # Deprecated legacy field (kept for migration safety)
     current_semester = models.CharField(
         'current semester',
         max_length=20,
         blank=True,
+        default='',
     )
 
-    # GPA/CGPA
+    # GPA/CGPA (Strictly constrained to 0.00 - 4.00 scale)
     gpa = models.DecimalField(
         'GPA/CGPA',
         max_digits=4,        # Total digits (e.g., 3.95)
         decimal_places=2,    # Digits after decimal point
         blank=True,
         null=True,
+        validators=[MinValueValidator(0.00), MaxValueValidator(4.00)],
+        help_text='Cumulative Grade Point Average (0.00 - 4.00 scale)',
     )
 
     # Expected graduation date
@@ -273,6 +293,11 @@ class StudentProfile(models.Model):
         blank=True,
         null=True,
     )
+
+    @property
+    def is_internship_eligible(self):
+        """Check if student is in their final semester and eligible for internship opportunities."""
+        return self.academic_status == 'final_semester'
 
     # ---- Skills & Experience ----
     # Technical skills (stored as comma-separated values)

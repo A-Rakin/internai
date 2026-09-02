@@ -132,6 +132,15 @@ def new_session(request):
     return JsonResponse({'session_id': session.pk})
 
 
+@login_required
+@require_POST
+def delete_session(request, pk):
+    """Delete a chat session owned by the user."""
+    session = get_object_or_404(ChatSession, pk=pk, user=request.user)
+    session.delete()
+    return JsonResponse({'success': True, 'session_id': pk})
+
+
 def _get_ai_response(user, history):
     """Get AI response from Groq Cloud API or fallback."""
     groq_api_key = getattr(settings, 'GROQ_API_KEY', '')

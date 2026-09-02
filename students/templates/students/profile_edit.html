@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Edit Profile{% endblock %}
+{% block title %}Edit Student Profile | InternAI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
@@ -8,91 +8,121 @@
 {% include 'components/sidebar.html' %}
 <div class="main-content">
     <div class="top-navbar">
-        <h4 class="page-title">Edit Profile</h4>
+        <h4 class="page-title"><i class="fas fa-user-edit me-2 text-primary"></i>Edit Profile</h4>
     </div>
 
     <div class="card shadow-sm mt-4">
-        <div class="card-body">
+        <div class="card-body p-4">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <h5 class="mb-3"><i class="fas fa-id-card me-2"></i>Personal Info</h5>
+                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <h6 class="fw-bold mb-1"><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</h6>
+                    <ul class="mb-0 ps-3">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <h5 class="mb-3 text-primary"><i class="fas fa-id-card me-2"></i>Personal Information</h5>
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
-                        <label class="form-label">First Name</label>
+                        <label class="form-label fw-bold">First Name</label>
                         {{ form.first_name }}
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Last Name</label>
+                        <label class="form-label fw-bold">Last Name</label>
                         {{ form.last_name }}
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Phone</label>
+                        <label class="form-label fw-bold">Phone Number</label>
                         {{ form.phone }}
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Profile Avatar</label>
+                        <label class="form-label fw-bold">Profile Avatar / Photo</label>
                         <input type="file" name="avatar" class="form-control">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Date of Birth</label>
+                        <label class="form-label fw-bold">Date of Birth</label>
                         {{ form.date_of_birth }}
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Gender</label>
+                        <label class="form-label fw-bold">Gender</label>
                         {{ form.gender }}
                     </div>
                 </div>
 
-                <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Academic Info</h5>
+                <hr class="my-4" style="border-color: var(--border-color);">
+
+                <h5 class="mb-3 text-primary"><i class="fas fa-graduation-cap me-2"></i>Academic Details</h5>
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <label class="form-label">University</label>
+                        <label class="form-label fw-bold">University / Institution</label>
                         {{ form.university }}
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Department</label>
+                        <label class="form-label fw-bold">Department / Program</label>
                         {{ form.department }}
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Student ID</label>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Student ID</label>
                         {{ form.student_id }}
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Education Level</label>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Education Level</label>
                         {{ form.education_level }}
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">GPA/CGPA</label>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">CGPA / GPA (Max 4.00)</label>
                         {{ form.gpa }}
+                        <small class="text-muted d-block mt-1">Must be $\le$ 4.00 scale</small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Expected Graduation</label>
+                        {{ form.expected_graduation }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Academic & Internship Eligibility Status</label>
+                        {{ form.academic_status }}
+                        <small class="text-muted d-block mt-1">Select "Final Semester" if only your internship remains for graduation.</small>
                     </div>
                 </div>
 
-                <h5 class="mb-3"><i class="fas fa-code me-2"></i>Skills & Links</h5>
+                <hr class="my-4" style="border-color: var(--border-color);">
+
+                <h5 class="mb-3 text-primary"><i class="fas fa-tools me-2"></i>Skills & Links</h5>
                 <div class="row g-3 mb-4">
                     <div class="col-md-12">
-                        <label class="form-label">Technical Skills (comma-separated)</label>
+                        <label class="form-label fw-bold">Technical Skills (comma-separated)</label>
                         {{ form.skills }}
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">LinkedIn URL</label>
+                        <label class="form-label fw-bold">LinkedIn URL</label>
                         {{ form.linkedin_url }}
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">GitHub URL</label>
+                        <label class="form-label fw-bold">GitHub URL</label>
                         {{ form.github_url }}
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Portfolio URL</label>
+                        <label class="form-label fw-bold">Portfolio URL</label>
                         {{ form.portfolio_url }}
                     </div>
                     <div class="col-md-12">
-                        <label class="form-label">Biography</label>
+                        <label class="form-label fw-bold">Biography / Summary</label>
                         {{ form.bio }}
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Profile Changes</button>
-                <a href="{% url 'students:profile' %}" class="btn btn-secondary ms-2">Cancel</a>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-bold"><i class="fas fa-save me-2"></i>Save Profile Changes</button>
+                    <a href="{% url 'students:profile' %}" class="btn btn-secondary ms-2 px-3 py-2">Cancel</a>
+                </div>
             </form>
         </div>
     </div>

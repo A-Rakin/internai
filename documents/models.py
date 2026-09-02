@@ -21,10 +21,11 @@ class Document(models.Model):
 
     # ---- Document Type Choices ----
     TYPE_CHOICES = [
-        ('resume', 'Resume'),
+        ('resume', 'Resume / CV'),
+        ('formal_photo', 'Formal Photo / Picture'),
+        ('certificate', 'Certificate'),
         ('cover_letter', 'Cover Letter'),
         ('transcript', 'Academic Transcript'),
-        ('certificate', 'Certificate'),
         ('portfolio', 'Portfolio'),
         ('offer_letter', 'Offer Letter'),
         ('agreement', 'Agreement'),
@@ -103,6 +104,7 @@ class Document(models.Model):
         """Return Font Awesome icon based on document type."""
         icons = {
             'resume': 'fas fa-file-alt',
+            'formal_photo': 'fas fa-user-circle',
             'cover_letter': 'fas fa-envelope-open-text',
             'transcript': 'fas fa-graduation-cap',
             'certificate': 'fas fa-certificate',
