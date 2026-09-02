@@ -28,6 +28,9 @@ class InternshipCategory(models.Model):
     # Icon class name for display (e.g., 'fas fa-code')
     icon = models.CharField('icon class', max_length=50, blank=True)
 
+    # Category icon image file
+    image = models.ImageField('category image', upload_to='category_icons/', blank=True, null=True)
+
     # Whether this category is active and visible
     is_active = models.BooleanField('active', default=True)
 

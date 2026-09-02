@@ -87,7 +87,13 @@
                 <div>{{ msg.content }}</div>
                 <div class="msg-time">
                     {{ msg.created_at|date:"M d, h:i A" }}
-                    {% if msg.sender == user and msg.is_read %}<i class="fas fa-check-double ms-1"></i>{% endif %}
+                    {% if msg.sender == user %}
+                        {% if msg.is_read %}
+                        <span class="ms-1" title="Seen{% if msg.read_at %} at {{ msg.read_at|date:'h:i A' }}{% endif %}"><i class="fas fa-check-double text-info"></i> Seen</span>
+                        {% else %}
+                        <span class="ms-1" title="Delivered"><i class="fas fa-check opacity-75"></i> Delivered</span>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
             {% empty %}

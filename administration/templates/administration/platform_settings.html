@@ -28,7 +28,14 @@
                             <tbody>
                                 {% for cat in categories %}
                                 <tr>
-                                    <td><strong><i class="{{ cat.icon|default:'fas fa-tag' }} me-2 text-primary"></i>{{ cat.name }}</strong></td>
+                                    <td>
+                                        {% if cat.image %}
+                                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="me-2 rounded" style="width: 28px; height: 28px; object-fit: contain;">
+                                        {% else %}
+                                        <i class="{{ cat.icon|default:'fas fa-tag' }} me-2 text-primary"></i>
+                                        {% endif %}
+                                        <strong>{{ cat.name }}</strong>
+                                    </td>
                                     <td>{{ cat.description|default:"-" }}</td>
                                     <td>{% if cat.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
                                 </tr>
@@ -48,7 +55,7 @@
             <div class="card shadow-sm">
                 <div class="card-header"><h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add Category</h5></div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label class="form-label">Category Name</label>
@@ -59,7 +66,12 @@
                             {{ form.description }}
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Icon Class (e.g. <code>fas fa-code</code>)</label>
+                            <label class="form-label">Category Icon Image (Uploaded Image)</label>
+                            {{ form.image }}
+                            <div class="form-text">Upload an image file for the icon (recommended).</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Icon Class Code (Optional Fallback)</label>
                             {{ form.icon }}
                         </div>
                         <div class="mb-3 form-check">

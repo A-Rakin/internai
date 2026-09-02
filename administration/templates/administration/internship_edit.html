@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Admin Edit Internship Post{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar d-flex justify-content-between align-items-center">
+        <h4 class="page-title">Admin Moderation: Edit Internship</h4>
+        <a href="{% url 'administration:internship_moderation' %}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Cancel</a>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div class="alert alert-danger mb-4">
+                    <strong>Please correct the errors below:</strong>
+                    <ul class="mb-0 mt-1 ps-3">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Internship Title</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Role Description</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Requirements</label>
+                        {{ form.requirements }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Skills Required (comma-separated)</label>
+                        {{ form.skills_required }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Type</label>
+                        {{ form.internship_type }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Location</label>
+                        {{ form.location }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Duration</label>
+                        {{ form.duration }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Monthly Stipend (BDT)</label>
+                        {{ form.stipend }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Positions Available</label>
+                        {{ form.positions }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Application Deadline</label>
+                        {{ form.deadline }}
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-warning"><i class="fas fa-save me-2"></i>Update Post (Admin Override)</button>
+                    <a href="{% url 'administration:internship_moderation' %}" class="btn btn-secondary ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

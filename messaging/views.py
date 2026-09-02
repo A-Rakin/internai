@@ -85,6 +85,10 @@ def thread(request, pk):
 @login_required
 def compose(request):
     """Compose a new message / start a new conversation."""
+    if request.user.role == CustomUser.STUDENT:
+        django_messages.warning(request, 'Students cannot start new conversations. You can reply to messages sent to you by recruiters or supervisors.')
+        return redirect('messaging:inbox')
+
     if request.method == 'POST':
         recipient_id = request.POST.get('recipient')
         subject = request.POST.get('subject', '').strip()
@@ -135,8 +139,24 @@ def compose(request):
         django_messages.success(request, 'Message sent successfully!')
         return redirect('messaging:thread', pk=conversation.pk)
 
+    recipient_id = request.GET.get('recipient')
+    initial_subject = request.GET.get('subject', '')
+
+    if recipient_id:
+        existing = Conversation.objects.filter(
+            participants=request.user
+        ).filter(
+            participants__pk=recipient_id
+        ).first()
+        if existing:
+            return redirect('messaging:thread', pk=existing.pk)
+
     # Get all users except current user for the recipient dropdown
     users = CustomUser.objects.exclude(pk=request.user.pk).filter(is_active=True).order_by('first_name')
 
-    context = {'users': users}
+    context = {
+        'users': users,
+        'selected_recipient_id': recipient_id,
+        'initial_subject': initial_subject,
+    }
     return render(request, 'messaging/compose.html', context)

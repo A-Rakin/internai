@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Preview Internship Post{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+{% include 'components/sidebar.html' %}
+<div class="main-content">
+    <div class="top-navbar d-flex justify-content-between align-items-center">
+        <h4 class="page-title">Admin Moderation: Internship Preview</h4>
+        <div>
+            <a href="{% url 'administration:internship_edit' internship.pk %}" class="btn btn-warning me-2"><i class="fas fa-edit me-1"></i>Edit Listing</a>
+            <a href="{% url 'administration:internship_moderation' %}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Moderation</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-briefcase me-2 text-primary"></i>{{ internship.title }}</h5>
+            <span class="badge {% if internship.is_approved %}bg-success{% else %}bg-warning{% endif %} fs-6">
+                {% if internship.is_approved %}<i class="fas fa-check me-1"></i>Approved{% else %}<i class="fas fa-clock me-1"></i>Pending Moderation{% endif %}
+            </span>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="mb-4">
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Company Overview</h6>
+                        <h5><i class="fas fa-building me-2 text-primary"></i>{{ internship.company.company_name }}</h5>
+                        <p class="text-muted mb-1"><i class="fas fa-map-marker-alt me-2"></i>{{ internship.location|default:"Not specified" }}</p>
+                        <p class="text-muted"><i class="fas fa-globe me-2"></i>{{ internship.company.website|default:"N/A" }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Role Description</h6>
+                        <div class="p-3 bg-dark rounded border border-secondary">{{ internship.description|linebreaks }}</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Requirements</h6>
+                        <div class="p-3 bg-dark rounded border border-secondary">{{ internship.requirements|linebreaks }}</div>
+                    </div>
+
+                    {% if internship.skills_required %}
+                    <div class="mb-4">
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Required Skills</h6>
+                        <div>
+                            {% for skill in internship.get_skills_list %}
+                            <span class="badge bg-primary me-1 mb-1 p-2">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-dark border-secondary p-3 mb-3">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2 text-info"></i>Position Details</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><strong>Category:</strong> {{ internship.category.name|default:"Uncategorized" }}</li>
+                            <li class="mb-2"><strong>Type:</strong> {{ internship.get_internship_type_display }}</li>
+                            <li class="mb-2"><strong>Duration:</strong> {{ internship.duration }}</li>
+                            <li class="mb-2"><strong>Monthly Stipend:</strong> {% if internship.stipend %}{{ internship.stipend }} BDT{% else %}Unpaid{% endif %}</li>
+                            <li class="mb-2"><strong>Positions Available:</strong> {{ internship.positions }}</li>
+                            <li class="mb-2"><strong>Deadline:</strong> {{ internship.deadline|date:"M d, Y" }}</li>
+                            <li class="mb-2"><strong>Status:</strong> {{ internship.get_status_display }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="card bg-dark border-secondary p-3">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-gavel me-2 text-warning"></i>Moderation Actions</h6>
+                        <form method="post" action="{% url 'administration:internship_moderation' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="internship_id" value="{{ internship.pk }}">
+                            {% if not internship.is_approved %}
+                            <button type="submit" name="action" value="approve" class="btn btn-success w-100 mb-2"><i class="fas fa-check me-1"></i>Approve Listing</button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger w-100"><i class="fas fa-times me-1"></i>Reject Listing</button>
+                            {% else %}
+                            <button type="submit" action="{% url 'administration:internship_unpublish' internship.pk %}" class="btn btn-warning w-100"><i class="fas fa-ban me-1"></i>Unpublish Listing</button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

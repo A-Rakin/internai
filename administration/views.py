@@ -82,18 +82,13 @@ def user_detail(request, pk=None):
     user_obj = get_object_or_404(CustomUser, pk=pk)
 
     if request.method == 'POST':
-        form = UserEditForm(request.POST)
+        form = UserEditForm(request.POST, instance=user_obj)
         if form.is_valid():
-            user_obj.is_active = form.cleaned_data['is_active']
-            user_obj.role = form.cleaned_data['role']
-            user_obj.save()
-            messages.success(request, f'User account for {user_obj.email} updated.')
+            form.save()
+            messages.success(request, f'User account for {user_obj.email} updated successfully.')
             return redirect('administration:user_detail', pk=pk)
     else:
-        form = UserEditForm(initial={
-            'is_active': user_obj.is_active,
-            'role': user_obj.role,
-        })
+        form = UserEditForm(instance=user_obj)
 
     context = {
         'target_user': user_obj,
@@ -153,23 +148,81 @@ def internship_moderation(request):
 
 @login_required
 @role_required('admin')
+def internship_preview(request, pk=None):
+    """Preview internship details for admin moderation."""
+    internship = get_object_or_404(Internship, pk=pk)
+    context = {'internship': internship}
+    return render(request, 'administration/internship_preview.html', context)
+
+
+@login_required
+@role_required('admin')
+def admin_internship_edit(request, pk=None):
+    """Admin edit internship post details."""
+    from companies.forms import InternshipForm
+    internship = get_object_or_404(Internship, pk=pk)
+
+    if request.method == 'POST':
+        form = InternshipForm(request.POST, instance=internship)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Internship post "{internship.title}" updated by admin.')
+            return redirect('administration:internship_moderation')
+    else:
+        form = InternshipForm(instance=internship)
+
+    context = {'form': form, 'internship': internship}
+    return render(request, 'administration/internship_edit.html', context)
+
+
+@login_required
+@role_required('admin')
+def internship_unpublish(request, pk=None):
+    """Unpublish an approved internship listing."""
+    internship = get_object_or_404(Internship, pk=pk)
+    if request.method == 'POST':
+        internship.is_approved = False
+        internship.status = 'draft'
+        internship.save()
+
+        Notification.objects.create(
+            recipient=internship.company.user,
+            notification_type='internship',
+            title='Internship Listing Unpublished',
+            message=f'Your internship listing "{internship.title}" has been unpublished by administration.',
+            link='/company/internship-list/',
+        )
+        messages.warning(request, f'Internship "{internship.title}" has been unpublished.')
+    return redirect('administration:internship_moderation')
+
+
+@login_required
+@role_required('admin')
 def company_management(request):
-    """Verify and manage company accounts."""
+    """Verify, suspend and manage company accounts."""
     if request.method == 'POST':
         company_id = request.POST.get('company_id')
+        action = request.POST.get('action')
         company = get_object_or_404(CompanyProfile, pk=company_id)
-        company.is_verified = not company.is_verified
-        company.save()
 
-        status_text = 'verified' if company.is_verified else 'unverified'
-        Notification.objects.create(
-            recipient=company.user,
-            notification_type='system',
-            title='Company Verification Update',
-            message=f'Your company profile status is now: {status_text}.',
-            link='/company/profile/',
-        )
-        messages.success(request, f'Company "{company.company_name}" marked as {status_text}.')
+        if action == 'suspend':
+            company.user.is_active = not company.user.is_active
+            company.user.save()
+            status_text = 'active' if company.user.is_active else 'suspended'
+            messages.warning(request, f'Company "{company.company_name}" user account status set to {status_text}.')
+        else:
+            company.is_verified = not company.is_verified
+            company.save()
+
+            status_text = 'verified' if company.is_verified else 'unverified'
+            Notification.objects.create(
+                recipient=company.user,
+                notification_type='system',
+                title='Company Verification Update',
+                message=f'Your company profile status is now: {status_text}.',
+                link='/company/profile/',
+            )
+            messages.success(request, f'Company "{company.company_name}" marked as {status_text}.')
         return redirect('administration:company_management')
 
     companies = CompanyProfile.objects.select_related('user').order_by('-created_at')
@@ -191,7 +244,7 @@ def activity_logs(request):
 def platform_settings(request):
     """Platform settings and category management."""
     if request.method == 'POST':
-        form = InternshipCategoryForm(request.POST)
+        form = InternshipCategoryForm(request.POST, request.FILES)
         if form.is_valid():
             category = form.save()
             messages.success(request, f'Category "{category.name}" added successfully.')

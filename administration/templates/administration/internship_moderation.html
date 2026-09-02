@@ -35,6 +35,8 @@
                             <td><span class="badge bg-secondary">{{ item.get_internship_type_display }}</span></td>
                             <td>{{ item.created_at|date:"M d, Y" }}</td>
                             <td>
+                                <a href="{% url 'administration:internship_preview' item.pk %}" class="btn btn-sm btn-outline-info me-1" title="Preview Listing"><i class="fas fa-eye me-1"></i>Preview</a>
+                                <a href="{% url 'administration:internship_edit' item.pk %}" class="btn btn-sm btn-outline-warning me-1" title="Edit Post Details"><i class="fas fa-edit me-1"></i>Edit</a>
                                 <form method="post" class="d-inline">
                                     {% csrf_token %}
                                     <input type="hidden" name="internship_id" value="{{ item.pk }}">
@@ -65,19 +67,28 @@
                             <th>Company</th>
                             <th>Status</th>
                             <th>Approved Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in approved_list %}
                         <tr>
-                            <td>{{ item.title }}</td>
+                            <td><strong>{{ item.title }}</strong></td>
                             <td>{{ item.company.company_name }}</td>
                             <td><span class="badge bg-info">{{ item.get_status_display }}</span></td>
                             <td>{{ item.updated_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'administration:internship_preview' item.pk %}" class="btn btn-sm btn-outline-info me-1"><i class="fas fa-eye me-1"></i>Preview</a>
+                                <a href="{% url 'administration:internship_edit' item.pk %}" class="btn btn-sm btn-outline-warning me-1"><i class="fas fa-edit me-1"></i>Edit</a>
+                                <form method="post" action="{% url 'administration:internship_unpublish' item.pk %}" class="d-inline" onsubmit="return confirm('Unpublish this internship listing? It will revert to draft status.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-ban me-1"></i>Unpublish</button>
+                                </form>
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center py-3 text-muted">No approved internships.</td>
+                            <td colspan="5" class="text-center py-3 text-muted">No approved internships.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

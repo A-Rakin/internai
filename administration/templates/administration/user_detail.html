@@ -33,16 +33,36 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">User Role</label>
-                            {{ form.role }}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                {{ form.last_name }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Email Address</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">User Role</label>
+                                {{ form.role }}
+                            </div>
+                            <div class="col-md-12 form-check ms-2 mt-3">
+                                {{ form.is_active }}
+                                <label class="form-check-label ms-1">Account Active (Uncheck to suspend user)</label>
+                            </div>
                         </div>
-                        <div class="mb-3 form-check">
-                            {{ form.is_active }}
-                            <label class="form-check-label">Account Active (Uncheck to suspend user)</label>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save User Information</button>
+                            <a href="{% url 'administration:user_management' %}" class="btn btn-secondary ms-2">Back</a>
                         </div>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Account Status</button>
-                        <a href="{% url 'administration:user_management' %}" class="btn btn-secondary ms-2">Back</a>
                     </form>
                 </div>
             </div>

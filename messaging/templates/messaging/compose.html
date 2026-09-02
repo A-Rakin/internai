@@ -27,13 +27,13 @@
                     <select name="recipient" id="recipient" class="form-select" required>
                         <option value="">Select a recipient...</option>
                         {% for u in users %}
-                        <option value="{{ u.pk }}">{{ u.get_full_name|default:u.email }} ({{ u.get_role_display }})</option>
+                        <option value="{{ u.pk }}" {% if selected_recipient_id and selected_recipient_id|add:"0" == u.pk %}selected{% endif %}>{{ u.get_full_name|default:u.email }} ({{ u.get_role_display }})</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="subject" class="form-label fw-semibold">Subject <small class="text-muted">(optional)</small></label>
-                    <input type="text" name="subject" id="subject" class="form-control" placeholder="What is this about?">
+                    <input type="text" name="subject" id="subject" class="form-control" value="{{ initial_subject }}" placeholder="What is this about?">
                 </div>
                 <div class="mb-3">
                     <label for="content" class="form-label fw-semibold">Message</label>

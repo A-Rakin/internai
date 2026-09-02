@@ -32,9 +32,14 @@
                             <td>{{ comp.contact_email|default:comp.user.email }}</td>
                             <td>
                                 {% if comp.is_verified %}
-                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                                <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Verified</span>
                                 {% else %}
-                                <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Unverified</span>
+                                <span class="badge bg-warning me-1"><i class="fas fa-clock me-1"></i>Unverified</span>
+                                {% endif %}
+                                {% if comp.user.is_active %}
+                                <span class="badge bg-info"><i class="fas fa-user-check me-1"></i>Active</span>
+                                {% else %}
+                                <span class="badge bg-danger"><i class="fas fa-user-slash me-1"></i>Suspended</span>
                                 {% endif %}
                             </td>
                             <td>
@@ -42,10 +47,17 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="company_id" value="{{ comp.pk }}">
                                     {% if comp.is_verified %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Unverify</button>
+                                    <button type="submit" name="action" value="verify" class="btn btn-sm btn-outline-warning me-1">Unverify</button>
                                     {% else %}
-                                    <button type="submit" class="btn btn-sm btn-success">Verify Company</button>
+                                    <button type="submit" name="action" value="verify" class="btn btn-sm btn-success me-1">Verify Company</button>
                                     {% endif %}
+                                </form>
+                                <form method="post" class="d-inline" onsubmit="return confirm('Change suspension status for this company?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="company_id" value="{{ comp.pk }}">
+                                    <button type="submit" name="action" value="suspend" class="btn btn-sm {% if comp.user.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                                        {% if comp.user.is_active %}<i class="fas fa-ban me-1"></i>Suspend{% else %}<i class="fas fa-undo me-1"></i>Unsuspend{% endif %}
+                                    </button>
                                 </form>
                             </td>
                         </tr>
