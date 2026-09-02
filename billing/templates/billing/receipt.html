@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Payment Receipt — {{ txn.transaction_id }} | InternAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .receipt-container {
+        max-width: 720px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
+    .receipt-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+    .receipt-header {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: #ffffff;
+        padding: 2.5rem 2rem;
+        text-align: center;
+    }
+    @media print {
+        body * { visibility: hidden; }
+        .receipt-card, .receipt-card * { visibility: visible; }
+        .receipt-card { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+        .no-print { display: none !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="receipt-container py-3">
+
+    <!-- Actions bar -->
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <a href="{% url 'billing:my_package' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>My Package Overview
+        </a>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-print me-1"></i>Print Receipt
+            </button>
+            {% if request.user.role == 'company' %}
+            <a href="{% url 'companies:dashboard' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-th-large me-1"></i>Go to Dashboard
+            </a>
+            {% else %}
+            <a href="{% url 'students:dashboard' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-th-large me-1"></i>Go to Dashboard
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Receipt Card -->
+    <div class="receipt-card">
+        <div class="receipt-header">
+            <div class="mb-2">
+                <i class="fas fa-check-circle display-4"></i>
+            </div>
+            <h3 class="fw-bold mb-1">Payment Successful!</h3>
+            <p class="mb-0 opacity-90">Your subscription package has been activated.</p>
+        </div>
+
+        <div class="p-4 p-md-5">
+            <!-- Amount & Plan Header -->
+            <div class="d-flex justify-content-between align-items-center pb-4 border-bottom mb-4">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold">Package Activated</span>
+                    <h4 class="fw-bold text-heading mb-0">{{ subscription.plan_display_name }}</h4>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
+                        <i class="fas fa-clock me-1"></i>Active until {{ subscription.expires_at|date:"F d, Y" }}
+                    </span>
+                </div>
+                <div class="text-end">
+                    <span class="text-muted small text-uppercase fw-bold">Amount Paid</span>
+                    <h3 class="fw-bold text-primary mb-0">৳{{ txn.amount|floatformat:2 }}</h3>
+                    <small class="text-muted">{{ txn.currency }}</small>
+                </div>
+            </div>
+
+            <!-- Transaction Details Table -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                    <small class="text-muted d-block">Transaction ID</small>
+                    <strong class="font-monospace text-heading">{{ txn.transaction_id }}</strong>
+                </div>
+                <div class="col-sm-6">
+                    <small class="text-muted d-block">Payment Method</small>
+                    <strong class="text-heading">
+                        {% if txn.payment_method == 'bkash' %}<span class="badge" style="background:#E2136E;">bKash</span>
+                        {% elif txn.payment_method == 'nagad' %}<span class="badge" style="background:#F7941D;">Nagad</span>
+                        {% elif txn.payment_method == 'upay' %}<span class="badge" style="background:#0054A6;">Upay</span>
+                        {% else %}<span class="badge bg-secondary">Credit/Debit Card</span>{% endif %}
+                        ({{ txn.account_number }})
+                    </strong>
+                </div>
+                <div class="col-sm-6">
+                    <small class="text-muted d-block">Payer Account</small>
+                    <strong class="text-heading">{{ request.user.get_full_name|default:request.user.email }}</strong>
+                </div>
+                <div class="col-sm-6">
+                    <small class="text-muted d-block">Payment Date & Time</small>
+                    <strong class="text-heading">{{ txn.created_at|date:"M d, Y @ h:i A" }}</strong>
+                </div>
+                <div class="col-sm-6">
+                    <small class="text-muted d-block">Validity Duration</small>
+                    <strong class="text-heading">{% if subscription.billing_cycle == 'annual' %}365 Days (1 Year){% else %}30 Days (1 Month){% endif %}</strong>
+                </div>
+                <div class="col-sm-6">
+                    <small class="text-muted d-block">Status</small>
+                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Verified & Paid</span>
+                </div>
+            </div>
+
+            <!-- Notice -->
+            <div class="p-3 bg-surface border border-secondary-subtle rounded small text-muted text-center">
+                <i class="fas fa-shield-alt text-primary me-1"></i>
+                This official digital invoice serves as proof of subscription on InternAI platform.
+                A confirmation has also been delivered to your in-app notifications.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

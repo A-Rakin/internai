@@ -110,6 +110,12 @@ Used on: Student, Company, Supervisor, Admin dashboards.
             <span>Notifications</span>
         </a>
 
+        <!-- Career Packages & Pricing -->
+        <a href="{% url 'landing:pricing' %}?role=student" class="nav-link">
+            <i class="fas fa-crown text-warning"></i>
+            <span>Career Packages</span>
+        </a>
+
         <!-- Settings -->
         <a href="{% url 'students:settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
             <i class="fas fa-cog"></i>
@@ -187,6 +193,12 @@ Used on: Student, Company, Supervisor, Admin dashboards.
         <a href="{% url 'notifications:list' %}" class="nav-link">
             <i class="fas fa-bell"></i>
             <span>Notifications</span>
+        </a>
+
+        <!-- Packages & Billing -->
+        <a href="{% url 'landing:pricing' %}?role=company" class="nav-link">
+            <i class="fas fa-crown text-warning"></i>
+            <span>Packages & Billing</span>
         </a>
 
         <a href="{% url 'companies:settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">

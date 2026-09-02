@@ -1,16 +1,46 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Pricing Plans — InternAI{% endblock %}
+{% block title %}Packages & Pricing — InternAI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/landing.css' %}">
 <style>
+    /* Category Tabs Switcher */
+    .role-switcher-wrapper {
+        display: inline-flex;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        padding: 6px;
+        border-radius: 40px;
+        margin: 1.5rem auto 1rem auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .role-tab-btn {
+        padding: 10px 28px;
+        border-radius: 30px;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .role-tab-btn.active {
+        background: var(--gradient-primary);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(108, 99, 255, 0.35);
+    }
+
     /* Billing Switch Toggle Styling */
     .billing-toggle-wrapper {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        margin-top: 2rem;
+        margin-top: 1rem;
         margin-bottom: 3rem;
     }
     .billing-toggle {
@@ -98,7 +128,7 @@
     }
     .price-amount {
         font-family: var(--font-heading);
-        font-size: 3.2rem;
+        font-size: 3rem;
         font-weight: 800;
         color: #ffffff;
         line-height: 1;
@@ -153,10 +183,21 @@
 <!-- Page Header -->
 <div class="page-header py-5 text-center">
     <div class="container">
-        <h1 class="display-4 fw-bold">Flexible & Transparent <span class="gradient-text">Pricing</span></h1>
-        <p class="lead text-muted max-w-2xl mx-auto" style="max-width: 600px;">
-            Choose the plan that fits your career goals or recruiting volume. Upgrade, downgrade, or cancel anytime.
+        <h1 class="display-4 fw-bold">Flexible & Transparent <span class="gradient-text">Packages</span></h1>
+        <p class="lead text-muted max-w-2xl mx-auto" style="max-width: 650px;">
+            Choose the tailored package that fits your hiring needs or student career goals.
+            Supported with Bangladeshi Mobile Banking (bKash, Nagad, Upay) and Credit Cards.
         </p>
+
+        <!-- Role Switcher (Company vs Student) -->
+        <div class="role-switcher-wrapper">
+            <button class="role-tab-btn active" id="btn-tab-company" onclick="switchPackageRole('company')">
+                <i class="fas fa-building"></i> Company Packages
+            </button>
+            <button class="role-tab-btn" id="btn-tab-student" onclick="switchPackageRole('student')">
+                <i class="fas fa-user-graduate"></i> Student Packages
+            </button>
+        </div>
 
         <!-- Billing Switch -->
         <div class="billing-toggle-wrapper">
@@ -172,209 +213,344 @@
     </div>
 </div>
 
-<!-- Pricing Cards Section -->
-<section class="pricing-section pb-5">
+<!-- ========================================== -->
+<!-- 1. COMPANY PACKAGES SECTION -->
+<!-- ========================================== -->
+<section class="pricing-section pb-5" id="companyPackagesSection">
     <div class="container">
+        <div class="text-center mb-4">
+            <span class="badge bg-primary-subtle text-primary px-3 py-1 mb-2 fs-6">Recruitment & Talent Acquisition</span>
+            <h3 class="fw-bold">Enterprise & Company Hiring Plans</h3>
+        </div>
+
         <div class="row g-4 justify-content-center">
 
-            <!-- 1. BASIC PLAN ($0 / month) -->
+            <!-- 1. Company Basic ($0 / month) -->
             <div class="col-lg-4 col-md-6">
                 <div class="pricing-card">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h4 class="fw-bold mb-0 text-white">Basic</h4>
+                        <h4 class="fw-bold mb-0 text-white">Basic Free</h4>
                         <span class="badge bg-secondary">Free Forever</span>
                     </div>
-                    <p class="text-muted small">Ideal for students & early career explorers</p>
+                    <p class="text-muted small">Ideal for early startups posting single internship</p>
 
                     <div class="my-3">
-                        <div class="price-amount" id="price-basic">$0<span>/month</span></div>
-                        <div class="text-muted small mt-1">No credit card required</div>
+                        <div class="price-amount">৳0<span>/month</span></div>
+                        <div class="text-muted small mt-1">No payment required</div>
                     </div>
 
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Up to 5 Internship Applications / mo</li>
-                        <li><i class="fas fa-check"></i> Standard Student Profile Builder</li>
-                        <li><i class="fas fa-check"></i> Single PDF Resume Storage</li>
-                        <li><i class="fas fa-check"></i> Standard Internship Search & Filters</li>
+                        <li><i class="fas fa-check"></i> 1 Active Internship Listing</li>
+                        <li><i class="fas fa-check"></i> Standard Applicant Review Portal</li>
+                        <li><i class="fas fa-check"></i> PDF Resume Downloads</li>
                         <li><i class="fas fa-check"></i> Email Notifications & Status Alerts</li>
-                        <li class="disabled"><i class="fas fa-times"></i> AI Resume Match Score</li>
-                        <li class="disabled"><i class="fas fa-times"></i> Priority Application Flagging</li>
-                        <li class="disabled"><i class="fas fa-times"></i> Direct HR Messaging</li>
+                        <li class="disabled"><i class="fas fa-times"></i> AI Candidate Ranking Engine</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Multi-Factor CV Formatting Score</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Interview Scheduling with Collision Guard</li>
                     </ul>
 
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'students:dashboard' %}" class="btn btn-outline-light w-100 py-2 fw-semibold">Current Active Tier</a>
-                    {% else %}
-                        <a href="{% url 'accounts:register_student' %}" class="btn btn-outline-light w-100 py-2 fw-semibold">Get Started Free</a>
-                    {% endif %}
+                    <a href="{% url 'billing:checkout' 'company_basic' %}" class="btn btn-outline-light w-100 py-2 fw-semibold">
+                        Select Free Basic
+                    </a>
                 </div>
             </div>
 
-            <!-- 2. PRO PLAN ($20 / month) - MOST POPULAR -->
+            <!-- 2. Company Pro (৳2,000 / month) - MOST POPULAR -->
             <div class="col-lg-4 col-md-6">
                 <div class="pricing-card featured">
-                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="popular-badge">RECOMMENDED FOR HR</div>
                     <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
-                        <h4 class="fw-bold mb-0 text-primary">Pro Recruiter & Student</h4>
-                        <span class="badge bg-primary">Full Features</span>
+                        <h4 class="fw-bold mb-0 text-primary">Pro Recruiter</h4>
+                        <span class="badge bg-primary">Full AI Power</span>
                     </div>
-                    <p class="text-muted small">For active job seekers & growing HR teams</p>
+                    <p class="text-muted small">For fast-growing companies and active hiring teams</p>
 
                     <div class="my-3">
-                        <div class="price-amount" id="price-pro">$20<span>/month</span></div>
-                        <div class="text-muted small mt-1" id="subtext-pro">Billed monthly</div>
+                        <div class="price-amount" id="price-company-pro">৳2,000<span>/month</span></div>
+                        <div class="text-muted small mt-1" id="subtext-company-pro">Billed monthly (approx. $20 USD)</div>
                     </div>
 
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> <strong>Unlimited</strong> Internship Applications</li>
-                        <li><i class="fas fa-check"></i> <strong>AI Resume Match Score</strong> & Insights</li>
-                        <li><i class="fas fa-check"></i> <strong>AI Resume Analysis</strong> for recruiters</li>
-                        <li><i class="fas fa-check"></i> Priority Application Review Flagging</li>
-                        <li><i class="fas fa-check"></i> Multi-document Vault (Resumes, Certificates)</li>
-                        <li><i class="fas fa-check"></i> Real-time In-App Notification Center</li>
-                        <li><i class="fas fa-check"></i> Weekly Report & Evaluation Tracker</li>
+                        <li><i class="fas fa-check"></i> <strong>Unlimited</strong> Active Internship Postings</li>
+                        <li><i class="fas fa-check"></i> <strong>AI Candidate Ranking Engine</strong> (Role-Specific)</li>
+                        <li><i class="fas fa-check"></i> <strong>Multi-Factor CV & Formatting Score</strong></li>
+                        <li><i class="fas fa-check"></i> <strong>Interview Scheduling & Collision Guard</strong></li>
+                        <li><i class="fas fa-check"></i> Direct Messaging with Students & Supervisors</li>
+                        <li><i class="fas fa-check"></i> Recruiter Evaluation Scorecards</li>
                         <li class="disabled"><i class="fas fa-times"></i> Dedicated Account Manager</li>
                     </ul>
 
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'billing:create_checkout_session' 'pro' %}" class="btn btn-primary w-100 py-2 fw-bold text-white shadow"><i class="fas fa-bolt me-2"></i>Upgrade to Pro ($20)</a>
-                    {% else %}
-                    <a href="{% url 'accounts:login' %}?next={% url 'billing:create_checkout_session' 'pro' %}" class="btn btn-primary w-100 py-2 fw-bold text-white shadow"><i class="fas fa-bolt me-2"></i>Start Pro Plan ($20)</a>
-                    {% endif %}
+                    <a href="{% url 'billing:checkout' 'company_pro' %}" class="btn btn-primary w-100 py-2 fw-bold text-white shadow" id="btn-company-pro">
+                        <i class="fas fa-bolt me-2"></i>Choose Pro Recruiter
+                    </a>
                 </div>
             </div>
 
-            <!-- 3. ULTIMATE PLAN ($80 / month) -->
+            <!-- 3. Company Ultimate (৳8,000 / month) -->
             <div class="col-lg-4 col-md-6">
                 <div class="pricing-card">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h4 class="fw-bold mb-0 text-white">Ultimate Enterprise</h4>
                         <span class="badge bg-info">Enterprise</span>
                     </div>
-                    <p class="text-muted small">For universities, corporations & multi-recruiter teams</p>
+                    <p class="text-muted small">For large corporations, universities, and multi-team recruitment</p>
 
                     <div class="my-3">
-                        <div class="price-amount" id="price-ultimate">$80<span>/month</span></div>
-                        <div class="text-muted small mt-1" id="subtext-ultimate">Billed monthly</div>
+                        <div class="price-amount" id="price-company-ultimate">৳8,000<span>/month</span></div>
+                        <div class="text-muted small mt-1" id="subtext-company-ultimate">Billed monthly (approx. $80 USD)</div>
                     </div>
 
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> <strong>Everything in Pro Tier</strong></li>
-                        <li><i class="fas fa-check"></i> <strong>AI Candidate Ranking Engine</strong></li>
-                        <li><i class="fas fa-check"></i> Unlimited Active Internship Listings</li>
-                        <li><i class="fas fa-check"></i> Automated Interview Scheduling Engine</li>
-                        <li><i class="fas fa-check"></i> Supervisor & Roster Management Dashboard</li>
-                        <li><i class="fas fa-check"></i> Platform Audit & Activity Log Analytics</li>
-                        <li><i class="fas fa-check"></i> Dedicated Account Manager & 24/7 Support</li>
-                        <li><i class="fas fa-check"></i> Custom University / Company Branding</li>
+                        <li><i class="fas fa-check"></i> <strong>Everything in Pro Recruiter</strong></li>
+                        <li><i class="fas fa-check"></i> Dedicated Enterprise Account Manager</li>
+                        <li><i class="fas fa-check"></i> Custom University Branding & Roster Sync</li>
+                        <li><i class="fas fa-check"></i> Automated Supervisor Assignment on Acceptance</li>
+                        <li><i class="fas fa-check"></i> Platform Audit & Activity Analytics</li>
+                        <li><i class="fas fa-check"></i> 24/7 Priority Phone & Support</li>
                     </ul>
 
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'billing:create_checkout_session' 'ultimate' %}" class="btn btn-outline-info w-100 py-2 fw-semibold"><i class="fas fa-building me-2"></i>Subscribe Ultimate ($80)</a>
-                    {% else %}
-                        <a href="{% url 'accounts:login' %}?next={% url 'billing:create_checkout_session' 'ultimate' %}" class="btn btn-outline-info w-100 py-2 fw-semibold"><i class="fas fa-building me-2"></i>Subscribe Ultimate ($80)</a>
-                    {% endif %}
+                    <a href="{% url 'billing:checkout' 'company_ultimate' %}" class="btn btn-outline-info w-100 py-2 fw-semibold" id="btn-company-ultimate">
+                        <i class="fas fa-building me-2"></i>Choose Ultimate Enterprise
+                    </a>
                 </div>
             </div>
 
         </div>
-
-        <!-- Feature Comparison Matrix -->
-        <div class="row mt-5 pt-4">
-            <div class="col-12 text-center mb-4">
-                <h3 class="fw-bold">Detailed Plan <span class="gradient-text">Comparison</span></h3>
-                <p class="text-muted">Compare features side by side across all tiers.</p>
-            </div>
-            <div class="col-12">
-                <div class="table-responsive comparison-table shadow">
-                    <table class="table table-dark table-hover mb-0 align-middle">
-                        <thead>
-                            <tr>
-                                <th style="width: 40%;">Feature</th>
-                                <th class="text-center" style="width: 20%;">Basic ($0)</th>
-                                <th class="text-center text-primary" style="width: 20%;">Pro ($20)</th>
-                                <th class="text-center text-info" style="width: 20%;">Ultimate ($80)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Monthly Applications</td>
-                                <td class="text-center">5 / month</td>
-                                <td class="text-center text-success fw-bold">Unlimited</td>
-                                <td class="text-center text-success fw-bold">Unlimited</td>
-                            </tr>
-                            <tr>
-                                <td>Active Job Listings</td>
-                                <td class="text-center">1 listing</td>
-                                <td class="text-center">10 listings</td>
-                                <td class="text-center text-success fw-bold">Unlimited</td>
-                            </tr>
-                            <tr>
-                                <td>AI Resume Match Score</td>
-                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
-                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
-                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
-                            </tr>
-                            <tr>
-                                <td>AI Candidate Ranking Engine</td>
-                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
-                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
-                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
-                            </tr>
-                            <tr>
-                                <td>Interview Scheduling Tool</td>
-                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
-                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
-                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
-                            </tr>
-                            <tr>
-                                <td>Academic Supervisor Reviews</td>
-                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
-                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
-                                <td class="text-center text-success"><i class="fas fa-check"></i></td>
-                            </tr>
-                            <tr>
-                                <td>Dedicated Account Support</td>
-                                <td class="text-center text-muted"><i class="fas fa-minus"></i></td>
-                                <td class="text-center text-muted">Email Support</td>
-                                <td class="text-center text-success fw-bold">24/7 Priority Support</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
     </div>
 </section>
+
+<!-- ========================================== -->
+<!-- 2. STUDENT PACKAGES SECTION (Budget Friendly BDT) -->
+<!-- ========================================== -->
+<section class="pricing-section pb-5" id="studentPackagesSection" style="display: none;">
+    <div class="container">
+        <div class="text-center mb-4">
+            <span class="badge bg-success-subtle text-success px-3 py-1 mb-2 fs-6">Student-Friendly Career Boost</span>
+            <h3 class="fw-bold">Affordable Plans Designed for Students</h3>
+            <p class="text-muted small">Budget-friendly pricing in Bangladeshi Taka (৳) to help you land your dream internship.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+
+            <!-- 1. Student Basic (Free) -->
+            <div class="col-lg-4 col-md-6">
+                <div class="pricing-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="fw-bold mb-0 text-white">Student Basic</h4>
+                        <span class="badge bg-secondary">Free Forever</span>
+                    </div>
+                    <p class="text-muted small">Standard career portal for early exploration</p>
+
+                    <div class="my-3">
+                        <div class="price-amount">৳0<span>/month</span></div>
+                        <div class="text-muted small mt-1">Free for all university students</div>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> <strong>Apply to up to 10 Internships / month</strong></li>
+                        <li><i class="fas fa-check"></i> Standard Student Profile Builder</li>
+                        <li><i class="fas fa-check"></i> PDF Resume & Certificate Vault</li>
+                        <li><i class="fas fa-check"></i> Application Status & Recruiter Feedback</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Unlimited Applications</li>
+                        <li class="disabled"><i class="fas fa-times"></i> AI Resume Match Score</li>
+                        <li class="disabled"><i class="fas fa-times"></i> AI Cover Letter Generator</li>
+                    </ul>
+
+                    <a href="{% url 'billing:checkout' 'student_basic' %}" class="btn btn-outline-light w-100 py-2 fw-semibold">
+                        Current Free Plan
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. Student Pro (৳199 / month) - MOST POPULAR FOR STUDENTS -->
+            <div class="col-lg-4 col-md-6">
+                <div class="pricing-card featured" style="border-color: #10B981;">
+                    <div class="popular-badge" style="background: linear-gradient(135deg, #10B981, #059669);">MOST POPULAR FOR STUDENTS</div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+                        <h4 class="fw-bold mb-0 text-success">Student Pro</h4>
+                        <span class="badge bg-success">Affordable Boost</span>
+                    </div>
+                    <p class="text-muted small">For active applicants who want to stand out to HR</p>
+
+                    <div class="my-3">
+                        <div class="price-amount text-success" id="price-student-pro">৳199<span>/month</span></div>
+                        <div class="text-muted small mt-1" id="subtext-student-pro">Billed monthly via bKash / Nagad / Upay</div>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> <strong>Unlimited</strong> Internship Applications</li>
+                        <li><i class="fas fa-check"></i> <strong>Instant AI Resume Match Score</strong> & Skill Gap Analysis</li>
+                        <li><i class="fas fa-check"></i> <strong>10 AI Tailored Cover Letters</strong> per month</li>
+                        <li><i class="fas fa-check"></i> Priority Application Flagging for Recruiters</li>
+                        <li><i class="fas fa-check"></i> Weekly Academic Report Submissions & Evaluations</li>
+                        <li><i class="fas fa-check"></i> Multi-document Storage Vault</li>
+                        <li class="disabled"><i class="fas fa-times"></i> AI Mock Interview Practice Coach</li>
+                    </ul>
+
+                    <a href="{% url 'billing:checkout' 'student_pro' %}" class="btn btn-success w-100 py-2 fw-bold text-white shadow" id="btn-student-pro">
+                        <i class="fas fa-bolt me-2"></i>Upgrade to Student Pro (৳199)
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. Student Career Boost (৳499 / month) -->
+            <div class="col-lg-4 col-md-6">
+                <div class="pricing-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="fw-bold mb-0 text-warning">Career Boost</h4>
+                        <span class="badge bg-warning text-dark">VIP Placement</span>
+                    </div>
+                    <p class="text-muted small">Comprehensive career preparation & guaranteed visibility</p>
+
+                    <div class="my-3">
+                        <div class="price-amount text-warning" id="price-student-boost">৳499<span>/month</span></div>
+                        <div class="text-muted small mt-1" id="subtext-student-boost">Billed monthly via bKash / Nagad / Upay</div>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> <strong>Everything in Student Pro</strong></li>
+                        <li><i class="fas fa-check"></i> <strong>Unlimited AI Cover Letters</strong></li>
+                        <li><i class="fas fa-check"></i> <strong>AI Mock Interview Coach</strong> & instant scoring</li>
+                        <li><i class="fas fa-check"></i> Top Candidate Gold Badge on HR shortlists</li>
+                        <li><i class="fas fa-check"></i> Automated University Supervisor Linking</li>
+                        <li><i class="fas fa-check"></i> Priority 1-on-1 Career Guidance</li>
+                    </ul>
+
+                    <a href="{% url 'billing:checkout' 'student_boost' %}" class="btn btn-outline-warning w-100 py-2 fw-semibold" id="btn-student-boost">
+                        <i class="fas fa-crown me-2"></i>Get Career Boost (৳499)
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Feature Comparison Matrix -->
+<div class="container pb-5">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h3 class="fw-bold">Frequently Asked <span class="gradient-text">Questions</span></h3>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="p-3 bg-surface border border-secondary-subtle rounded h-100">
+                <h6 class="fw-bold text-heading"><i class="fas fa-mobile-alt text-success me-2"></i>Which Bangladeshi payment methods are supported?</h6>
+                <p class="text-muted small mb-0">We support all major Mobile Financial Services including <strong>bKash</strong>, <strong>Nagad</strong>, and <strong>Upay</strong>, as well as local & international VISA and Mastercard debit/credit cards.</p>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="p-3 bg-surface border border-secondary-subtle rounded h-100">
+                <h6 class="fw-bold text-heading"><i class="fas fa-bell text-warning me-2"></i>How will I know when my package expires?</h6>
+                <p class="text-muted small mb-0">InternAI displays your active days remaining right on your dashboard. Starting <strong>7 days before expiry</strong>, you will receive in-app renewal reminders so your applications or candidate postings never get interrupted.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% include 'components/footer.html' %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    let currentRole = 'company';
+    let isAnnual = false;
+
+    // Check URL parameters for role tab e.g. ?role=student
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleParam = urlParams.get('role');
+        if (roleParam === 'student' || '{% if request.user.role == "student" %}student{% endif %}' === 'student') {
+            switchPackageRole('student');
+        } else {
+            switchPackageRole('company');
+        }
+    });
+
+    function switchPackageRole(role) {
+        currentRole = role;
+        const btnCompany = document.getElementById('btn-tab-company');
+        const btnStudent = document.getElementById('btn-tab-student');
+        const companySec = document.getElementById('companyPackagesSection');
+        const studentSec = document.getElementById('studentPackagesSection');
+
+        if (role === 'student') {
+            btnStudent.classList.add('active');
+            btnCompany.classList.remove('active');
+            studentSec.style.display = 'block';
+            companySec.style.display = 'none';
+        } else {
+            btnCompany.classList.add('active');
+            btnStudent.classList.remove('active');
+            companySec.style.display = 'block';
+            studentSec.style.display = 'none';
+        }
+        updatePrices();
+    }
+
     function toggleBillingCycle(toggleInput) {
-        const isAnnual = toggleInput.checked;
+        isAnnual = toggleInput.checked;
+        updatePrices();
+    }
 
-        const pricePro = document.getElementById('price-pro');
-        const subtextPro = document.getElementById('subtext-pro');
+    function updatePrices() {
+        const cycleParam = isAnnual ? '?cycle=annual' : '?cycle=monthly';
 
-        const priceUltimate = document.getElementById('price-ultimate');
-        const subtextUltimate = document.getElementById('subtext-ultimate');
+        // Company Elements
+        const priceCompPro = document.getElementById('price-company-pro');
+        const subtextCompPro = document.getElementById('subtext-company-pro');
+        const btnCompPro = document.getElementById('btn-company-pro');
+
+        const priceCompUlt = document.getElementById('price-company-ultimate');
+        const subtextCompUlt = document.getElementById('subtext-company-ultimate');
+        const btnCompUlt = document.getElementById('btn-company-ultimate');
+
+        // Student Elements
+        const priceStudPro = document.getElementById('price-student-pro');
+        const subtextStudPro = document.getElementById('subtext-student-pro');
+        const btnStudPro = document.getElementById('btn-student-pro');
+
+        const priceStudBoost = document.getElementById('price-student-boost');
+        const subtextStudBoost = document.getElementById('subtext-student-boost');
+        const btnStudBoost = document.getElementById('btn-student-boost');
 
         if (isAnnual) {
-            // 20% discount on annual: Pro $16/mo ($192/yr), Ultimate $64/mo ($768/yr)
-            pricePro.innerHTML = '$16<span>/month</span>';
-            subtextPro.innerText = 'Billed annually ($192/yr)';
+            // 20% discount on annual
+            // Company Pro: ৳1,600/mo (৳19,200/yr)
+            priceCompPro.innerHTML = '৳1,600<span>/month</span>';
+            subtextCompPro.innerText = 'Billed annually: ৳19,200/yr (Save 20%)';
+            btnCompPro.href = "{% url 'billing:checkout' 'company_pro' %}" + cycleParam;
 
-            priceUltimate.innerHTML = '$64<span>/month</span>';
-            subtextUltimate.innerText = 'Billed annually ($768/yr)';
+            // Company Ultimate: ৳6,400/mo (৳76,800/yr)
+            priceCompUlt.innerHTML = '৳6,400<span>/month</span>';
+            subtextCompUlt.innerText = 'Billed annually: ৳76,800/yr (Save 20%)';
+            btnCompUlt.href = "{% url 'billing:checkout' 'company_ultimate' %}" + cycleParam;
+
+            // Student Pro: ৳159/mo (৳1,908/yr)
+            priceStudPro.innerHTML = '৳159<span>/month</span>';
+            subtextStudPro.innerText = 'Billed annually: ৳1,908/yr (Save 20%)';
+            btnStudPro.href = "{% url 'billing:checkout' 'student_pro' %}" + cycleParam;
+
+            // Student Boost: ৳399/mo (৳4,788/yr)
+            priceStudBoost.innerHTML = '৳399<span>/month</span>';
+            subtextStudBoost.innerText = 'Billed annually: ৳4,788/yr (Save 20%)';
+            btnStudBoost.href = "{% url 'billing:checkout' 'student_boost' %}" + cycleParam;
         } else {
-            pricePro.innerHTML = '$20<span>/month</span>';
-            subtextPro.innerText = 'Billed monthly';
+            // Monthly
+            priceCompPro.innerHTML = '৳2,000<span>/month</span>';
+            subtextCompPro.innerText = 'Billed monthly (approx. $20 USD)';
+            btnCompPro.href = "{% url 'billing:checkout' 'company_pro' %}" + cycleParam;
 
-            priceUltimate.innerHTML = '$80<span>/month</span>';
-            subtextUltimate.innerText = 'Billed monthly';
+            priceCompUlt.innerHTML = '৳8,000<span>/month</span>';
+            subtextCompUlt.innerText = 'Billed monthly (approx. $80 USD)';
+            btnCompUlt.href = "{% url 'billing:checkout' 'company_ultimate' %}" + cycleParam;
+
+            priceStudPro.innerHTML = '৳199<span>/month</span>';
+            subtextStudPro.innerText = 'Billed monthly via bKash / Nagad / Upay';
+            btnStudPro.href = "{% url 'billing:checkout' 'student_pro' %}" + cycleParam;
+
+            priceStudBoost.innerHTML = '৳499<span>/month</span>';
+            subtextStudBoost.innerText = 'Billed monthly via bKash / Nagad / Upay';
+            btnStudBoost.href = "{% url 'billing:checkout' 'student_boost' %}" + cycleParam;
         }
     }
 </script>

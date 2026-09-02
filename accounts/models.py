@@ -391,6 +391,14 @@ class StudentProfile(models.Model):
             return [s.strip() for s in self.skills.split(',')]
         return []
 
+    def get_active_subscription(self):
+        """Retrieve the latest active subscription for the student."""
+        try:
+            from billing.models import Subscription
+            return Subscription.objects.filter(user=self.user, is_active=True).order_by('-started_at').first()
+        except Exception:
+            return None
+
 
 class CompanyProfile(models.Model):
     """
@@ -532,6 +540,14 @@ class CompanyProfile(models.Model):
     # ---- Timestamps ----
     created_at = models.DateTimeField('created at', auto_now_add=True)
     updated_at = models.DateTimeField('updated at', auto_now=True)
+
+    def get_active_subscription(self):
+        """Retrieve the latest active subscription for the company."""
+        try:
+            from billing.models import Subscription
+            return Subscription.objects.filter(user=self.user, is_active=True).order_by('-started_at').first()
+        except Exception:
+            return None
 
     class Meta:
         verbose_name = 'Company Profile'

@@ -58,8 +58,18 @@ def dashboard(request):
         'approved': reports.filter(status='approved').count(),
     }
 
+    # Check 7-day package expiry reminder
+    try:
+        from billing.views import check_and_notify_expiring_packages
+        check_and_notify_expiring_packages(request.user)
+    except Exception:
+        pass
+
+    subscription = profile.get_active_subscription()
+
     context = {
         'profile': profile,
+        'subscription': subscription,
         'app_stats': app_stats,
         'upcoming_interviews': upcoming_interviews,
         'recent_applications': recent_applications,

@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Checkout — {{ plan.title }} | InternAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-container {
+        max-width: 1050px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    .payment-method-card {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: var(--bg-surface);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        user-select: none;
+    }
+    .payment-method-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+    .payment-method-card.active {
+        border-color: var(--primary);
+        background: rgba(108, 99, 255, 0.08);
+        box-shadow: 0 4px 16px rgba(108, 99, 255, 0.15);
+    }
+    .method-badge {
+        font-weight: 800;
+        font-size: 1.1rem;
+        padding: 6px 14px;
+        border-radius: 8px;
+        color: #fff;
+    }
+    .badge-bkash { background: #E2136E; }
+    .badge-nagad { background: #F7941D; }
+    .badge-upay { background: #0054A6; border-bottom: 3px solid #FDCB05; }
+    .badge-card { background: #2B3445; }
+
+    /* Processing Overlay */
+    .processing-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 15, 26, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+    }
+    .spinner-glow {
+        width: 60px;
+        height: 60px;
+        border: 5px solid rgba(108, 99, 255, 0.2);
+        border-top-color: #6C63FF;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container py-4">
+
+    <!-- Back to pricing -->
+    <div class="mb-4">
+        <a href="{% url 'landing:pricing' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to All Packages
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Payment Form & Gateway Selection -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-surface border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-heading">
+                        <i class="fas fa-shield-alt text-success me-2"></i>Select Payment Method
+                    </h5>
+                    <small class="text-muted">Bangladeshi Mobile Banking (MFS) & International Cards</small>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Demo Disclaimer Banner -->
+                    <div class="alert alert-info border-info-subtle d-flex align-items-center mb-4 py-2 px-3">
+                        <i class="fas fa-info-circle fs-4 me-3 text-info"></i>
+                        <small>
+                            <strong>Interactive Simulation Sandbox:</strong> You can enter any demo mobile number/card. No real money will be charged, and your package will activate instantly!
+                        </small>
+                    </div>
+
+                    <!-- Payment Method Selectors -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="payment-method-card active" onclick="selectMethod('bkash')" id="btn-bkash">
+                                <span class="method-badge badge-bkash">bKash</span>
+                                <div>
+                                    <strong class="d-block text-heading">bKash</strong>
+                                    <small class="text-muted">Mobile Banking</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="payment-method-card" onclick="selectMethod('nagad')" id="btn-nagad">
+                                <span class="method-badge badge-nagad">নগদ</span>
+                                <div>
+                                    <strong class="d-block text-heading">Nagad</strong>
+                                    <small class="text-muted">Mobile Banking</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="payment-method-card" onclick="selectMethod('upay')" id="btn-upay">
+                                <span class="method-badge badge-upay">upay</span>
+                                <div>
+                                    <strong class="d-block text-heading">Upay</strong>
+                                    <small class="text-muted">UCB Fintech</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="payment-method-card" onclick="selectMethod('card')" id="btn-card">
+                                <span class="method-badge badge-card"><i class="fas fa-credit-card"></i></span>
+                                <div>
+                                    <strong class="d-block text-heading">Card</strong>
+                                    <small class="text-muted">Visa / Master / Amex</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <form method="post" action="{% url 'billing:process_demo_payment' %}" id="checkoutForm" onsubmit="handlePaymentSubmit(event)">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan_code" value="{{ plan.code }}">
+                        <input type="hidden" name="billing_cycle" value="{{ billing_cycle }}">
+                        <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="bkash">
+
+                        <!-- MFS (bKash / Nagad / Upay) Container -->
+                        <div id="mfsFields">
+                            <div class="p-3 rounded mb-3" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color);">
+                                <h6 class="fw-bold mb-3" id="mfsHeading" style="color: #E2136E;">
+                                    <i class="fas fa-mobile-alt me-2"></i>bKash Payment Gateway
+                                </h6>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Mobile Account Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-surface border-secondary-subtle fw-bold">+880</span>
+                                        <input type="tel" name="account_number" id="mfsNumber" class="form-control" placeholder="1712345678" value="1798765432" required maxlength="11">
+                                    </div>
+                                    <small class="text-muted">Enter your 11-digit mobile wallet number</small>
+                                </div>
+
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Verification OTP</label>
+                                        <input type="text" class="form-control text-center fw-bold" placeholder="6-digit OTP" value="789456" maxlength="6">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Wallet PIN</label>
+                                        <input type="password" class="form-control text-center fw-bold" placeholder="•••••" value="12345" maxlength="5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Fields Container (Initially Hidden) -->
+                        <div id="cardFields" style="display: none;">
+                            <div class="p-3 rounded mb-3" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color);">
+                                <h6 class="fw-bold mb-3 text-primary">
+                                    <i class="fas fa-credit-card me-2"></i>Credit or Debit Card
+                                </h6>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Name on Card</label>
+                                    <input type="text" class="form-control" placeholder="CARDHOLDER NAME" value="{{ request.user.get_full_name|upper|default:'JOHN DOE' }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Card Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-surface border-secondary-subtle"><i class="fas fa-credit-card"></i></span>
+                                        <input type="text" name="card_number" id="cardNumber" class="form-control" placeholder="4111 2222 3333 4444" value="4111 2222 3333 4242">
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Expiry Date</label>
+                                        <input type="text" class="form-control text-center" placeholder="MM/YY" value="12/28" maxlength="5">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Security CVV</label>
+                                        <input type="password" class="form-control text-center" placeholder="CVV" value="888" maxlength="4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-6 shadow mt-2" id="payButton">
+                            <i class="fas fa-lock me-2"></i>Confirm & Pay ৳{{ amount|floatformat:2 }} BDT
+                        </button>
+                        <p class="text-center text-muted small mt-2 mb-0">
+                            <i class="fas fa-check-circle text-success me-1"></i>256-Bit SSL Encrypted Sandbox Gateway
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Order Summary -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 2rem;">
+                <div class="card-header bg-surface border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-heading"><i class="fas fa-receipt text-primary me-2"></i>Order Summary</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="fw-bold text-heading mb-0">{{ plan.title }}</h4>
+                        <span class="badge {% if plan.category == 'company' %}bg-primary{% else %}bg-success{% endif %}">
+                            {{ plan.category|title }} Tier
+                        </span>
+                    </div>
+                    <p class="text-muted small mb-3">{{ plan.description }}</p>
+
+                    <div class="p-3 bg-surface border border-secondary-subtle rounded mb-3">
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted">Billing Cycle:</span>
+                            <strong class="text-heading">{{ billing_cycle|title }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted">Validity Period:</span>
+                            <strong class="text-heading">{% if billing_cycle == 'annual' %}365 Days{% else %}30 Days{% endif %}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted">Subtotal:</span>
+                            <span class="text-heading">৳{{ amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted">Taxes & Fees:</span>
+                            <span class="text-success fw-bold">৳0.00 (Waived)</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between py-1 fs-5">
+                            <strong class="text-heading">Total Amount:</strong>
+                            <strong class="text-primary">৳{{ amount|floatformat:2 }} BDT</strong>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold mb-2 small text-uppercase text-muted">Included Package Features:</h6>
+                    <ul class="list-unstyled mb-0">
+                        {% for feat in plan.features %}
+                        <li class="py-1 text-heading small">
+                            <i class="fas fa-check-circle text-success me-2"></i>{{ feat }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Simulation Overlay -->
+<div class="processing-overlay" id="processingOverlay">
+    <div class="spinner-glow mb-4"></div>
+    <h4 class="fw-bold text-white mb-2" id="processingTitle">Processing Payment...</h4>
+    <p class="text-muted small" id="processingSub">Contacting banking gateway and verifying credentials</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectMethod(method) {
+        document.getElementById('selectedPaymentMethod').value = method;
+
+        // Toggle active styling
+        ['bkash', 'nagad', 'upay', 'card'].forEach(m => {
+            const btn = document.getElementById('btn-' + m);
+            if (btn) btn.classList.remove('active');
+        });
+        const activeBtn = document.getElementById('btn-' + method);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        const mfsFields = document.getElementById('mfsFields');
+        const cardFields = document.getElementById('cardFields');
+        const mfsHeading = document.getElementById('mfsHeading');
+        const payButton = document.getElementById('payButton');
+
+        if (method === 'card') {
+            mfsFields.style.display = 'none';
+            cardFields.style.display = 'block';
+            payButton.innerHTML = '<i class="fas fa-lock me-2"></i>Confirm & Pay with Card';
+        } else {
+            mfsFields.style.display = 'block';
+            cardFields.style.display = 'none';
+
+            if (method === 'bkash') {
+                mfsHeading.style.color = '#E2136E';
+                mfsHeading.innerHTML = '<i class="fas fa-mobile-alt me-2"></i>bKash Payment Gateway';
+                payButton.innerHTML = '<i class="fas fa-lock me-2"></i>Confirm & Pay with bKash';
+            } else if (method === 'nagad') {
+                mfsHeading.style.color = '#F7941D';
+                mfsHeading.innerHTML = '<i class="fas fa-mobile-alt me-2"></i>Nagad Payment Gateway';
+                payButton.innerHTML = '<i class="fas fa-lock me-2"></i>Confirm & Pay with Nagad';
+            } else if (method === 'upay') {
+                mfsHeading.style.color = '#0054A6';
+                mfsHeading.innerHTML = '<i class="fas fa-mobile-alt me-2"></i>Upay Payment Gateway';
+                payButton.innerHTML = '<i class="fas fa-lock me-2"></i>Confirm & Pay with Upay';
+            }
+        }
+    }
+
+    function handlePaymentSubmit(event) {
+        event.preventDefault();
+        const overlay = document.getElementById('processingOverlay');
+        const title = document.getElementById('processingTitle');
+        const sub = document.getElementById('processingSub');
+        const method = document.getElementById('selectedPaymentMethod').value;
+
+        overlay.style.display = 'flex';
+        title.innerText = 'Connecting to ' + method.toUpperCase() + ' Secure Gateway...';
+
+        setTimeout(() => {
+            title.innerText = 'Verifying Transaction & Credentials...';
+            sub.innerText = 'Generating subscription token and authenticating account';
+        }, 800);
+
+        setTimeout(() => {
+            title.innerText = 'Payment Verified! Activating Package...';
+            event.target.submit();
+        }, 1600);
+    }
+</script>
+{% endblock %}

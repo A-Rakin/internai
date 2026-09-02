@@ -29,6 +29,24 @@ def submit(request, internship_id=None):
         messages.warning(request, 'You have already applied for this internship.')
         return redirect('internships:detail', pk=internship.pk)
 
+    # Check student tier application limits (Basic Tier: Max 10 applications per month)
+    subscription = student_profile.get_active_subscription()
+    if not subscription or 'basic' in subscription.plan_name:
+        from django.utils import timezone
+        now = timezone.now()
+        apps_this_month = Application.objects.filter(
+            student=student_profile,
+            applied_at__year=now.year,
+            applied_at__month=now.month
+        ).count()
+        if apps_this_month >= 10:
+            messages.warning(
+                request,
+                "You have reached the Free Student limit of 10 applications this month. "
+                "Upgrade to Student Pro (৳199/mo) for unlimited applications and instant AI CV match scores!"
+            )
+            return redirect('landing:pricing')
+
     from documents.models import Document
 
     if request.method == 'POST':

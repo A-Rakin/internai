@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Package & Billing Overview | InternAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'components/sidebar.html' %}
+
+<div class="main-content">
+    <div class="top-navbar d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="page-title mb-1"><i class="fas fa-crown text-warning me-2"></i>My Package & Subscription</h4>
+            <p class="text-muted small mb-0">Track active tier, expiration schedule, renewal options, and transaction receipts.</p>
+        </div>
+        <div>
+            <a href="{% url 'landing:pricing' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-arrow-up me-1"></i>Explore All Packages
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Active Subscription Card -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-surface border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-heading">Active Package Status</h5>
+                    {% if subscription %}
+                        <span class="badge bg-{{ subscription.status_badge_class }} fs-6">
+                            {{ subscription.status_display }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary fs-6">Free Basic Tier</span>
+                    {% endif %}
+                </div>
+                <div class="card-body p-4">
+                    {% if subscription %}
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 p-3 bg-surface border border-secondary-subtle rounded mb-4">
+                        <div>
+                            <span class="text-muted small text-uppercase fw-bold d-block">Current Plan</span>
+                            <h3 class="fw-bold text-primary mb-0">{{ subscription.plan_display_name }}</h3>
+                            <small class="text-muted">{{ subscription.get_billing_cycle_display }} (৳{{ subscription.amount }} {{ subscription.currency }})</small>
+                        </div>
+                        <div class="text-md-end">
+                            <span class="text-muted small text-uppercase fw-bold d-block">Time Remaining</span>
+                            {% if subscription.is_expired %}
+                            <h3 class="fw-bold text-danger mb-0">Expired</h3>
+                            <small class="text-muted">Expired on {{ subscription.expires_at|date:"M d, Y" }}</small>
+                            {% else %}
+                            <h3 class="fw-bold {% if subscription.is_expiring_soon %}text-warning{% else %}text-success{% endif %} mb-0">
+                                {{ subscription.days_remaining }} Day{{ subscription.days_remaining|pluralize }} Left
+                            </h3>
+                            <small class="text-muted">Valid until {{ subscription.expires_at|date:"F d, Y" }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-4">
+                            <div class="p-3 bg-surface border border-secondary-subtle rounded">
+                                <small class="text-muted d-block fw-bold">ACTIVATION DATE</small>
+                                <strong class="text-heading">{{ subscription.started_at|date:"M d, Y" }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="p-3 bg-surface border border-secondary-subtle rounded">
+                                <small class="text-muted d-block fw-bold">EXPIRATION DATE</small>
+                                <strong class="text-heading">{{ subscription.expires_at|date:"M d, Y" }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="p-3 bg-surface border border-secondary-subtle rounded">
+                                <small class="text-muted d-block fw-bold">PACKAGE CATEGORY</small>
+                                <strong class="text-heading">{{ subscription.get_plan_category_display }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7-Day Expiry Notice (if applicable) -->
+                    {% if subscription.is_expiring_soon and not subscription.is_expired %}
+                    <div class="alert alert-warning d-flex align-items-center gap-3 mb-3">
+                        <i class="fas fa-exclamation-triangle fs-3 text-warning"></i>
+                        <div>
+                            <strong class="d-block">Your package is expiring in {{ subscription.days_remaining }} days!</strong>
+                            <small>Renew now to maintain uninterrupted access to AI recruitment tools, interview scheduling, and priority candidate rankings.</small>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if subscription.is_expired %}
+                    <div class="alert alert-danger d-flex align-items-center gap-3 mb-3">
+                        <i class="fas fa-times-circle fs-3 text-danger"></i>
+                        <div>
+                            <strong class="d-block">Your subscription has expired!</strong>
+                            <small>Posting new internships and accessing full candidate rankings is restricted until you renew.</small>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'landing:pricing' %}" class="btn btn-primary">
+                            <i class="fas fa-sync-alt me-1"></i>Renew or Change Package
+                        </a>
+                    </div>
+
+                    {% else %}
+                    <!-- No Paid Subscription Active -->
+                    <div class="text-center py-4">
+                        <i class="fas fa-crown display-4 text-muted mb-3 d-block"></i>
+                        <h5 class="fw-bold text-heading">You are on the Free Basic Tier</h5>
+                        <p class="text-muted small max-w-md mx-auto" style="max-width: 500px;">
+                            Upgrade to an AI-powered Pro or Career Boost package to unlock unlimited job applications, AI CV scoring, and automated candidate ranking.
+                        </p>
+                        <a href="{% url 'landing:pricing' %}" class="btn btn-primary px-4 py-2 mt-2">
+                            <i class="fas fa-bolt me-1"></i>Upgrade Package Now
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Invoices & Payment History -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-surface border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-heading"><i class="fas fa-receipt me-2 text-primary"></i>Payment Transactions History</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Method</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for txn in transactions %}
+                                <tr>
+                                    <td class="font-monospace fw-bold text-heading">{{ txn.transaction_id }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ txn.get_payment_method_display }}</span>
+                                    </td>
+                                    <td class="fw-bold text-primary">৳{{ txn.amount|floatformat:2 }} {{ txn.currency }}</td>
+                                    <td class="small text-muted">{{ txn.created_at|date:"M d, Y" }}</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td class="text-end">
+                                        <a href="{% url 'billing:receipt' txn.transaction_id %}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-file-invoice me-1"></i>View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">No payment transactions recorded yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Help / Information Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-surface border-bottom py-3">
+                    <h6 class="mb-0 fw-bold text-heading"><i class="fas fa-question-circle text-info me-2"></i>Subscription Policies</h6>
+                </div>
+                <div class="card-body p-4 small">
+                    <h6 class="fw-bold mb-1">📅 Expiration Policy</h6>
+                    <p class="text-muted mb-3">All monthly packages remain active for exactly 30 days. Annual packages remain active for 365 days.</p>
+
+                    <h6 class="fw-bold mb-1">🔔 7-Day Renewal Alerts</h6>
+                    <p class="text-muted mb-3">Starting 7 days before your package expires, the system delivers automatic in-app alerts so your hiring or applications continue seamlessly.</p>
+
+                    <h6 class="fw-bold mb-1">💳 Accepted Payment Methods</h6>
+                    <p class="text-muted mb-0">We support all major Bangladeshi MFS wallets (<strong>bKash, Nagad, Upay</strong>) as well as VISA, Mastercard, and American Express.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

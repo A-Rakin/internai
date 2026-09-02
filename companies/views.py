@@ -48,8 +48,18 @@ def dashboard(request):
 
     recent_notifications = Notification.objects.filter(recipient=request.user, is_read=False)[:5]
 
+    # Check 7-day package expiry reminder
+    try:
+        from billing.views import check_and_notify_expiring_packages
+        check_and_notify_expiring_packages(request.user)
+    except Exception:
+        pass
+
+    subscription = company.get_active_subscription()
+
     context = {
         'company': company,
+        'subscription': subscription,
         'stats': stats,
         'recent_applications': recent_applications,
         'recent_notifications': recent_notifications,
@@ -102,6 +112,27 @@ def profile_edit(request, pk=None):
 def internship_create(request):
     """Create a new internship listing."""
     company = get_object_or_404(CompanyProfile, user=request.user)
+
+    subscription = company.get_active_subscription()
+    # If company has an expired subscription, block creating new listings until renewed
+    if subscription and subscription.is_expired:
+        messages.error(
+            request,
+            f"Your subscription ({subscription.plan_display_name}) expired on {subscription.expires_at.strftime('%B %d, %Y')}. "
+            "Posting new internships is restricted until you renew your package."
+        )
+        return redirect('billing:my_package')
+
+    # If on basic tier (or no active subscription), limit to 1 active listing
+    if not subscription or 'basic' in subscription.plan_name:
+        active_count = Internship.objects.filter(company=company, status='open').count()
+        if active_count >= 1:
+            messages.warning(
+                request,
+                "The Free Basic tier allows 1 active internship listing. "
+                "Please upgrade to Pro Recruiter for unlimited internship postings and AI candidate ranking!"
+            )
+            return redirect('landing:pricing')
 
     if request.method == 'POST':
         form = InternshipForm(request.POST)

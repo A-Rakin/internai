@@ -22,7 +22,60 @@
             <h2>Welcome Back, {{ user.get_full_name|default:"Student" }}!</h2>
             <p>Track your internship applications, interview schedules, and weekly performance.</p>
         </div>
+        <div>
+            {% if subscription %}
+                <span class="badge bg-{{ subscription.status_badge_class }} fs-6 p-2">
+                    <i class="fas fa-crown me-1"></i>{{ subscription.plan_display_name }} ({{ subscription.status_display }})
+                </span>
+            {% else %}
+                <span class="badge bg-secondary fs-6 p-2"><i class="fas fa-bolt me-1"></i>Student Basic (Free)</span>
+            {% endif %}
+            <a href="{% url 'billing:my_package' %}" class="btn btn-sm btn-outline-light ms-2">
+                <i class="fas fa-receipt me-1"></i>My Package
+            </a>
+            <a href="{% url 'landing:pricing' %}?role=student" class="btn btn-sm btn-primary ms-1">
+                <i class="fas fa-arrow-up me-1"></i>Upgrade
+            </a>
+        </div>
     </div>
+
+    <!-- Active Package Details Card for Student -->
+    {% if subscription %}
+    <div class="card shadow-sm border-0 mb-4 bg-surface" style="border-left: 4px solid var(--{% if subscription.is_expired %}danger{% elif subscription.is_expiring_soon %}warning{% else %}success{% endif %}) !important;">
+        <div class="card-body p-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 rounded-circle bg-{% if subscription.is_expired %}danger{% elif subscription.is_expiring_soon %}warning{% else %}success{% endif %}-subtle text-{% if subscription.is_expired %}danger{% elif subscription.is_expiring_soon %}warning{% else %}success{% endif %} fs-3">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1 text-heading">
+                        Active Career Tier: <span class="text-success">{{ subscription.plan_display_name }}</span>
+                        <span class="badge bg-{{ subscription.status_badge_class }} ms-2">{{ subscription.status_display }}</span>
+                    </h6>
+                    <small class="text-muted">
+                        Started: <strong>{{ subscription.started_at|date:"M d, Y" }}</strong> |
+                        Expires on: <strong>{{ subscription.expires_at|date:"M d, Y" }}</strong>
+                        {% if not subscription.is_expired %}
+                        <span class="text-{% if subscription.is_expiring_soon %}warning fw-bold{% else %}success{% endif %}">
+                            ({{ subscription.days_remaining }} day{{ subscription.days_remaining|pluralize }} remaining)
+                        </span>
+                        {% else %}
+                        <span class="text-danger fw-bold">(Expired - 10 applications monthly limit active)</span>
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'billing:my_package' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-list me-1"></i>Package Details
+                </a>
+                <a href="{% url 'landing:pricing' %}?role=student" class="btn btn-sm btn-{% if subscription.is_expired or subscription.is_expiring_soon %}warning text-dark fw-bold{% else %}success{% endif %}">
+                    <i class="fas fa-sync-alt me-1"></i>{% if subscription.is_expired %}Renew Package{% else %}Change Tier{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     
     <!-- Stats Grid -->
     <div class="stats-grid">
