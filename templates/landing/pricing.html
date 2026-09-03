@@ -212,10 +212,10 @@
 {% include 'components/navbar.html' %}
 
 <!-- Page Header -->
-<div class="page-header py-5 text-center">
+<div class="page-header text-center" style="padding-top: 8.5rem; padding-bottom: 3.5rem;">
     <div class="container">
         <h1 class="display-4 fw-bold">Flexible & Transparent <span class="gradient-text">Packages</span></h1>
-        <p class="lead text-muted max-w-2xl mx-auto" style="max-width: 650px;">
+        <p class="lead text-muted max-w-2xl mx-auto" style="max-width: 650px; color: var(--text-secondary) !important;">
             Choose the tailored package that fits your hiring needs or student career goals.
             Supported with Bangladeshi Mobile Banking (bKash, Nagad, Upay) and Credit Cards.
         </p>
@@ -232,12 +232,12 @@
 
         <!-- Billing Switch -->
         <div class="billing-toggle-wrapper">
-            <span class="fw-semibold text-light">Monthly Billing</span>
+            <span class="fw-semibold" style="color: var(--text-heading);">Monthly Billing</span>
             <label class="billing-toggle">
                 <input type="checkbox" id="billingCycleToggle" onchange="toggleBillingCycle(this)">
                 <span class="toggle-slider"></span>
             </label>
-            <span class="fw-semibold text-light">
+            <span class="fw-semibold" style="color: var(--text-heading);">
                 Annual Billing <span class="discount-badge">SAVE 20%</span>
             </span>
         </div>
