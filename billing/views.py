@@ -35,7 +35,7 @@ PLANS = {
         'price_usd_monthly': 0,
         'description': 'Essential recruitment tools for startups and small teams.',
         'features': [
-            '1 Active Internship Listing Limit',
+            'Up to 5 Active Internship Listings',
             'Standard Applicant Review Portal',
             'PDF Resume Downloads',
             'Basic Email Notifications',
