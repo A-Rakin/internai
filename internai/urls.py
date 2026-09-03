@@ -24,6 +24,8 @@ from django.conf.urls.static import static
 # Each path maps a URL prefix to an app's URL configuration.
 # The 'include()' function delegates URL handling to the specified app.
 
+from django.views.generic import RedirectView
+
 urlpatterns = [
     # ----- Django Admin -----
     # Built-in admin interface at /admin/
@@ -38,7 +40,9 @@ urlpatterns = [
     path('accounts/', include('accounts.urls', namespace='accounts')),
 
     # ----- Student Portal -----
-    # Student dashboard and features at /student/
+    # Student dashboard and features at /student/ (with /students/ redirect alias)
+    path('students/<path:subpath>', RedirectView.as_view(url='/student/%(subpath)s', permanent=False)),
+    path('students/', RedirectView.as_view(url='/student/', permanent=False)),
     path('student/', include('students.urls', namespace='students')),
 
     # ----- Company Portal -----

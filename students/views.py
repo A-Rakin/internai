@@ -82,10 +82,18 @@ def dashboard(request):
 @login_required
 @role_required('student')
 def profile(request):
-    """Display student profile."""
+    """Display student profile with evaluations and subscription status."""
     student_profile = get_object_or_404(StudentProfile, user=request.user)
     subscription = student_profile.get_active_subscription()
-    context = {'profile': student_profile, 'subscription': subscription}
+
+    from reports.models import Evaluation
+    evaluations_list = Evaluation.objects.filter(student=student_profile).select_related('supervisor__user', 'internship').order_by('-created_at')
+
+    context = {
+        'profile': student_profile,
+        'subscription': subscription,
+        'evaluations': evaluations_list,
+    }
     return render(request, 'students/profile.html', context)
 
 
