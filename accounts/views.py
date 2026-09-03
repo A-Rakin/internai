@@ -204,3 +204,48 @@ def change_password(request):
 def dashboard_redirect(request):
     """Redirect authenticated users to their role-based dashboard."""
     return redirect(request.user.get_dashboard_url())
+
+
+def suspended_support(request):
+    """Render support request page for suspended users."""
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        message = request.POST.get('message', '').strip()
+
+        if email and message:
+            try:
+                from notifications.models import Notification
+                from documents.models import ActivityLog
+                
+                user_obj = CustomUser.objects.filter(email__iexact=email).first()
+                admin_users = CustomUser.objects.filter(role=CustomUser.ADMIN)
+
+                for admin in admin_users:
+                    Notification.objects.create(
+                        recipient=admin,
+                        notification_type='system',
+                        title='Account Suspension Appeal',
+                        message=f"Suspension appeal from {email}: {message[:120]}",
+                        link='/admin-portal/user-management/',
+                    )
+
+                if user_obj:
+                    ActivityLog.objects.create(
+                        user=user_obj,
+                        action="SUSPENSION_APPEAL",
+                        description=f"User submitted suspension reinstatement request: {message[:150]}"
+                    )
+            except Exception as e:
+                print(f"Error logging suspension appeal: {e}")
+
+            messages.success(
+                request,
+                "Your reinstatement appeal has been submitted to system administration. "
+                "Our team will review your request shortly."
+            )
+            return redirect('accounts:login')
+        else:
+            messages.error(request, "Please fill in all fields before submitting.")
+
+    return render(request, 'accounts/suspended.html')
+

@@ -35,7 +35,7 @@ PLANS = {
         'price_usd_monthly': 0,
         'description': 'Essential recruitment tools for startups and small teams.',
         'features': [
-            '1 Active Internship Listing',
+            '1 Active Internship Listing Limit',
             'Standard Applicant Review Portal',
             'PDF Resume Downloads',
             'Basic Email Notifications',
@@ -48,9 +48,9 @@ PLANS = {
         'price_bdt_monthly': 2000,
         'price_bdt_annual': 19200,
         'price_usd_monthly': 20,
-        'description': 'Advanced AI talent matching and unlimited recruitment pipeline.',
+        'description': 'Advanced AI talent matching and high-volume recruitment pipeline.',
         'features': [
-            'Unlimited Active Internship Postings',
+            'Up to 50 Active Internship Postings',
             'AI Candidate Ranking Engine (Role-Specific)',
             'Multi-Factor AI CV Breakdown & Formatting Review',
             'Interview Scheduling & Rescheduling with Collision Guard',
@@ -67,6 +67,7 @@ PLANS = {
         'price_usd_monthly': 80,
         'description': 'Complete enterprise talent acquisition suite with dedicated support.',
         'features': [
+            'Unlimited Active Internship Postings',
             'Everything in Pro Recruiter',
             'Dedicated Enterprise Account Manager',
             'Custom University Branding & Partnerships',
@@ -100,9 +101,9 @@ PLANS = {
         'price_bdt_monthly': 199,
         'price_bdt_annual': 1990,
         'price_usd_monthly': 2,
-        'description': 'Affordable monthly boost for serious internship seekers.',
+        'description': 'Affordable monthly boost for active job seekers.',
         'features': [
-            'Unlimited Internship Applications',
+            'Apply to up to 50 Internships / month',
             'Instant AI Resume Match Score & Skill Gap Insights',
             '10 AI Tailored Cover Letters / month',
             'Priority Application Flagging in Recruiter Dashboard',
@@ -119,6 +120,7 @@ PLANS = {
         'price_usd_monthly': 5,
         'description': 'The ultimate preparation suite for dream corporate placements.',
         'features': [
+            'Unlimited Internship Applications / month',
             'Everything in Student Pro',
             'Unlimited AI Cover Letters',
             'AI Mock Interview Coach with Instant Scoring & Feedback',

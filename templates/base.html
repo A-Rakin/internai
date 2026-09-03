@@ -129,20 +129,20 @@ and content blocks that child templates override.
          ============================================================ -->
     <!-- Display any messages set by Django views (success, error, etc.) -->
     {% if messages %}
-    <div class="messages-container" style="position:fixed; top:20px; right:20px; z-index:9999; max-width:400px;">
+    <div class="messages-container" style="position:fixed; bottom:25px; left:25px; z-index:99999; max-width:400px; width: calc(100% - 50px);">
         {% for message in messages %}
         <!-- Alert with appropriate Bootstrap color class based on message tag -->
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert"
-             style="background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-primary);">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-lg" role="alert"
+             style="background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, rgba(0,0,0,0.1)); color: var(--text-primary, #212529); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25)!important;">
             <!-- Message icon based on type -->
             {% if message.tags == 'alert-success' %}
-                <i class="fas fa-check-circle me-2" style="color: var(--success);"></i>
+                <i class="fas fa-check-circle me-2" style="color: var(--success, #28a745);"></i>
             {% elif message.tags == 'alert-danger' %}
-                <i class="fas fa-exclamation-circle me-2" style="color: var(--danger);"></i>
+                <i class="fas fa-exclamation-circle me-2" style="color: var(--danger, #dc3545);"></i>
             {% elif message.tags == 'alert-warning' %}
-                <i class="fas fa-exclamation-triangle me-2" style="color: var(--warning);"></i>
+                <i class="fas fa-exclamation-triangle me-2" style="color: var(--warning, #ffc107);"></i>
             {% else %}
-                <i class="fas fa-info-circle me-2" style="color: var(--info);"></i>
+                <i class="fas fa-info-circle me-2" style="color: var(--info, #17a2b8);"></i>
             {% endif %}
             <!-- Message text -->
             {{ message }}

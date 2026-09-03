@@ -151,6 +151,16 @@
                 <span class="badge bg-secondary px-3 py-2 rounded-pill" style="font-size: 0.85rem;">
                     {{ profile.get_education_level_display|default:"Undergraduate" }}
                 </span>
+
+                {% if subscription %}
+                <span class="badge bg-success px-3 py-2 rounded-pill" style="font-size: 0.85rem;">
+                    <i class="fas fa-crown me-1 text-warning"></i>{{ subscription.plan_display_name }} ({{ subscription.status_display }})
+                </span>
+                {% else %}
+                <span class="badge bg-secondary px-3 py-2 rounded-pill" style="font-size: 0.85rem;">
+                    <i class="fas fa-bolt me-1"></i>Student Basic (Free)
+                </span>
+                {% endif %}
             </div>
 
             <!-- Social Links -->

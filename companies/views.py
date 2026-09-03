@@ -72,7 +72,8 @@ def dashboard(request):
 def profile(request):
     """Display company profile."""
     company = get_object_or_404(CompanyProfile, user=request.user)
-    context = {'company': company}
+    subscription = company.get_active_subscription()
+    context = {'company': company, 'subscription': subscription}
     return render(request, 'companies/profile.html', context)
 
 
@@ -123,15 +124,29 @@ def internship_create(request):
         )
         return redirect('billing:my_package')
 
-    # If on basic tier (or no active subscription), limit to 1 active listing
-    if not subscription or 'basic' in subscription.plan_name:
+    # Tier limits for posting NEW internships:
+    # Basic (or expired): max 1 active post
+    # Pro: max 50 active posts
+    # Ultimate: unlimited
+    plan_name = subscription.plan_name if (subscription and subscription.is_active and not subscription.is_expired) else 'company_basic'
+
+    if 'ultimate' not in plan_name:
+        max_posts = 1 if ('basic' in plan_name or not subscription or subscription.is_expired) else 50
         active_count = Internship.objects.filter(company=company, status='open').count()
-        if active_count >= 1:
-            messages.warning(
-                request,
-                "The Free Basic tier allows 1 active internship listing. "
-                "Please upgrade to Pro Recruiter for unlimited internship postings and AI candidate ranking!"
-            )
+
+        if active_count >= max_posts:
+            if max_posts == 1:
+                messages.warning(
+                    request,
+                    "Posting limit reached: The Free Basic tier allows 1 active internship listing. "
+                    "Upgrade to Pro Recruiter (৳2,000/mo) for up to 50 active postings or Ultimate Enterprise for unlimited postings!"
+                )
+            else:
+                messages.warning(
+                    request,
+                    "Posting limit reached: You have reached your Pro Recruiter limit of 50 active internship postings. "
+                    "Upgrade to Ultimate Enterprise (৳8,000/mo) for unlimited postings!"
+                )
             return redirect('landing:pricing')
 
     if request.method == 'POST':

@@ -84,7 +84,8 @@ def dashboard(request):
 def profile(request):
     """Display student profile."""
     student_profile = get_object_or_404(StudentProfile, user=request.user)
-    context = {'profile': student_profile}
+    subscription = student_profile.get_active_subscription()
+    context = {'profile': student_profile, 'subscription': subscription}
     return render(request, 'students/profile.html', context)
 
 

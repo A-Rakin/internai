@@ -115,6 +115,39 @@ def user_detail(request, pk=None):
 
 @login_required
 @role_required('admin')
+def user_suspend(request, pk=None):
+    """Suspend or reactivate any user account (Student, Supervisor, Company, Admin)."""
+    user_obj = get_object_or_404(CustomUser, pk=pk)
+    if user_obj == request.user:
+        messages.error(request, 'You cannot suspend your own admin account.')
+        return redirect('administration:user_management')
+
+    user_obj.is_active = not user_obj.is_active
+    user_obj.save()
+
+    status_text = 'reactivated' if user_obj.is_active else 'suspended'
+    messages.warning(request, f'User account ({user_obj.email}) has been {status_text}.')
+    return redirect(request.META.get('HTTP_REFERER', 'administration:user_management'))
+
+
+@login_required
+@role_required('admin')
+def user_delete(request, pk=None):
+    """Permanently delete any user account and associated profile."""
+    user_obj = get_object_or_404(CustomUser, pk=pk)
+    if user_obj == request.user:
+        messages.error(request, 'You cannot delete your own admin account.')
+        return redirect('administration:user_management')
+
+    email = user_obj.email
+    user_obj.delete()
+    messages.success(request, f'User account {email} has been permanently deleted.')
+    return redirect('administration:user_management')
+
+
+
+@login_required
+@role_required('admin')
 def internship_moderation(request):
     """Moderate internship listings (approve/reject)."""
     if request.method == 'POST':

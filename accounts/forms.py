@@ -39,9 +39,19 @@ class LoginForm(forms.Form):
         if email and password:
             user = authenticate(username=email, password=password)
             if user is None:
+                # Check if the user exists and password is correct, but account is deactivated/suspended
+                existing_user = CustomUser.objects.filter(email__iexact=email).first()
+                if existing_user and existing_user.check_password(password) and not existing_user.is_active:
+                    raise forms.ValidationError(
+                        'Your account has been suspended by administration. '
+                        'Please visit our <a href="/accounts/suspended/" class="alert-link text-decoration-underline">Support Page</a> to request account reinstatement.'
+                    )
                 raise forms.ValidationError('Invalid email or password.')
             if not user.is_active:
-                raise forms.ValidationError('This account has been deactivated.')
+                raise forms.ValidationError(
+                    'Your account has been suspended by administration. '
+                    'Please visit our <a href="/accounts/suspended/" class="alert-link text-decoration-underline">Support Page</a> to request account reinstatement.'
+                )
             cleaned_data['user'] = user
         return cleaned_data
 

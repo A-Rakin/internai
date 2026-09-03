@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Account Suspended — Contact Support{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background: var(--bg-surface, #1e1e2d);">
+                <div class="card-header bg-danger text-white text-center py-4 border-0">
+                    <i class="fas fa-user-slash fa-3x mb-3 animate__animated animate__shakeX"></i>
+                    <h3 class="font-outfit fw-bold mb-1">Account Suspended</h3>
+                    <p class="mb-0 text-white-50 fs-6">Access Restricted by Platform Administration</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="alert alert-warning border-0 rounded-3 mb-4 d-flex align-items-center gap-3">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning flex-shrink-0"></i>
+                        <div>
+                            <strong class="d-block text-warning mb-1">Why am I seeing this?</strong>
+                            <small class="text-muted">Your account was temporarily suspended due to administrative review or policy compliance guidelines.</small>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 font-outfit">Submit Reinstatement Appeal</h5>
+                    <form method="POST" action="{% url 'accounts:suspended' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="email" class="form-label text-muted small fw-semibold">Account Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                                <input type="email" name="email" id="email" class="form-control border-start-0" placeholder="your.email@example.com" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="message" class="form-label text-muted small fw-semibold">Reason for Appeal / Message to Admin</label>
+                            <textarea name="message" id="message" rows="4" class="form-control" placeholder="Please describe why your account should be reinstated..." required></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg rounded-3 fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Appeal to Administration
+                            </button>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary rounded-3">
+                                <i class="fas fa-arrow-left me-2"></i>Return to Login
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

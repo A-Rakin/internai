@@ -29,22 +29,32 @@ def submit(request, internship_id=None):
         messages.warning(request, 'You have already applied for this internship.')
         return redirect('internships:detail', pk=internship.pk)
 
-    # Check student tier application limits (Basic Tier: Max 10 applications per month)
+    # Check student tier application limits
     subscription = student_profile.get_active_subscription()
-    if not subscription or 'basic' in subscription.plan_name:
-        from django.utils import timezone
+    plan_name = subscription.plan_name if (subscription and subscription.is_active and not subscription.is_expired) else 'student_basic'
+
+    if 'boost' not in plan_name and 'ultimate' not in plan_name:
+        max_allowed = 10 if ('basic' in plan_name or not subscription) else 50
         now = timezone.now()
         apps_this_month = Application.objects.filter(
             student=student_profile,
             applied_at__year=now.year,
             applied_at__month=now.month
         ).count()
-        if apps_this_month >= 10:
-            messages.warning(
-                request,
-                "You have reached the Free Student limit of 10 applications this month. "
-                "Upgrade to Student Pro (৳199/mo) for unlimited applications and instant AI CV match scores!"
-            )
+        
+        if apps_this_month >= max_allowed:
+            if max_allowed == 10:
+                messages.warning(
+                    request,
+                    "Application limit reached: You have reached the Basic plan limit of 10 applications this month. "
+                    "Upgrade to Student Pro (৳199/mo) for up to 50 applications or Career Boost for unlimited applications!"
+                )
+            else:
+                messages.warning(
+                    request,
+                    "Application limit reached: You have reached your Student Pro limit of 50 applications this month. "
+                    "Upgrade to Student Career Boost (৳499/mo) for unlimited applications!"
+                )
             return redirect('landing:pricing')
 
     from documents.models import Document

@@ -32,7 +32,11 @@
                     {% else %}
                     <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending Verification</span>
                     {% endif %}
-                    <span class="badge bg-primary ms-1"><i class="fas fa-bolt me-1"></i>{{ company.get_subscription_plan_display }}</span>
+                    {% if subscription %}
+                    <span class="badge bg-primary ms-1"><i class="fas fa-crown me-1"></i>{{ subscription.plan_display_name }} ({{ subscription.status_display }})</span>
+                    {% else %}
+                    <span class="badge bg-secondary ms-1"><i class="fas fa-bolt me-1"></i>{{ company.get_subscription_plan_display }}</span>
+                    {% endif %}
                 </div>
 
                 <div class="mt-3 mb-3">
