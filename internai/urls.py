@@ -50,7 +50,9 @@ urlpatterns = [
     path('company/', include('companies.urls', namespace='companies')),
 
     # ----- Supervisor Portal -----
-    # Supervisor dashboard and evaluations at /supervisor/
+    # Supervisor dashboard and evaluations at /supervisor/ (with /supervisors/ redirect alias)
+    path('supervisors/<path:subpath>', RedirectView.as_view(url='/supervisor/%(subpath)s', permanent=False)),
+    path('supervisors/', RedirectView.as_view(url='/supervisor/', permanent=False)),
     path('supervisor/', include('supervisors.urls', namespace='supervisors')),
 
     # ----- Internship Browsing -----
