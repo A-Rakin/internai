@@ -29,6 +29,13 @@ def submit(request, internship_id=None):
         messages.warning(request, 'You have already applied for this internship.')
         return redirect('internships:detail', pk=internship.pk)
 
+    if not internship.company.user.is_active:
+        messages.error(
+            request,
+            f"Applications for '{internship.title}' are temporarily disabled because the hosting company account ({internship.company.company_name}) is currently suspended by administration."
+        )
+        return redirect('internships:detail', pk=internship.pk)
+
     # Check student tier application limits
     subscription = student_profile.get_active_subscription()
     plan_name = subscription.plan_name if (subscription and subscription.is_active and not subscription.is_expired) else 'student_basic'

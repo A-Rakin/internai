@@ -49,7 +49,13 @@ def thread(request, pk):
         is_read=True, read_at=timezone.now()
     )
 
+    other_user = conversation.other_participant(request.user)
+
     if request.method == 'POST':
+        if other_user and not other_user.is_active:
+            django_messages.error(request, 'The user is suspended by administration. Direct messaging is disabled.')
+            return redirect('messaging:thread', pk=conversation.pk)
+
         content = request.POST.get('content', '').strip()
         if content:
             Message.objects.create(
@@ -60,7 +66,6 @@ def thread(request, pk):
             conversation.save()  # Update updated_at
 
             # Notify the other participant
-            other_user = conversation.other_participant(request.user)
             if other_user:
                 Notification.objects.create(
                     recipient=other_user,
@@ -72,7 +77,6 @@ def thread(request, pk):
             return redirect('messaging:thread', pk=conversation.pk)
 
     all_messages = conversation.messages.select_related('sender').order_by('created_at')
-    other_user = conversation.other_participant(request.user)
 
     context = {
         'conversation': conversation,
@@ -103,6 +107,10 @@ def compose(request):
             return redirect('messaging:compose')
 
         recipient = get_object_or_404(CustomUser, pk=recipient_id)
+
+        if not recipient.is_active:
+            django_messages.error(request, f'Messaging disabled: The user ({recipient.get_full_name() or recipient.email}) is currently suspended by administration.')
+            return redirect('messaging:compose')
 
         if recipient == request.user:
             django_messages.error(request, 'You cannot message yourself.')

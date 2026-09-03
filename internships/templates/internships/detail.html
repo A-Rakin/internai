@@ -67,7 +67,12 @@
                     <p><strong>Posted:</strong> {{ internship.created_at|date:"M d, Y" }}</p>
                     <p><strong>Views:</strong> {{ internship.views_count }}</p>
                     <hr>
-                    {% if user.is_authenticated %}
+                    {% if not internship.company.user.is_active %}
+                        <div class="alert alert-danger text-center mb-0">
+                            <i class="fas fa-exclamation-triangle me-1"></i><strong>Applications Disabled</strong><br>
+                            <small>This company account is under administrative suspension.</small>
+                        </div>
+                    {% elif user.is_authenticated %}
                         {% if user.is_student %}
                             {% if has_applied %}
                             <div class="alert alert-info text-center mb-0"><i class="fas fa-check-circle me-1"></i>You have already applied!</div>

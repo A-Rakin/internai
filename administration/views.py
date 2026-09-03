@@ -52,13 +52,29 @@ def dashboard(request):
 @login_required
 @role_required('admin')
 def user_management(request):
-    """List and manage all platform users."""
+    """List and manage all platform users with role tabs, search, and suspension filters."""
     role_filter = request.GET.get('role', '')
+    status_filter = request.GET.get('status', '')
     search_query = request.GET.get('q', '')
 
     users = CustomUser.objects.all().order_by('-date_joined')
+
+    user_counts = {
+        'all': CustomUser.objects.count(),
+        'student': CustomUser.objects.filter(role=CustomUser.STUDENT).count(),
+        'company': CustomUser.objects.filter(role=CustomUser.COMPANY).count(),
+        'supervisor': CustomUser.objects.filter(role=CustomUser.SUPERVISOR).count(),
+        'admin': CustomUser.objects.filter(role=CustomUser.ADMIN).count(),
+        'suspended': CustomUser.objects.filter(is_active=False).count(),
+    }
+
     if role_filter:
         users = users.filter(role=role_filter)
+    if status_filter == 'suspended':
+        users = users.filter(is_active=False)
+    elif status_filter == 'active':
+        users = users.filter(is_active=True)
+
     if search_query:
         users = users.filter(
             Q(email__icontains=search_query) |
@@ -70,7 +86,9 @@ def user_management(request):
     context = {
         'users': users,
         'role_filter': role_filter,
+        'status_filter': status_filter,
         'search_query': search_query,
+        'user_counts': user_counts,
     }
     return render(request, 'administration/user_management.html', context)
 
