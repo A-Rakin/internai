@@ -12,4 +12,6 @@ urlpatterns = [
     path('faq/', views.FaqView.as_view(), name='faq'),
     path('contact/', views.ContactView.as_view(), name='contact'),
     path('privacy/', views.PrivacyView.as_view(), name='privacy'),
+    path('rules/', views.RulesView.as_view(), name='rules'),
+    path('terms/', views.RulesView.as_view(), name='terms'),
 ]

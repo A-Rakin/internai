@@ -90,8 +90,12 @@ Used on all public-facing landing pages.
 
         <!-- ---- Footer Bottom Bar ---- -->
         <div class="footer-bottom">
-            <p>&copy; 2024 InternAI. All rights reserved. |
-                <a href="{% url 'landing:privacy' %}" style="color: var(--text-muted);">Privacy Policy</a>
+            <p>&copy; 2026 InternAI. All rights reserved. |
+                <a href="{% url 'landing:rules' %}" class="fw-bold me-2" style="color: var(--primary);">
+                    <i class="fas fa-gavel me-1"></i>Rules & Policy
+                </a> |
+                <a href="{% url 'landing:privacy' %}" class="mx-2" style="color: var(--text-muted);">Privacy Policy</a> |
+                <a href="{% url 'accounts:suspended' %}" class="ms-2" style="color: var(--text-muted);">Support Portal</a>
             </p>
         </div>
     </div>

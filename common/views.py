@@ -23,3 +23,6 @@ class ContactView(TemplateView):
 
 class PrivacyView(TemplateView):
     template_name = 'landing/privacy.html'
+
+class RulesView(TemplateView):
+    template_name = 'landing/rules.html'

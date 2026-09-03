@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Platform Rules & Anti-Violation Policy | InternAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing.css' %}?v=5.0">
+<style>
+    .rules-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .rules-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
+    }
+    .rules-number {
+        position: absolute;
+        top: -15px;
+        right: 20px;
+        font-size: 5rem;
+        font-weight: 900;
+        color: rgba(108, 99, 255, 0.06);
+        user-select: none;
+    }
+    .penalty-badge {
+        display: inline-block;
+        background: rgba(220, 53, 69, 0.15);
+        color: var(--danger, #dc3545);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'components/navbar.html' %}
+
+<!-- Page Header -->
+<div class="page-header text-center" style="padding-top: 8.5rem; padding-bottom: 3.5rem;">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Platform Rules & <span class="gradient-text">Anti-Violation Policy</span></h1>
+        <p class="lead text-muted max-w-2xl mx-auto" style="max-width: 650px; color: var(--text-secondary) !important;">
+            Official code of conduct, anti-abuse guidelines, and account suspension criteria governing InternAI users.
+        </p>
+
+        <div class="breadcrumb-custom justify-content-center mt-3">
+            <a href="{% url 'landing:home' %}" style="color: var(--primary);">Home</a>
+            <span class="separator"><i class="fas fa-chevron-right text-muted"></i></span>
+            <span class="text-muted">Platform Rules</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Rules Content Section -->
+<section class="py-5">
+    <div class="container">
+        <!-- Overview Alert -->
+        <div class="alert alert-primary border-primary p-4 rounded-4 mb-5 shadow-sm">
+            <div class="d-flex align-items-start gap-3">
+                <div class="fs-2 text-primary"><i class="fas fa-shield-alt"></i></div>
+                <div>
+                    <h5 class="fw-bold mb-1">Our Commitment to Integrity & Safety</h5>
+                    <p class="mb-0 text-secondary" style="line-height: 1.6;">
+                        InternAI connects students, hiring companies, and academic supervisors. To safeguard our ecosystem against fraud, spam, and financial exploits, all accounts and subscription packages are subject to strict compliance oversight. Violating these rules will result in tier revocation or permanent account suspension.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Rule 1 -->
+            <div class="col-lg-6">
+                <div class="rules-card h-100">
+                    <div class="rules-number">01</div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-id-card-alt text-danger fs-4 me-2"></i>
+                        <h4 class="fw-bold mb-0 text-heading">1. Identity & Verification Integrity</h4>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        Users must provide authentic contact details, university credentials, and commercial company information. Impersonating official institutions, using fake company profiles, or registering with disposable emails is strictly prohibited.
+                    </p>
+                    <div class="penalty-badge">
+                        <i class="fas fa-ban me-1"></i>Penalty: Immediate Permanent Account Suspension & Profile Removal
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rule 2 -->
+            <div class="col-lg-6">
+                <div class="rules-card h-100">
+                    <div class="rules-number">02</div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-credit-card text-warning fs-4 me-2"></i>
+                        <h4 class="fw-bold mb-0 text-heading">2. Subscription & Payment Integrity</h4>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        Submitting invalid or fabricated bKash, Nagad, or Upay Transaction IDs during checkout, or attempting cross-role package exploits (such as Companies attempting to subscribe to Student plans) is a violation of our financial terms.
+                    </p>
+                    <div class="penalty-badge" style="background: rgba(255, 193, 7, 0.15); color: #b58100; border-color: rgba(255, 193, 7, 0.4);">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Penalty: Instant Package Revocation & Reversion to Basic Free Tier
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rule 3 -->
+            <div class="col-lg-6">
+                <div class="rules-card h-100">
+                    <div class="rules-number">03</div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-briefcase text-info fs-4 me-2"></i>
+                        <h4 class="fw-bold mb-0 text-heading">3. Internship Posting Ethics</h4>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        Companies must post legitimate, verifiable internship opportunities. Demanding application fees, training payments, or money from student candidates, or publishing deceptive stipend information is grounds for immediate legal and administrative action.
+                    </p>
+                    <div class="penalty-badge">
+                        <i class="fas fa-gavel me-1"></i>Penalty: Permanent Company Ban & Placement Blacklisting
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rule 4 -->
+            <div class="col-lg-6">
+                <div class="rules-card h-100">
+                    <div class="rules-number">04</div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-user-graduate text-success fs-4 me-2"></i>
+                        <h4 class="fw-bold mb-0 text-heading">4. Academic Integrity & Verification</h4>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        Students must accurately report internship hours and activities. Falsifying academic supervisor email addresses, forging weekly report submissions, or manipulating performance evaluation scores is strictly forbidden.
+                    </p>
+                    <div class="penalty-badge" style="background: rgba(40, 167, 69, 0.15); color: #28a745; border-color: rgba(40, 167, 69, 0.4);">
+                        <i class="fas fa-user-times me-1"></i>Penalty: Voiding of Career Packages & University Notification
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rule 5 -->
+            <div class="col-lg-6">
+                <div class="rules-card h-100">
+                    <div class="rules-number">05</div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-comments text-primary fs-4 me-2"></i>
+                        <h4 class="fw-bold mb-0 text-heading">5. Professional Conduct & Anti-Spam</h4>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        Unsolicited bulk messaging, promotional spam, harassment, or abusive communication directed towards candidates, employers, or academic supervisors will not be tolerated.
+                    </p>
+                    <div class="penalty-badge" style="background: rgba(108, 99, 255, 0.15); color: var(--primary); border-color: rgba(108, 99, 255, 0.3);">
+                        <i class="fas fa-comment-slash me-1"></i>Penalty: Direct Messaging Suspension & Account Audit
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rule 6 -->
+            <div class="col-lg-6">
+                <div class="rules-card h-100">
+                    <div class="rules-number">06</div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-laptop-code text-secondary fs-4 me-2"></i>
+                        <h4 class="fw-bold mb-0 text-heading">6. Security & Platform Safeguards</h4>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        Automated scraping, bot exploitation, vulnerability probing, or sharing account access credentials with unauthorized commercial third parties is strictly prohibited.
+                    </p>
+                    <div class="penalty-badge">
+                        <i class="fas fa-lock me-1"></i>Penalty: IP Blacklisting & Immediate Security Termination
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Appeal CTA Box -->
+        <div class="card shadow-sm border-0 rounded-4 mt-5 p-4 p-md-5 text-center" style="background: var(--bg-surface-2);">
+            <h3 class="fw-bold mb-2">Have Questions or Need an Appeal?</h3>
+            <p class="text-muted max-w-xl mx-auto mb-4" style="max-width: 550px;">
+                If your package was revoked or account restricted, you may submit a formal appeal to our compliance administration team.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{% url 'accounts:suspended' %}" class="btn btn-primary btn-lg px-4 fw-bold">
+                    <i class="fas fa-envelope-open-text me-2"></i>Submit Support Inquiry / Appeal
+                </a>
+                <a href="{% url 'landing:faq' %}" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="fas fa-question-circle me-2"></i>Read FAQ
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

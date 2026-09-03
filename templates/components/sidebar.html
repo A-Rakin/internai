@@ -307,7 +307,11 @@ Used on: Student, Company, Supervisor, Admin dashboards.
             <span>Platform Settings</span>
         </a>
 
-        {% endif %}
+        <div class="nav-section">Governance</div>
+        <a href="{% url 'landing:rules' %}" target="_blank" class="nav-link">
+            <i class="fas fa-gavel text-info"></i>
+            <span>Platform Rules</span>
+        </a>
 
     </nav>
 
