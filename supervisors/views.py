@@ -20,8 +20,10 @@ from supervisors.forms import SupervisorProfileForm, ReportReviewForm, Evaluatio
 @login_required
 @role_required('supervisor')
 def dashboard(request):
-    """Supervisor dashboard with overview stats."""
+    """Supervisor dashboard with overview stats and assigned student roster."""
     supervisor = get_object_or_404(SupervisorProfile, user=request.user)
+    from django.db.models import Q
+    from applications.models import Application
 
     # Reports assigned to this supervisor
     pending_reports = WeeklyReport.objects.filter(
@@ -32,11 +34,23 @@ def dashboard(request):
         supervisor=supervisor, status__in=['approved', 'reviewed']
     )
 
-    # Students with reports assigned to this supervisor
-    assigned_student_ids = WeeklyReport.objects.filter(
-        supervisor=supervisor
-    ).values_list('student_id', flat=True).distinct()
-    assigned_students = StudentProfile.objects.filter(user_id__in=assigned_student_ids).select_related('user')
+    # Comprehensive querying for assigned students (by direct link, application supervisor FK, or supervisor email match)
+    assigned_students = StudentProfile.objects.filter(
+        Q(supervisor=supervisor) |
+        Q(applications__assigned_supervisor=supervisor) |
+        Q(applications__supervisor_email__iexact=supervisor.user.email)
+    ).select_related('user').distinct()
+
+    # Enrich student list with active placement details
+    enriched_students = []
+    for std in assigned_students:
+        accepted_app = Application.objects.filter(student=std, status='accepted').select_related('internship__company').first()
+        latest_app = Application.objects.filter(student=std).select_related('internship__company').order_by('-applied_at').first()
+        placement_app = accepted_app or latest_app
+        enriched_students.append({
+            'student': std,
+            'placement': placement_app,
+        })
 
     # Evaluations
     evaluations = Evaluation.objects.filter(supervisor=supervisor)
@@ -54,7 +68,7 @@ def dashboard(request):
         'supervisor': supervisor,
         'stats': stats,
         'pending_reports': pending_reports[:10],
-        'assigned_students': assigned_students[:10],
+        'assigned_students': enriched_students[:10],
         'recent_notifications': recent_notifications,
     }
     return render(request, 'supervisors/dashboard.html', context)
@@ -63,18 +77,28 @@ def dashboard(request):
 @login_required
 @role_required('supervisor')
 def students_list(request):
-    """List all students assigned to this supervisor."""
+    """List all students assigned to this supervisor with placement details and direct messaging."""
     supervisor = get_object_or_404(SupervisorProfile, user=request.user)
+    from django.db.models import Q
+    from applications.models import Application
 
-    assigned_student_ids = WeeklyReport.objects.filter(
-        supervisor=supervisor
-    ).values_list('student_id', flat=True).distinct()
+    assigned_students = StudentProfile.objects.filter(
+        Q(supervisor=supervisor) |
+        Q(applications__assigned_supervisor=supervisor) |
+        Q(applications__supervisor_email__iexact=supervisor.user.email)
+    ).select_related('user').distinct()
 
-    students = StudentProfile.objects.filter(
-        user_id__in=assigned_student_ids
-    ).select_related('user')
+    enriched_students = []
+    for std in assigned_students:
+        accepted_app = Application.objects.filter(student=std, status='accepted').select_related('internship__company').first()
+        latest_app = Application.objects.filter(student=std).select_related('internship__company').order_by('-applied_at').first()
+        placement_app = accepted_app or latest_app
+        enriched_students.append({
+            'student': std,
+            'placement': placement_app,
+        })
 
-    context = {'students': students, 'supervisor': supervisor}
+    context = {'students_data': enriched_students, 'supervisor': supervisor}
     return render(request, 'supervisors/students_list.html', context)
 
 

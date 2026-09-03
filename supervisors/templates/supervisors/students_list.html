@@ -17,30 +17,64 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>Student Name</th>
-                            <th>Email</th>
-                            <th>University</th>
-                            <th>Department</th>
-                            <th>Student ID</th>
+                            <th>Student Name & Email</th>
+                            <th>University & Dept</th>
+                            <th>Internship Placement / Company</th>
+                            <th>Stipend & Type</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for student in students %}
+                        {% for item in students_data %}
                         <tr>
-                            <td><strong>{{ student.user.get_full_name|default:student.user.email }}</strong></td>
-                            <td>{{ student.user.email }}</td>
-                            <td>{{ student.university|default:"-" }}</td>
-                            <td>{{ student.department|default:"-" }}</td>
-                            <td>{{ student.student_id|default:"-" }}</td>
                             <td>
-                                <a href="{% url 'supervisors:student_detail' student.pk %}" class="btn btn-sm btn-primary">View Student</a>
-                                <a href="{% url 'messaging:compose' %}?recipient={{ student.user.pk }}&subject=Academic Supervision" class="btn btn-sm btn-outline-primary ms-1"><i class="fas fa-comments me-1"></i>Message</a>
+                                <strong>{{ item.student.user.get_full_name|default:item.student.user.email }}</strong><br>
+                                <span class="text-muted small"><i class="fas fa-envelope me-1"></i>{{ item.student.user.email }}</span>
+                            </td>
+                            <td>
+                                <strong>{{ item.student.university|default:"-" }}</strong><br>
+                                <span class="text-muted small">{{ item.student.department|default:"-" }} (ID: {{ item.student.student_id|default:"N/A" }})</span>
+                            </td>
+                            <td>
+                                {% if item.placement %}
+                                <strong><i class="fas fa-building text-primary me-1"></i>{{ item.placement.internship.company.company_name }}</strong><br>
+                                <span class="text-muted small">{{ item.placement.internship.title }}</span>
+                                {% else %}
+                                <span class="text-muted italic">No placement record</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.placement %}
+                                <span class="badge bg-success-subtle text-success fw-bold">৳{{ item.placement.internship.stipend|default:0 }}/mo</span><br>
+                                <span class="text-muted small text-capitalize">{{ item.placement.internship.get_internship_type_display }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.placement %}
+                                <span class="badge bg-{% if item.placement.status == 'accepted' %}success{% elif item.placement.status == 'pending' %}warning{% else %}info{% endif %}">
+                                    {{ item.placement.get_status_display }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'supervisors:student_detail' item.student.pk %}" class="btn btn-primary" title="View Full Observation Audit">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </a>
+                                    <a href="{% url 'messaging:compose' %}?recipient={{ item.student.user.pk }}&subject=Academic Supervision" class="btn btn-outline-info" title="Direct Message Student">
+                                        <i class="fas fa-comments me-1"></i>Message
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">No students assigned to your supervision roster yet.</td>
+                            <td colspan="6" class="text-center py-4 text-muted">No students currently assigned to your academic supervision roster.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

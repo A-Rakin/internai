@@ -90,13 +90,23 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-header"><h5 class="mb-0"><i class="fas fa-users me-2"></i>My Students</h5></div>
                 <div class="card-body">
-                    {% for student in assigned_students %}
-                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    {% for item in assigned_students %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                         <div>
-                            <div class="fw-bold">{{ student.user.get_full_name|default:student.user.email }}</div>
-                            <div class="small text-muted">{{ student.university }}</div>
+                            <div class="fw-bold">{{ item.student.user.get_full_name|default:item.student.user.email }}</div>
+                            <div class="small text-muted mb-1"><i class="fas fa-university me-1"></i>{{ item.student.university|default:"Student" }}</div>
+                            {% if item.placement %}
+                            <div class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 text-wrap text-start" style="font-size: 0.75rem;">
+                                <i class="fas fa-briefcase me-1"></i>{{ item.placement.internship.company.company_name }}: {{ item.placement.internship.title|truncatechars:22 }}
+                            </div>
+                            {% else %}
+                            <span class="badge bg-secondary small">No Active Placement</span>
+                            {% endif %}
                         </div>
-                        <a href="{% url 'supervisors:student_detail' student.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+                        <div class="d-flex flex-column gap-1 ms-2">
+                            <a href="{% url 'supervisors:student_detail' item.student.pk %}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 0.75rem;"><i class="fas fa-eye me-1"></i>Details</a>
+                            <a href="{% url 'messaging:compose' %}?recipient={{ item.student.user.pk }}&subject=Academic Supervision" class="btn btn-sm btn-outline-info py-1 px-2" style="font-size: 0.75rem;"><i class="fas fa-comments me-1"></i>Message</a>
+                        </div>
                     </div>
                     {% empty %}
                     <p class="text-muted small text-center my-3">No students assigned yet.</p>

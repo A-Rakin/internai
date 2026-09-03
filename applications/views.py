@@ -121,6 +121,8 @@ def submit(request, internship_id=None):
         supervisor_profile = None
         if supervisor_user and hasattr(supervisor_user, 'supervisor_profile'):
             supervisor_profile = supervisor_user.supervisor_profile
+            student_profile.supervisor = supervisor_profile
+            student_profile.save(update_fields=['supervisor'])
 
         application = Application.objects.create(
             student=student_profile,
@@ -151,12 +153,19 @@ def submit(request, internship_id=None):
         )
 
         if supervisor_profile:
-            messages.success(request, f'Application submitted! Academic supervisor ({supervisor_email}) verified.')
+            Notification.objects.create(
+                recipient=supervisor_profile.user,
+                notification_type='system',
+                title=f'🎓 New Supervised Student Application: {request.user.get_full_name()}',
+                message=f'{request.user.get_full_name()} ({student_profile.university}) applied for "{internship.title}" at {internship.company.company_name} and listed you as Academic Supervisor.',
+                link=f'/supervisors/students/{student_profile.pk}/',
+            )
+            messages.success(request, f'Application submitted! Academic supervisor ({supervisor_email}) verified and notified.')
         else:
             messages.warning(
                 request,
                 f"Application submitted! However, no registered supervisor account was found for '{supervisor_email}'. "
-                f"Please tell your academic supervisor to open an account on InternAI so they can track your internship progress."
+                f"Please tell your academic supervisor to open an account on InternAI using email '{supervisor_email}' so they can track your internship progress."
             )
             Notification.objects.create(
                 recipient=request.user,

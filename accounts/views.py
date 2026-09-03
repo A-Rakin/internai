@@ -98,7 +98,39 @@ def register_supervisor(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, 'Supervisor account created successfully! Welcome to InternAI.')
+
+            # Auto-assign any existing student applications matching this supervisor's email
+            linked_count = 0
+            if hasattr(user, 'supervisor_profile'):
+                supervisor_prof = user.supervisor_profile
+                from applications.models import Application
+                from notifications.models import Notification
+
+                matching_apps = Application.objects.filter(supervisor_email__iexact=user.email)
+                for app in matching_apps:
+                    app.assigned_supervisor = supervisor_prof
+                    app.save(update_fields=['assigned_supervisor'])
+
+                    student_prof = app.student
+                    if not student_prof.supervisor:
+                        student_prof.supervisor = supervisor_prof
+                        student_prof.save(update_fields=['supervisor'])
+                    linked_count += 1
+
+                if linked_count > 0:
+                    Notification.objects.create(
+                        recipient=user,
+                        notification_type='system',
+                        title='🎓 Students Auto-Assigned to Your Roster',
+                        message=f'Welcome to InternAI! We found {linked_count} student application(s) matching your email ({user.email}). They have been automatically assigned to your supervision roster.',
+                        link='/supervisors/students/',
+                        priority='high',
+                    )
+                    messages.success(request, f'Supervisor account created! Automatically linked {linked_count} student application(s) matching your email ({user.email}).')
+                else:
+                    messages.success(request, 'Supervisor account created successfully! Welcome to InternAI.')
+            else:
+                messages.success(request, 'Supervisor account created successfully! Welcome to InternAI.')
             return redirect('supervisors:dashboard')
     else:
         form = SupervisorRegistrationForm()
