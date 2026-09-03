@@ -132,19 +132,19 @@ def internship_create(request):
 
     if 'ultimate' not in plan_name:
         max_posts = 5 if ('basic' in plan_name or not subscription or subscription.is_expired) else 50
-        active_count = Internship.objects.filter(company=company, status='open').count()
+        total_created_count = Internship.objects.filter(company=company).exclude(status='cancelled').count()
 
-        if active_count >= max_posts:
+        if total_created_count >= max_posts:
             if max_posts == 5:
                 messages.warning(
                     request,
-                    "Posting limit reached: The Free Basic tier allows up to 5 active internship listings. "
-                    "Upgrade to Pro Recruiter (৳2,000/mo) for up to 50 active postings or Ultimate Enterprise for unlimited postings!"
+                    f"Posting limit reached: The Free Basic tier allows up to 5 total internship listings (you currently have {total_created_count}). "
+                    "Upgrade to Pro Recruiter (৳2,000/mo) for up to 50 postings or Ultimate Enterprise for unlimited postings!"
                 )
             else:
                 messages.warning(
                     request,
-                    "Posting limit reached: You have reached your Pro Recruiter limit of 50 active internship postings. "
+                    f"Posting limit reached: You have reached your Pro Recruiter limit of 50 internship listings (you currently have {total_created_count}). "
                     "Upgrade to Ultimate Enterprise (৳8,000/mo) for unlimited postings!"
                 )
             return redirect('landing:pricing')
