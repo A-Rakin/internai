@@ -156,6 +156,15 @@ def checkout(request, plan_code):
         messages.error(request, f"Invalid subscription plan '{plan_code}' selected.")
         return redirect('landing:pricing')
 
+    # Strict role validation: Companies can only buy Company plans, Students can only buy Student plans
+    if request.user.role == 'company' and plan['category'] != 'company':
+        messages.error(request, f"Access Denied: Companies can only purchase Company recruitment packages. '{plan['title']}' is a Student package.")
+        return redirect('landing:pricing')
+
+    if request.user.role == 'student' and plan['category'] != 'student':
+        messages.error(request, f"Access Denied: Students can only purchase Student career packages. '{plan['title']}' is a Company package.")
+        return redirect('landing:pricing')
+
     billing_cycle = request.GET.get('cycle', 'monthly').lower()
     if billing_cycle not in ['monthly', 'annual']:
         billing_cycle = 'monthly'
@@ -198,6 +207,15 @@ def process_demo_payment(request):
     plan = get_plan_info(plan_code)
     if not plan:
         messages.error(request, 'Invalid plan selected.')
+        return redirect('landing:pricing')
+
+    # Strict role validation
+    if request.user.role == 'company' and plan['category'] != 'company':
+        messages.error(request, f"Access Denied: Companies can only purchase Company recruitment packages.")
+        return redirect('landing:pricing')
+
+    if request.user.role == 'student' and plan['category'] != 'student':
+        messages.error(request, f"Access Denied: Students can only purchase Student career packages.")
         return redirect('landing:pricing')
 
     amount = plan['price_bdt_annual'] if billing_cycle == 'annual' else plan['price_bdt_monthly']

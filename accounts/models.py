@@ -395,7 +395,7 @@ class StudentProfile(models.Model):
         """Retrieve the latest active subscription for the student."""
         try:
             from billing.models import Subscription
-            sub = Subscription.objects.filter(user=self.user, is_active=True).order_by('-started_at').first()
+            sub = Subscription.objects.filter(user=self.user, is_active=True, plan_category='student').order_by('-started_at').first()
             if sub and sub.is_expired:
                 sub.is_active = False
                 sub.save(update_fields=['is_active'])
@@ -550,7 +550,7 @@ class CompanyProfile(models.Model):
         """Retrieve the latest active subscription for the company."""
         try:
             from billing.models import Subscription
-            sub = Subscription.objects.filter(user=self.user, is_active=True).order_by('-started_at').first()
+            sub = Subscription.objects.filter(user=self.user, is_active=True, plan_category='company').order_by('-started_at').first()
             if sub and sub.is_expired:
                 sub.is_active = False
                 sub.save(update_fields=['is_active'])

@@ -122,6 +122,8 @@ def user_detail(request, pk=None):
         observation_data['supervisor_profile'] = user_obj.supervisor_profile
         observation_data['assigned_reports'] = WeeklyReport.objects.filter(supervisor=user_obj.supervisor_profile).order_by('-created_at')
 
+    from billing.models import Subscription
+    observation_data['active_subscription'] = Subscription.objects.filter(user=user_obj, is_active=True).order_by('-started_at').first()
     observation_data['user_activities'] = ActivityLog.objects.filter(user=user_obj).order_by('-created_at')[:15]
 
     context = {
@@ -130,6 +132,25 @@ def user_detail(request, pk=None):
         'obs': observation_data,
     }
     return render(request, 'administration/user_detail.html', context)
+
+
+@login_required
+@role_required('admin')
+def user_cancel_subscription(request, pk=None):
+    """Cancel / revoke active subscription for a user (Student or Company)."""
+    user_obj = get_object_or_404(CustomUser, pk=pk)
+    from billing.models import Subscription
+
+    active_subs = Subscription.objects.filter(user=user_obj, is_active=True)
+    count = active_subs.count()
+    active_subs.update(is_active=False)
+
+    if user_obj.is_company and hasattr(user_obj, 'company_profile'):
+        user_obj.company_profile.subscription_plan = 'basic'
+        user_obj.company_profile.save()
+
+    messages.success(request, f'Successfully revoked {count} active subscription(s) for user {user_obj.email}. Account reverted to Basic Free tier.')
+    return redirect('administration:user_detail', pk=pk)
 
 
 @login_required

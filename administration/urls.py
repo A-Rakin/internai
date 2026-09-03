@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('user-management/', views.user_management, name='user_management'),
     path('user-detail/<int:pk>/', views.user_detail, name='user_detail'),
+    path('user-cancel-subscription/<int:pk>/', views.user_cancel_subscription, name='user_cancel_subscription'),
     path('user-suspend/<int:pk>/', views.user_suspend, name='user_suspend'),
     path('user-delete/<int:pk>/', views.user_delete, name='user_delete'),
     path('internship-moderation/', views.internship_moderation, name='internship_moderation'),
