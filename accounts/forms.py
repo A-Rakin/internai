@@ -10,6 +10,7 @@ password management, and profile editing.
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import PasswordChangeForm
+from django.utils.safestring import mark_safe
 from accounts.models import CustomUser, StudentProfile, CompanyProfile, SupervisorProfile
 
 
@@ -43,14 +44,18 @@ class LoginForm(forms.Form):
                 existing_user = CustomUser.objects.filter(email__iexact=email).first()
                 if existing_user and existing_user.check_password(password) and not existing_user.is_active:
                     raise forms.ValidationError(
-                        'Your account has been suspended by administration. '
-                        'Please visit our <a href="/accounts/suspended/" class="alert-link text-decoration-underline">Support Page</a> to request account reinstatement.'
+                        mark_safe(
+                            'Your account has been suspended by administration. '
+                            'Please visit our <a href="/accounts/suspended/" class="alert-link text-decoration-underline fw-bold">Support Page</a> to request account reinstatement.'
+                        )
                     )
                 raise forms.ValidationError('Invalid email or password.')
             if not user.is_active:
                 raise forms.ValidationError(
-                    'Your account has been suspended by administration. '
-                    'Please visit our <a href="/accounts/suspended/" class="alert-link text-decoration-underline">Support Page</a> to request account reinstatement.'
+                    mark_safe(
+                        'Your account has been suspended by administration. '
+                        'Please visit our <a href="/accounts/suspended/" class="alert-link text-decoration-underline fw-bold">Support Page</a> to request account reinstatement.'
+                    )
                 )
             cleaned_data['user'] = user
         return cleaned_data

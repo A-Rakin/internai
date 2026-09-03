@@ -145,7 +145,7 @@ and content blocks that child templates override.
                 <i class="fas fa-info-circle me-2" style="color: var(--info, #17a2b8);"></i>
             {% endif %}
             <!-- Message text -->
-            {{ message }}
+            {{ message|safe }}
             <!-- Close button -->
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
