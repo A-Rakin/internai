@@ -21,5 +21,9 @@ urlpatterns = [
     # Saved Internships (Bookmarks)
     path('saved/', views.saved_internships, name='saved_internships'),
     path('toggle-bookmark/', views.toggle_bookmark, name='toggle_bookmark'),
+
+    # Application & Placement Actions
+    path('withdraw-application/<int:pk>/', views.withdraw_application, name='withdraw_application'),
+    path('update-supervisor/', views.update_supervisor, name='update_supervisor'),
 ]
 

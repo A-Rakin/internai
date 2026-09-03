@@ -353,3 +353,106 @@ def toggle_bookmark(request):
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+
+@login_required
+@role_required('student')
+def withdraw_application(request, pk=None):
+    """Allow a student to withdraw/resign an accepted placement or application."""
+    student_profile = get_object_or_404(StudentProfile, user=request.user)
+    app_obj = get_object_or_404(Application, pk=pk, student=student_profile)
+
+    if request.method == 'POST':
+        prev_status = app_obj.status
+        app_obj.status = 'withdrawn'
+        app_obj.save(update_fields=['status'])
+
+        company_user = app_obj.internship.company.user
+        comp_name = app_obj.internship.company.company_name
+
+        # Notify Company
+        Notification.objects.create(
+            recipient=company_user,
+            notification_type='application',
+            title=f'Placement Withdrawn: {request.user.get_full_name()}',
+            message=f'{request.user.get_full_name()} has withdrawn/resigned their application for "{app_obj.internship.title}".',
+            link=f'/company/applicant-detail/{app_obj.pk}/',
+        )
+
+        # Notify Supervisor if assigned
+        if app_obj.assigned_supervisor:
+            Notification.objects.create(
+                recipient=app_obj.assigned_supervisor.user,
+                notification_type='system',
+                title=f'Placement Resignation: {request.user.get_full_name()}',
+                message=f'Student {request.user.get_full_name()} has withdrawn from their placement at {comp_name}.',
+                link=f'/supervisors/students/{student_profile.pk}/',
+            )
+
+        # If student's current active supervisor was linked to this placement, clear if no other accepted placements
+        other_active = Application.objects.filter(student=student_profile, status='accepted').exists()
+        if not other_active:
+            student_profile.supervisor = None
+            student_profile.save(update_fields=['supervisor'])
+
+        messages.success(
+            request,
+            f'Successfully withdrawn your application for "{app_obj.internship.title}" at {comp_name}. '
+            f'Your placement status is now open to accept or get assigned to another offer.'
+        )
+        return redirect('students:applications')
+
+    context = {'application': app_obj}
+    return render(request, 'students/withdraw_confirm.html', context)
+
+
+@login_required
+@role_required('student')
+def update_supervisor(request):
+    """Allow student to change/update their listed Academic Supervisor."""
+    student_profile = get_object_or_404(StudentProfile, user=request.user)
+
+    if request.method == 'POST':
+        supervisor_email = request.POST.get('supervisor_email', '').strip().lower()
+        if not supervisor_email:
+            messages.error(request, 'Please enter a valid supervisor email address.')
+            return redirect('students:applications')
+
+        from accounts.models import CustomUser, SupervisorProfile
+        sup_user = CustomUser.objects.filter(email__iexact=supervisor_email, role=CustomUser.SUPERVISOR).first()
+
+        if sup_user and hasattr(sup_user, 'supervisor_profile'):
+            sup_profile = sup_user.supervisor_profile
+            if sup_profile.is_at_capacity():
+                messages.error(
+                    request,
+                    f'Cannot assign supervisor {supervisor_email}: Supervisor has reached the maximum capacity limit of 5 assigned students. '
+                    f'Please enter a different academic supervisor email.'
+                )
+            else:
+                student_profile.supervisor = sup_profile
+                student_profile.save(update_fields=['supervisor'])
+
+                # Update assigned supervisor on active accepted applications
+                Application.objects.filter(student=student_profile, status='accepted').update(assigned_supervisor=sup_profile, supervisor_email=supervisor_email)
+
+                # Notify Supervisor
+                Notification.objects.create(
+                    recipient=sup_user,
+                    notification_type='system',
+                    title=f'🎓 Student Supervision Link: {request.user.get_full_name()}',
+                    message=f'{request.user.get_full_name()} ({student_profile.university}) has updated their Academic Supervisor to you.',
+                    link=f'/supervisors/students/{student_profile.pk}/',
+                )
+
+                messages.success(request, f'Academic Supervisor updated successfully to {sup_user.get_full_name()} ({supervisor_email}).')
+        else:
+            messages.warning(
+                request,
+                f"Supervisor email '{supervisor_email}' recorded. However, no active supervisor account was found. "
+                f"Please tell your supervisor to register on InternAI with '{supervisor_email}'."
+            )
+
+        return redirect('students:applications')
+
+    return redirect('students:applications')
+

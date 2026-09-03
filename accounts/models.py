@@ -632,12 +632,25 @@ class SupervisorProfile(models.Model):
         help_text='Comma-separated list of expertise areas',
     )
 
-    # Maximum number of students to supervise
+    # Maximum number of students to supervise (strictly capped at max 5)
     max_students = models.PositiveIntegerField(
         'maximum students',
-        default=10,
-        help_text='Maximum number of students this supervisor can handle',
+        default=5,
+        help_text='Maximum number of students this supervisor can handle (Strict limit: 5)',
     )
+
+    def get_assigned_students_count(self):
+        """Count distinct active students assigned under this academic supervisor."""
+        from django.db.models import Q
+        return StudentProfile.objects.filter(
+            Q(supervisor=self) |
+            Q(applications__assigned_supervisor=self, applications__status='accepted')
+        ).distinct().count()
+
+    def is_at_capacity(self):
+        """Check if supervisor has reached max capacity (limit 5 students)."""
+        limit = min(self.max_students or 5, 5)
+        return self.get_assigned_students_count() >= limit
 
     # Bio/About
     bio = models.TextField(

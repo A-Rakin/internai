@@ -275,46 +275,108 @@ def applicant_detail(request, pk=None):
 
             if application.status == 'accepted':
                 from accounts.models import CustomUser, SupervisorProfile
-                sup_email = application.supervisor_email
-                supervisor_profile = None
+                from applications.models import Application as AppModel
 
-                if sup_email:
-                    sup_user = CustomUser.objects.filter(email__iexact=sup_email, role=CustomUser.SUPERVISOR).first()
-                    if sup_user and hasattr(sup_user, 'supervisor_profile'):
-                        supervisor_profile = sup_user.supervisor_profile
+                # Check if student is ALREADY placed/accepted at another company
+                existing_placement = AppModel.objects.filter(
+                    student=application.student,
+                    status='accepted'
+                ).exclude(pk=application.pk).select_related('internship__company').first()
 
-                if supervisor_profile:
-                    application.assigned_supervisor = supervisor_profile
-                    application.save(update_fields=['assigned_supervisor'])
-
-                    student_prof = application.student
-                    student_prof.supervisor = supervisor_profile
-                    student_prof.save(update_fields=['supervisor'])
-
-                    Notification.objects.create(
-                        recipient=supervisor_profile.user,
-                        notification_type='system',
-                        title=f'New Student Assigned: {application.student.user.get_full_name()}',
-                        message=f'{application.student.user.get_full_name()} has been accepted for "{application.internship.title}" at {company.company_name} and assigned under your academic supervision.',
-                        link=f'/supervisors/students/{student_prof.pk}/',
-                    )
-                else:
+                if existing_placement:
+                    prev_company = existing_placement.internship.company.company_name
+                    # Secondary Acceptance: Student is already assigned to a primary placement
                     Notification.objects.create(
                         recipient=application.student.user,
-                        notification_type='system',
-                        title='Supervisor Registration Required',
-                        message=f'Your application for "{application.internship.title}" was ACCEPTED! However, your academic supervisor ({sup_email or "not provided"}) does not have an account on InternAI yet. Please ask your supervisor to sign up on InternAI so they can observe your internship progress.',
-                        link=f'/students/applications/',
+                        notification_type='application',
+                        title=f'🎉 Additional Internship Offer: {application.internship.title}',
+                        message=(
+                            f'Congratulations! {company.company_name} accepted your application for "{application.internship.title}". '
+                            f'Note: You are currently active in your placement at {prev_company}. '
+                            f'If you wish to switch to {company.company_name}, you can withdraw your current placement in your student portal.'
+                        ),
+                        link='/students/applications/',
                     )
+                    Notification.objects.create(
+                        recipient=request.user,
+                        notification_type='system',
+                        title=f'Candidate Offer Extended: {application.student.user.get_full_name()}',
+                        message=f'Offer extended to {application.student.user.get_full_name()}. Note: Candidate is currently placed at {prev_company}.',
+                        link=f'/company/applicant-detail/{application.pk}/',
+                    )
+                else:
+                    # Primary Placement Assignment
+                    sup_email = application.supervisor_email
+                    supervisor_profile = None
 
-            # Create notification for the student
-            Notification.objects.create(
-                recipient=application.student.user,
-                notification_type='application',
-                title=f'Application Update: {application.internship.title}',
-                message=f'Your application status has been updated to: {application.get_status_display()}',
-                link=f'/students/applications/',
-            )
+                    if sup_email:
+                        sup_user = CustomUser.objects.filter(email__iexact=sup_email, role=CustomUser.SUPERVISOR).first()
+                        if sup_user and hasattr(sup_user, 'supervisor_profile'):
+                            supervisor_profile = sup_user.supervisor_profile
+
+                    if supervisor_profile:
+                        if supervisor_profile.is_at_capacity():
+                            # Supervisor overloaded (>= 5 students)
+                            Notification.objects.create(
+                                recipient=application.student.user,
+                                notification_type='system',
+                                title='⚠️ Academic Supervisor Capacity Limit Reached (Max 5/5)',
+                                message=(
+                                    f'Your application for "{application.internship.title}" was ACCEPTED by {company.company_name}! '
+                                    f'However, your listed supervisor ({supervisor_profile.user.get_full_name()}) has reached the max limit of 5 assigned students. '
+                                    f'Please update your Academic Supervisor in your student portal.'
+                                ),
+                                link='/students/applications/',
+                            )
+                            Notification.objects.create(
+                                recipient=supervisor_profile.user,
+                                notification_type='system',
+                                title='⚠️ Student Supervision Capacity Warning',
+                                message=f'Student {application.student.user.get_full_name()} was accepted at {company.company_name}, but could not be auto-assigned to you as you have reached your max capacity of 5 students.',
+                                link=f'/supervisors/dashboard/',
+                            )
+                        else:
+                            # Assign supervisor (< 5 students)
+                            application.assigned_supervisor = supervisor_profile
+                            application.save(update_fields=['assigned_supervisor'])
+
+                            student_prof = application.student
+                            student_prof.supervisor = supervisor_profile
+                            student_prof.save(update_fields=['supervisor'])
+
+                            Notification.objects.create(
+                                recipient=supervisor_profile.user,
+                                notification_type='system',
+                                title=f'🎓 New Student Assigned: {application.student.user.get_full_name()}',
+                                message=f'{application.student.user.get_full_name()} has been accepted for "{application.internship.title}" at {company.company_name} and assigned under your academic supervision.',
+                                link=f'/supervisors/students/{student_prof.pk}/',
+                            )
+                    else:
+                        Notification.objects.create(
+                            recipient=application.student.user,
+                            notification_type='system',
+                            title='Supervisor Registration Required',
+                            message=f'Your application for "{application.internship.title}" was ACCEPTED! However, your academic supervisor ({sup_email or "not provided"}) does not have an account on InternAI yet. Please ask your supervisor to sign up on InternAI so they can observe your internship progress.',
+                            link='/students/applications/',
+                        )
+
+                    # Create standard acceptance notification for the student
+                    Notification.objects.create(
+                        recipient=application.student.user,
+                        notification_type='application',
+                        title=f'🎉 Application ACCEPTED: {application.internship.title}',
+                        message=f'Great news! Your application for "{application.internship.title}" at {company.company_name} has been ACCEPTED!',
+                        link='/students/applications/',
+                    )
+            elif application.status != 'accepted':
+                # Create standard notification for non-accepted updates
+                Notification.objects.create(
+                    recipient=application.student.user,
+                    notification_type='application',
+                    title=f'Application Update: {application.internship.title}',
+                    message=f'Your application status has been updated to: {application.get_status_display()}',
+                    link='/students/applications/',
+                )
             messages.success(request, 'Application status updated.')
             return redirect('companies:applicant_detail', pk=pk)
     else:
