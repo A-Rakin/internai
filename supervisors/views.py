@@ -9,10 +9,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 
+from django.db.models import Q
 from accounts.decorators import role_required
 from accounts.models import SupervisorProfile, StudentProfile
 from reports.models import WeeklyReport, Evaluation
 from internships.models import Internship
+from applications.models import Application
 from notifications.models import Notification
 from supervisors.forms import SupervisorProfileForm, ReportReviewForm, EvaluationForm
 
