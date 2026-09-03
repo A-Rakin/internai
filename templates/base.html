@@ -129,11 +129,11 @@ and content blocks that child templates override.
          ============================================================ -->
     <!-- Display any messages set by Django views (success, error, etc.) -->
     {% if messages %}
-    <div class="messages-container" style="position:fixed; bottom:25px; left:25px; z-index:99999; max-width:400px; width: calc(100% - 50px);">
+    <div class="messages-container" style="position:fixed; bottom:25px; right:25px; z-index:99999; max-width:360px; width: calc(100% - 50px);">
         {% for message in messages %}
         <!-- Alert with appropriate Bootstrap color class based on message tag -->
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-lg" role="alert"
-             style="background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, rgba(0,0,0,0.1)); color: var(--text-primary, #212529); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25)!important;">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-lg py-2 px-3 small align-items-center" role="alert"
+             style="background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, rgba(0,0,0,0.15)); color: var(--text-primary, #212529); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.2)!important; font-size: 0.875rem;">
             <!-- Message icon based on type -->
             {% if message.tags == 'alert-success' %}
                 <i class="fas fa-check-circle me-2" style="color: var(--success, #28a745);"></i>
@@ -147,7 +147,7 @@ and content blocks that child templates override.
             <!-- Message text -->
             {{ message|safe }}
             <!-- Close button -->
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close py-2 px-3" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.75rem;"></button>
         </div>
         {% endfor %}
     </div>

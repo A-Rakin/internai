@@ -67,10 +67,28 @@ Used on: home, about, features, pricing, FAQ, contact pages.
 
                 <!-- ---- Auth & Theme Buttons ---- -->
                 <div class="d-lg-flex align-items-center gap-2 ms-lg-4 mt-3 mt-lg-0">
-                    <!-- Theme Toggle Button (Available before login on public navbar) -->
+                    <!-- Theme Toggle Button -->
                     <button class="btn btn-sm btn-outline-secondary theme-toggle-btn rounded-pill px-3 py-1 me-1 d-inline-flex align-items-center" onclick="toggleTheme()" type="button" title="Toggle Light/Dark Theme">
                         <i class="fas fa-sun text-warning me-1"></i><span class="theme-btn-text">Light Mode</span>
                     </button>
+
+                    {% if user.is_authenticated %}
+                    <!-- Logged in User Controls: Dashboard & Logout -->
+                    <a href="{{ user.get_dashboard_url }}" class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold">
+                        <i class="fas fa-columns me-1"></i> Dashboard
+                    </a>
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle px-3 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1 text-primary"></i> {{ user.get_full_name|default:user.username }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: 12px;">
+                            <li><span class="dropdown-item-text text-muted small"><i class="fas fa-envelope me-1"></i>{{ user.email }}</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ user.get_dashboard_url }}"><i class="fas fa-tachometer-alt me-2 text-primary"></i>My Dashboard</a></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
                     <!-- Login button - outline style -->
                     <a href="{% url 'accounts:login' %}" class="nav-link">
                         <i class="fas fa-sign-in-alt me-1"></i> Login
@@ -79,6 +97,7 @@ Used on: home, about, features, pricing, FAQ, contact pages.
                     <a href="{% url 'accounts:register_student' %}" class="btn-get-started">
                         Get Started <i class="fas fa-arrow-right ms-1"></i>
                     </a>
+                    {% endif %}
                 </div>
             </div>
 
