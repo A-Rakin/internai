@@ -140,16 +140,33 @@ def user_cancel_subscription(request, pk=None):
     """Cancel / revoke active subscription for a user (Student or Company)."""
     user_obj = get_object_or_404(CustomUser, pk=pk)
     from billing.models import Subscription
+    from notifications.models import Notification
 
     active_subs = Subscription.objects.filter(user=user_obj, is_active=True)
     count = active_subs.count()
+
+    plan_names = ", ".join(sub.plan_display_name for sub in active_subs) if count > 0 else "Active Package"
     active_subs.update(is_active=False)
 
     if user_obj.is_company and hasattr(user_obj, 'company_profile'):
         user_obj.company_profile.subscription_plan = 'basic'
         user_obj.company_profile.save()
 
-    messages.success(request, f'Successfully revoked {count} active subscription(s) for user {user_obj.email}. Account reverted to Basic Free tier.')
+    # Notify the Company or Student user with direct link to Support page
+    if count > 0:
+        Notification.objects.create(
+            recipient=user_obj,
+            notification_type='system',
+            title='⚠️ Subscription Package Revoked by Administrator',
+            message=(
+                f'Your active subscription package ({plan_names}) has been revoked by an administrator. '
+                f'If you believe this is an error or need further assistance, please contact our <a href="/accounts/suspended/" class="alert-link text-decoration-underline fw-bold">Support Page</a>.'
+            ),
+            link='/accounts/suspended/',
+            priority='high',
+        )
+
+    messages.success(request, f'Successfully revoked {count} active subscription(s) for user {user_obj.email}. Account reverted to Basic Free tier & notification sent.')
     return redirect('administration:user_detail', pk=pk)
 
 
