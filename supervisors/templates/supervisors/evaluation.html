@@ -54,15 +54,28 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
+                        {% if selected_student %}
+                        <div class="alert alert-primary mb-3 p-3 border border-primary-subtle rounded">
+                            <div class="fw-bold text-primary mb-1"><i class="fas fa-user-graduate me-1"></i>Evaluating Supervised Student:</div>
+                            <div class="fw-bold text-dark fs-6">{{ selected_student.user.get_full_name|default:selected_student.user.email }}</div>
+                            <div class="small text-muted mt-1">
+                                ID: {{ selected_student.student_id|default:"N/A" }} | Dept: {{ selected_student.department|default:"N/A" }} ({{ selected_student.university|default:"N/A" }})
+                            </div>
+                            <input type="hidden" name="student_id" value="{{ selected_student.pk }}">
+                        </div>
+                        {% else %}
                         <div class="mb-3">
-                            <label class="form-label">Select Student</label>
+                            <label class="form-label fw-bold">Select Supervised Student</label>
                             <select name="student_id" class="form-select" required>
-                                <option value="">Select Student</option>
+                                <option value="">-- Select Student to Evaluate --</option>
                                 {% for st in students %}
-                                <option value="{{ st.pk }}">{{ st.user.get_full_name|default:st.user.email }} ({{ st.university }})</option>
+                                <option value="{{ st.pk }}" {% if selected_student_id == st.pk|stringformat:"s" %}selected{% endif %}>
+                                    {{ st.user.get_full_name|default:st.user.email }} (ID: {{ st.student_id|default:"N/A" }} - {{ st.university }})
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
+                        {% endif %}
                         <div class="mb-3">
                             <label class="form-label">Technical Competency Score (1-10)</label>
                             {{ form.technical_score }}

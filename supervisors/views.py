@@ -190,40 +190,57 @@ def report_review(request, pk=None):
 @login_required
 @role_required('supervisor')
 def evaluation(request, pk=None):
-    """Create or view evaluations for students."""
+    """Create or view performance evaluations for students with auto pre-selection."""
     supervisor = get_object_or_404(SupervisorProfile, user=request.user)
+
+    student_id_param = request.GET.get('student') or request.POST.get('student_id')
+    selected_student = None
+    if student_id_param:
+        selected_student = StudentProfile.objects.filter(pk=student_id_param).select_related('user').first()
 
     if request.method == 'POST':
         student_id = request.POST.get('student_id')
-        internship_id = request.POST.get('internship_id')
+        if not student_id:
+            messages.error(request, 'Please select a student to evaluate.')
+            return redirect('supervisors:evaluation')
+
         student = get_object_or_404(StudentProfile, pk=student_id)
-        internship = get_object_or_404(Internship, pk=internship_id)
+
+        # Automatically determine student's placement internship
+        accepted_app = Application.objects.filter(student=student, status='accepted').select_related('internship').first()
+        latest_app = Application.objects.filter(student=student).select_related('internship').order_by('-applied_at').first()
+        placement_app = accepted_app or latest_app
+
+        if not placement_app or not placement_app.internship:
+            messages.error(request, f'Cannot submit evaluation: {student.user.get_full_name()} has no recorded internship applications.')
+            return redirect('supervisors:evaluation')
 
         form = EvaluationForm(request.POST)
         if form.is_valid():
             eval_obj = form.save(commit=False)
             eval_obj.supervisor = supervisor
             eval_obj.student = student
-            eval_obj.internship = internship
+            eval_obj.internship = placement_app.internship
             eval_obj.save()
 
             Notification.objects.create(
                 recipient=student.user,
                 notification_type='evaluation',
-                title='New Evaluation Submitted',
-                message=f'Your supervisor has submitted {"a final" if eval_obj.is_final else "an"} evaluation.',
-                link='/student/reports/',
+                title='🎓 Performance Evaluation Submitted',
+                message=f'Your Academic Supervisor ({supervisor.user.get_full_name()}) submitted {"a final" if eval_obj.is_final else "a"} performance evaluation for you. Overall Score: {eval_obj.overall_score}/10.',
+                link='/students/reports/',
             )
-            messages.success(request, 'Evaluation submitted successfully!')
+            messages.success(request, f'Performance evaluation for {student.user.get_full_name()} submitted successfully!')
             return redirect('supervisors:evaluation')
     else:
         form = EvaluationForm()
 
-    # Get students assigned to this supervisor
-    assigned_student_ids = WeeklyReport.objects.filter(
-        supervisor=supervisor
-    ).values_list('student_id', flat=True).distinct()
-    students = StudentProfile.objects.filter(user_id__in=assigned_student_ids).select_related('user')
+    # Query all assigned students for this supervisor
+    assigned_students = StudentProfile.objects.filter(
+        Q(supervisor=supervisor) |
+        Q(applications__assigned_supervisor=supervisor) |
+        Q(applications__supervisor_email__iexact=supervisor.user.email)
+    ).select_related('user').distinct()
 
     evaluations = Evaluation.objects.filter(supervisor=supervisor).select_related(
         'student__user', 'internship'
@@ -231,7 +248,9 @@ def evaluation(request, pk=None):
 
     context = {
         'form': form,
-        'students': students,
+        'students': assigned_students,
+        'selected_student': selected_student,
+        'selected_student_id': str(student_id_param) if student_id_param else '',
         'evaluations': evaluations,
     }
     return render(request, 'supervisors/evaluation.html', context)

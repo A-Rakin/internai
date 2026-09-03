@@ -170,11 +170,17 @@ def interviews(request):
 @login_required
 @role_required('student')
 def reports(request):
-    """List all weekly reports."""
+    """List all weekly reports and supervisor performance evaluations."""
     student_profile = get_object_or_404(StudentProfile, user=request.user)
     reports_list = WeeklyReport.objects.filter(student=student_profile).select_related('internship').order_by('-week_number')
 
-    context = {'reports': reports_list}
+    from reports.models import Evaluation
+    evaluations_list = Evaluation.objects.filter(student=student_profile).select_related('supervisor__user', 'internship').order_by('-created_at')
+
+    context = {
+        'reports': reports_list,
+        'evaluations': evaluations_list,
+    }
     return render(request, 'students/reports.html', context)
 
 
