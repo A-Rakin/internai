@@ -13,6 +13,7 @@ from accounts.decorators import role_required
 from accounts.models import CustomUser, StudentProfile, CompanyProfile, SupervisorProfile
 from internships.models import Internship, InternshipCategory
 from applications.models import Application
+from reports.models import WeeklyReport
 from documents.models import ActivityLog
 from notifications.models import Notification
 from administration.forms import (
