@@ -51,7 +51,7 @@
                     </div>
                     <div>
                         <h6 class="mb-1 fw-bold text-heading" style="font-size: 1rem;">{{ notif.title }}</h6>
-                        <p class="mb-2 text-secondary" style="font-size: 0.9rem; line-height: 1.4;">{{ notif.message }}</p>
+                        <p class="mb-2 text-secondary" style="font-size: 0.9rem; line-height: 1.4;">{{ notif.message|safe }}</p>
                         <span class="text-muted small"><i class="fas fa-clock me-1"></i>{{ notif.created_at|timesince }} ago</span>
                     </div>
                 </div>

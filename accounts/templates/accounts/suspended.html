@@ -1,55 +1,230 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Account Suspended — Contact Support{% endblock %}
+{% block title %}Support & Compliance Portal — InternAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .compliance-card {
+        background: var(--bg-surface, #1e1e2d);
+        border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+        border-radius: 16px;
+    }
+    .rule-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+    }
+    .rule-box:hover {
+        border-color: var(--primary, #6C63FF);
+        background: rgba(108, 99, 255, 0.04);
+    }
+    .rule-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background: var(--bg-surface, #1e1e2d);">
-                <div class="card-header bg-danger text-white text-center py-4 border-0">
-                    <i class="fas fa-user-slash fa-3x mb-3 animate__animated animate__shakeX"></i>
-                    <h3 class="font-outfit fw-bold mb-1">Account Suspended</h3>
-                    <p class="mb-0 text-white-50 fs-6">Access Restricted by Platform Administration</p>
-                </div>
-                <div class="card-body p-4 p-md-5">
-                    <div class="alert alert-warning border-0 rounded-3 mb-4 d-flex align-items-center gap-3">
-                        <i class="fas fa-exclamation-triangle fa-2x text-warning flex-shrink-0"></i>
+    <!-- Header Banner -->
+    <div class="text-center mb-5">
+        <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fs-6 mb-2">
+            <i class="fas fa-shield-alt me-1"></i>Platform Governance & Compliance
+        </span>
+        <h2 class="fw-bold display-6">Support & Account Compliance Portal</h2>
+        <p class="text-muted max-w-2xl mx-auto" style="max-width: 650px;">
+            Information regarding platform safety rules, subscription policies, and account reinstatement inquiries.
+        </p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+
+        <!-- Status & Notice Card -->
+        <div class="col-lg-10">
+            <div class="compliance-card p-4 p-md-5 shadow-lg">
+
+                {% if notice_type == 'revocation' %}
+                <!-- Package Revocation Notice -->
+                <div class="alert alert-warning border border-warning-subtle rounded-3 p-4 mb-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="fs-1 text-warning"><i class="fas fa-exclamation-triangle"></i></div>
                         <div>
-                            <strong class="d-block text-warning mb-1">Why am I seeing this?</strong>
-                            <small class="text-muted">Your account was temporarily suspended due to administrative review or policy compliance guidelines.</small>
+                            <h4 class="fw-bold text-dark mb-1">Subscription Package Revoked</h4>
+                            <p class="text-dark mb-2">
+                                Your active subscription plan was revoked by an administrator during a policy compliance review.
+                            </p>
+                            <div class="bg-white p-3 rounded border text-muted small">
+                                <strong>Stated Reason / Audit Note:</strong> {{ reason|default:"Administrative Policy Review & Tier Alignment" }}
+                            </div>
                         </div>
                     </div>
+                </div>
+                {% else %}
+                <!-- Account Suspension Notice -->
+                <div class="alert alert-danger border border-danger-subtle rounded-3 p-4 mb-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="fs-1 text-danger"><i class="fas fa-user-slash"></i></div>
+                        <div>
+                            <h4 class="fw-bold text-dark mb-1">Account Access Restricted / Suspended</h4>
+                            <p class="text-dark mb-2">
+                                Access to your InternAI account has been suspended by system administration.
+                            </p>
+                            <div class="bg-white p-3 rounded border text-muted small">
+                                <strong>Stated Reason / Audit Note:</strong> {{ reason|default:"Compliance Policy Review or Suspicious Activity" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
 
-                    <h5 class="fw-bold mb-3 font-outfit">Submit Reinstatement Appeal</h5>
-                    <form method="POST" action="{% url 'accounts:suspended' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="email" class="form-label text-muted small fw-semibold">Account Email Address</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0"><i class="fas fa-envelope text-muted"></i></span>
-                                <input type="email" name="email" id="email" class="form-control border-start-0" placeholder="your.email@example.com" required>
+                <!-- Platform Rules Section -->
+                <div class="my-5">
+                    <h4 class="fw-bold mb-3"><i class="fas fa-gavel text-primary me-2"></i>Strict Platform Rules & Policy Guidelines</h4>
+                    <p class="text-muted small mb-4">
+                        To maintain a trustworthy ecosystem for students, companies, and academic supervisors, InternAI enforces strict violation policies. Accounts or packages are suspended or revoked upon violating any of the following rules:
+                    </p>
+
+                    <div class="row g-3">
+
+                        <!-- Rule 1 -->
+                        <div class="col-md-6">
+                            <div class="rule-box d-flex gap-3 h-100">
+                                <div class="rule-icon bg-danger-subtle text-danger">
+                                    <i class="fas fa-id-card-alt"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-heading">1. Identity & Verification Integrity</h6>
+                                    <p class="small text-muted mb-0">
+                                        Submitting fake company profiles, fraudulent university details, or impersonating an official organization results in immediate account suspension and tier revocation.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="message" class="form-label text-muted small fw-semibold">Reason for Appeal / Message to Admin</label>
-                            <textarea name="message" id="message" rows="4" class="form-control" placeholder="Please describe why your account should be reinstated..." required></textarea>
+                        <!-- Rule 2 -->
+                        <div class="col-md-6">
+                            <div class="rule-box d-flex gap-3 h-100">
+                                <div class="rule-icon bg-warning-subtle text-warning">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-heading">2. Subscription & Payment Integrity</h6>
+                                    <p class="small text-muted mb-0">
+                                        Submitting fake bKash/Nagad/Upay Transaction IDs, or attempting cross-role package exploits (e.g. Companies purchasing Student plans) results in instant package forfeiture.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-danger btn-lg rounded-3 fw-bold">
-                                <i class="fas fa-paper-plane me-2"></i>Submit Appeal to Administration
+                        <!-- Rule 3 -->
+                        <div class="col-md-6">
+                            <div class="rule-box d-flex gap-3 h-100">
+                                <div class="rule-icon bg-info-subtle text-info">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-heading">3. Internship Posting Ethics</h6>
+                                    <p class="small text-muted mb-0">
+                                        Publishing scam internship listings, requiring money or application fees from student candidates, or misleading stipend terms results in permanent company ban.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rule 4 -->
+                        <div class="col-md-6">
+                            <div class="rule-box d-flex gap-3 h-100">
+                                <div class="rule-icon bg-success-subtle text-success">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-heading">4. Academic Integrity & Verification</h6>
+                                    <p class="small text-muted mb-0">
+                                        Falsifying university supervisor email addresses, forging weekly report hours, or manipulating evaluation records will void student accounts and packages.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rule 5 -->
+                        <div class="col-md-12">
+                            <div class="rule-box d-flex gap-3 h-100">
+                                <div class="rule-icon bg-primary-subtle text-primary">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-heading">5. Professional Conduct & Anti-Spam</h6>
+                                    <p class="small text-muted mb-0">
+                                        Unsolicited messaging, abusive behavior, harassment towards students, recruiters, or academic supervisors will result in direct account messaging restrictions or full suspension.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Appeal & Contact Form Section -->
+                <div class="pt-4 border-top">
+                    <h4 class="fw-bold mb-3"><i class="fas fa-envelope-open-text text-primary me-2"></i>Submit Support Inquiry or Reinstatement Appeal</h4>
+                    <p class="text-muted small mb-4">
+                        If you believe your package was revoked or account was suspended in error, please fill out the form below. Our Administration Compliance Team will review your appeal and respond via email.
+                    </p>
+
+                    <form method="POST" action="{% url 'accounts:suspended' %}">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label text-muted small fw-semibold">Account Email Address</label>
+                                <input type="email" name="email" id="email" class="form-control" value="{{ user_email }}" placeholder="name@example.com" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="subject" class="form-label text-muted small fw-semibold">Inquiry Subject</label>
+                                <select name="subject" id="subject" class="form-select" required>
+                                    <option value="Package Revocation Inquiry" {% if notice_type == 'revocation' %}selected{% endif %}>Package Revocation Inquiry</option>
+                                    <option value="Account Suspension Appeal" {% if notice_type == 'suspension' %}selected{% endif %}>Account Suspension Appeal</option>
+                                    <option value="Payment & Billing Question">Payment & Billing Question</option>
+                                    <option value="General Policy Inquiry">General Policy Inquiry</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label for="message" class="form-label text-muted small fw-semibold">Detailed Explanation / Appeal Message</label>
+                                <textarea name="message" id="message" rows="5" class="form-control" placeholder="Provide details regarding your account or transaction to help our team review your appeal..." required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg px-4 fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Inquiry to Compliance Team
                             </button>
-                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary rounded-3">
+                            {% if user.is_authenticated %}
+                            <a href="{{ user.get_dashboard_url }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Return to Dashboard
+                            </a>
+                            {% else %}
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Return to Login
                             </a>
+                            {% endif %}
                         </div>
                     </form>
                 </div>
+
             </div>
         </div>
+
     </div>
 </div>
 {% endblock %}

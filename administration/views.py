@@ -137,10 +137,12 @@ def user_detail(request, pk=None):
 @login_required
 @role_required('admin')
 def user_cancel_subscription(request, pk=None):
-    """Cancel / revoke active subscription for a user (Student or Company)."""
+    """Cancel / revoke active subscription for a user (Student or Company) with explicit violation reason."""
     user_obj = get_object_or_404(CustomUser, pk=pk)
     from billing.models import Subscription
     from notifications.models import Notification
+
+    reason = request.GET.get('reason', '').strip() or request.POST.get('reason', '').strip() or "Administrative Policy Compliance Review"
 
     active_subs = Subscription.objects.filter(user=user_obj, is_active=True)
     count = active_subs.count()
@@ -152,17 +154,14 @@ def user_cancel_subscription(request, pk=None):
         user_obj.company_profile.subscription_plan = 'basic'
         user_obj.company_profile.save()
 
-    # Notify the Company or Student user with direct link to Support page
+    # Notify the Company or Student user with clean plain text message & direct link to Support page
     if count > 0:
         Notification.objects.create(
             recipient=user_obj,
             notification_type='system',
-            title='⚠️ Subscription Package Revoked by Administrator',
-            message=(
-                f'Your active subscription package ({plan_names}) has been revoked by an administrator. '
-                f'If you believe this is an error or need further assistance, please contact our <a href="/accounts/suspended/" class="alert-link text-decoration-underline fw-bold">Support Page</a>.'
-            ),
-            link='/accounts/suspended/',
+            title='⚠️ Subscription Package Revoked',
+            message=f'Your subscription package ({plan_names}) was revoked by an administrator. Reason: {reason}. Click "View Page" to read platform rules and contact support.',
+            link=f'/accounts/suspended/?type=revocation&reason={reason}',
             priority='high',
         )
 

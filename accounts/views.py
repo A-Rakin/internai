@@ -239,9 +239,13 @@ def dashboard_redirect(request):
 
 
 def suspended_support(request):
-    """Render support request page for suspended users."""
+    """Render support and policy guidelines page for suspended accounts & package revocations."""
+    notice_type = request.GET.get('type', 'suspension')
+    reason = request.GET.get('reason', 'Policy Compliance & Integrity Review')
+
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
+        subject = request.POST.get('subject', 'Account & Package Compliance Appeal').strip()
         message = request.POST.get('message', '').strip()
 
         if email and message:
@@ -256,28 +260,32 @@ def suspended_support(request):
                     Notification.objects.create(
                         recipient=admin,
                         notification_type='system',
-                        title='Account Suspension Appeal',
-                        message=f"Suspension appeal from {email}: {message[:120]}",
-                        link='/admin-portal/user-management/',
+                        title=f'📥 Support & Compliance Appeal ({email})',
+                        message=f"Appeal from {email} [{subject}]: {message[:120]}",
+                        link='/administration/user-management/',
+                        priority='high',
                     )
 
                 if user_obj:
                     ActivityLog.objects.create(
                         user=user_obj,
-                        action="SUSPENSION_APPEAL",
-                        description=f"User submitted suspension reinstatement request: {message[:150]}"
+                        action='other',
+                        description=f"User submitted support compliance appeal ({subject}): {message[:150]}"
                     )
             except Exception as e:
                 print(f"Error logging suspension appeal: {e}")
 
             messages.success(
                 request,
-                "Your reinstatement appeal has been submitted to system administration. "
-                "Our team will review your request shortly."
+                "Your inquiry/reinstatement appeal has been submitted to the Administration Compliance Team. We will review it shortly."
             )
-            return redirect('accounts:login')
+            return redirect('accounts:suspended')
         else:
             messages.error(request, "Please fill in all fields before submitting.")
 
-    return render(request, 'accounts/suspended.html')
-
+    context = {
+        'notice_type': notice_type,
+        'reason': reason,
+        'user_email': request.user.email if request.user.is_authenticated else '',
+    }
+    return render(request, 'accounts/suspended.html', context)
