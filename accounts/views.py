@@ -146,24 +146,47 @@ def forgot_password(request):
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            user = CustomUser.objects.get(email=email)
+            user = CustomUser.objects.filter(email=email).first()
+            if not user:
+                messages.error(request, 'No account found with this email address.')
+                return render(request, 'accounts/forgot_password.html', {'form': form})
             # Generate token
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             reset_url = request.build_absolute_uri(
                 f'/accounts/reset-password/?uid={uid}&token={token}'
             )
-            # Send email (console backend in dev)
-            send_mail(
-                'InternAI - Password Reset',
-                f'Click the link to reset your password: {reset_url}',
-                'noreply@internai.com',
-                [email],
-                fail_silently=False,
+            # Send email
+            html_body = f"""
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
+                <h2 style="color: #4f46e5;">InternAI Password Reset</h2>
+                <p>Hello,</p>
+                <p>You requested a password reset for your InternAI account.</p>
+                <p>Click the button below to reset your password:</p>
+                <p style="margin: 24px 0;">
+                    <a href="{reset_url}" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Reset Password</a>
+                </p>
+                <p style="font-size: 12px; color: #64748b;">If you did not request this, please ignore this email.</p>
+            </div>
+            """
+            from django.core.mail import EmailMultiAlternatives
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'InternAI <noreply@internai.com>')
+            msg = EmailMultiAlternatives(
+                subject='InternAI - Password Reset Request',
+                body=f'Click the link to reset your password: {reset_url}',
+                from_email=from_email,
+                to=[email]
             )
+            msg.attach_alternative(html_body, "text/html")
+            try:
+                msg.send(fail_silently=False)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"Password reset email send error: {e}")
+
             messages.success(
                 request,
-                'Password reset link has been sent to your email. Check your terminal console for the link.'
+                'Password reset link has been sent to your email address. Please check your inbox.'
             )
             return redirect('accounts:login')
     else:

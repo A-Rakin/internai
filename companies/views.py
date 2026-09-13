@@ -351,6 +351,14 @@ def applicant_detail(request, pk=None):
                                 message=f'{application.student.user.get_full_name()} has been accepted for "{application.internship.title}" at {company.company_name} and assigned under your academic supervision.',
                                 link=f'/supervisors/students/{student_prof.pk}/',
                             )
+
+                            Notification.objects.create(
+                                recipient=application.student.user,
+                                notification_type='system',
+                                title=f'🎓 Academic Supervisor Assigned: {supervisor_profile.user.get_full_name()}',
+                                message=f'You have been officially assigned to academic supervisor {supervisor_profile.user.get_full_name()} ({supervisor_profile.department} department) for your internship at {company.company_name}.',
+                                link='/students/dashboard/',
+                            )
                     else:
                         Notification.objects.create(
                             recipient=application.student.user,
@@ -455,11 +463,20 @@ def interview_schedule(request, pk=None):
             application.save()
 
             # Notify student
+            location_or_link = interview.meeting_link if interview.mode == 'online' else (interview.location or 'N/A')
+            interviewer_info = f" with {interview.interviewer_name}" if interview.interviewer_name else ""
+            msg_body = (
+                f"An interview has been scheduled for your application to '{application.internship.title}' at {company.company_name}.\n\n"
+                f"📅 Scheduled Date & Time: {interview.scheduled_at.strftime('%B %d, %Y at %I:%M %p')}\n"
+                f"📋 Type: {interview.get_interview_type_display()} ({interview.get_mode_display()}){interviewer_info}\n"
+                f"⏱️ Duration: {interview.duration_minutes} minutes\n"
+                f"🔗 Meeting Link / Location: {location_or_link}"
+            )
             Notification.objects.create(
                 recipient=application.student.user,
                 notification_type='interview',
                 title=f'Interview Scheduled: {application.internship.title}',
-                message=f'An interview has been scheduled for {interview.scheduled_at.strftime("%B %d, %Y at %I:%M %p")}',
+                message=msg_body,
                 link=f'/students/application-detail/{application.pk}/',
                 priority='high',
             )
@@ -489,11 +506,20 @@ def interview_edit(request, pk=None):
             updated_interview = form.save()
 
             # Notify student of reschedule or status update
+            location_or_link = updated_interview.meeting_link if updated_interview.mode == 'online' else (updated_interview.location or 'N/A')
+            interviewer_info = f" with {updated_interview.interviewer_name}" if updated_interview.interviewer_name else ""
+            msg_body = (
+                f"Your interview for '{application.internship.title}' at {company.company_name} has been updated.\n\n"
+                f"📅 Scheduled Date & Time: {updated_interview.scheduled_at.strftime('%B %d, %Y at %I:%M %p')}\n"
+                f"📋 Type & Mode: {updated_interview.get_interview_type_display()} ({updated_interview.get_mode_display()}){interviewer_info}\n"
+                f"📌 Outcome / Status: {updated_interview.get_outcome_display()}\n"
+                f"🔗 Link / Location: {location_or_link}"
+            )
             Notification.objects.create(
                 recipient=application.student.user,
                 notification_type='interview',
                 title=f'Interview Update: {application.internship.title}',
-                message=f'Interview on {updated_interview.scheduled_at.strftime("%b %d, %Y at %I:%M %p")} was updated (Outcome: {updated_interview.get_outcome_display()}).',
+                message=msg_body,
                 link=f'/students/application-detail/{application.pk}/',
             )
             messages.success(request, 'Interview details updated successfully!')
