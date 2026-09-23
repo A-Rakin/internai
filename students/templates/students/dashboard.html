@@ -33,7 +33,7 @@
             {% else %}
                 <span class="badge bg-secondary fs-6 p-2"><i class="fas fa-bolt me-1"></i>Student Basic (Free)</span>
             {% endif %}
-            <a href="{% url 'billing:my_package' %}" class="btn btn-sm btn-outline-light ms-2">
+            <a href="{% url 'billing:my_package' %}" style="margin-left: 10px;" class="btn btn-sm btn-outline-secondary ms-2">
                 <i class="fas fa-receipt me-1"></i>My Package
             </a>
             <a href="{% url 'landing:pricing' %}?role=student" class="btn btn-sm btn-primary ms-1">
@@ -98,6 +98,8 @@
             <div class="stat-icon gradient-info"><i class="fas fa-calendar-check"></i></div>
             <div class="stat-content"><h3>{{ app_stats.interview }}</h3><p>Interviews Scheduled</p></div>
         </div>
+        
+        
     </div>
     
     <!-- Content Layout -->

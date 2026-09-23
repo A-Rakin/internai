@@ -1,0 +1,774 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Admin Report Generator | InternAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .report-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        transition: all 0.25s ease;
+    }
+    .report-card:hover {
+        border-color: var(--primary-glow);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .report-metric-value {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-heading);
+        margin-bottom: 0.25rem;
+    }
+    .filter-badge {
+        background: rgba(108, 99, 255, 0.12);
+        color: var(--primary-light);
+        border: 1px solid var(--border-active);
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .preset-btn {
+        border-radius: 20px;
+        font-size: 0.825rem;
+        font-weight: 600;
+        padding: 0.35rem 0.9rem;
+    }
+    .preset-btn.active {
+        background-color: var(--primary);
+        color: #fff !important;
+        border-color: var(--primary);
+    }
+    .table-report th {
+        background: var(--bg-surface-2);
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        padding: 0.85rem 1rem;
+    }
+    .table-report td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'components/sidebar.html' %}
+
+<div class="main-content">
+    <!-- Top Navigation Header -->
+    <div class="top-navbar d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <h4 class="page-title mb-0">Platform Executive Reports</h4>
+            <span class="badge bg-primary rounded-pill px-3 py-1">Admin Analytics Engine</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'administration:admin_reports_print' %}?report_type={{ report_type }}&date_preset={{ date_preset }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}&company_id={{ company_id }}&status={{ status_filter }}&payment_method={{ payment_method }}&sort_by={{ sort_by }}&order={{ order }}&q={{ search_q }}"
+               target="_blank" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">
+                <i class="fas fa-print me-1"></i> Print / Export PDF
+            </a>
+            <button class="btn btn-sm btn-outline-secondary theme-toggle-btn rounded-pill px-3 py-1" onclick="toggleTheme()" type="button">
+                <i class="fas fa-sun text-warning me-1"></i> <span class="theme-btn-text">Light Mode</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Report Type Navigation Tabs -->
+    <div class="card mb-4 border-0 shadow-sm" style="background: var(--bg-surface);">
+        <div class="card-body p-2">
+            <ul class="nav nav-pills nav-justified gap-2">
+                <li class="nav-item">
+                    <a class="nav-link fw-bold {% if report_type == 'summary' %}active bg-primary text-white{% endif %}"
+                       href="?report_type=summary&date_preset={{ date_preset }}">
+                        <i class="fas fa-chart-pie me-1"></i> Executive Summary
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold {% if report_type == 'applications' %}active bg-primary text-white{% endif %}"
+                       href="?report_type=applications&date_preset={{ date_preset }}">
+                        <i class="fas fa-file-alt me-1"></i> Applications & Hires
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold {% if report_type == 'sales' %}active bg-primary text-white{% endif %}"
+                       href="?report_type=sales&date_preset={{ date_preset }}">
+                        <i class="fas fa-file-invoice-dollar me-1"></i> Revenue & Sales
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold {% if report_type == 'companies' %}active bg-primary text-white{% endif %}"
+                       href="?report_type=companies&date_preset={{ date_preset }}">
+                        <i class="fas fa-building me-1"></i> Companies Allocation
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold {% if report_type == 'students' %}active bg-primary text-white{% endif %}"
+                       href="?report_type=students&date_preset={{ date_preset }}">
+                        <i class="fas fa-user-graduate me-1"></i> Student Performance
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Filtering Control Panel -->
+    <div class="card mb-4 shadow-sm" style="background: var(--bg-surface); border: 1px solid var(--border-color);">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0 text-heading fs-6 fw-bold">
+                <i class="fas fa-filter text-primary me-2"></i> Report Filter Controls & Criteria
+            </h5>
+            {% if start_date or end_date or search_q or company_id or status_filter or payment_method %}
+            <a href="?report_type={{ report_type }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                <i class="fas fa-undo me-1"></i> Reset Filters
+            </a>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <form method="GET" action="" id="reportFilterForm">
+                <input type="hidden" name="report_type" value="{{ report_type }}">
+
+                <!-- Date Presets Bar -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold mb-2">Time Horizon Presets:</label>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <a href="?report_type={{ report_type }}&date_preset=today&company_id={{ company_id }}&status={{ status_filter }}&payment_method={{ payment_method }}&q={{ search_q }}"
+                           class="btn btn-outline-primary preset-btn {% if date_preset == 'today' %}active{% endif %}">
+                            Today (24h)
+                        </a>
+                        <a href="?report_type={{ report_type }}&date_preset=7days&company_id={{ company_id }}&status={{ status_filter }}&payment_method={{ payment_method }}&q={{ search_q }}"
+                           class="btn btn-outline-primary preset-btn {% if date_preset == '7days' %}active{% endif %}">
+                            Last 7 Days (1 Week)
+                        </a>
+                        <a href="?report_type={{ report_type }}&date_preset=30days&company_id={{ company_id }}&status={{ status_filter }}&payment_method={{ payment_method }}&q={{ search_q }}"
+                           class="btn btn-outline-primary preset-btn {% if date_preset == '30days' %}active{% endif %}">
+                            Last 30 Days (1 Month)
+                        </a>
+                        <a href="?report_type={{ report_type }}&date_preset=1year&company_id={{ company_id }}&status={{ status_filter }}&payment_method={{ payment_method }}&q={{ search_q }}"
+                           class="btn btn-outline-primary preset-btn {% if date_preset == '1year' %}active{% endif %}">
+                            Last 365 Days (1 Year)
+                        </a>
+                        <a href="?report_type={{ report_type }}&date_preset=all&company_id={{ company_id }}&status={{ status_filter }}&payment_method={{ payment_method }}&q={{ search_q }}"
+                           class="btn btn-outline-primary preset-btn {% if date_preset == 'all' %}active{% endif %}">
+                            All Time Records
+                        </a>
+                        <button type="button" class="btn btn-outline-secondary preset-btn {% if date_preset == 'custom' %}active{% endif %}"
+                                onclick="document.getElementById('customDateRow').classList.toggle('d-none');">
+                            Custom Date Range...
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom Date Range Picker Row -->
+                <div class="row g-3 mb-3 {% if date_preset != 'custom' and not start_date_str %}d-none{% endif %}" id="customDateRow">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">From Date:</label>
+                        <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date_str }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">To Date:</label>
+                        <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date_str }}">
+                    </div>
+                    <div class="col-md-2 align-self-end">
+                        <input type="hidden" name="date_preset" value="custom">
+                        <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold">Apply Date Filter</button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Filter Inputs Grid -->
+                <div class="row g-3">
+                    <!-- Search Query -->
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Keyword Search:</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-surface-2 border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" name="q" class="form-control form-control-sm border-start-0"
+                                   placeholder="Search keyword..." value="{{ search_q }}">
+                        </div>
+                    </div>
+
+                    <!-- Company Filter (For Applications & Companies Report) -->
+                    {% if report_type == 'applications' or report_type == 'summary' %}
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Filter by Company:</label>
+                        <select name="company_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Companies</option>
+                            {% for comp in all_companies %}
+                            <option value="{{ comp.pk }}" {% if company_id == comp.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ comp.company_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <!-- Status Filter -->
+                    {% if report_type == 'applications' %}
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Application Status:</label>
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Statuses</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="reviewing" {% if status_filter == 'reviewing' %}selected{% endif %}>Reviewing</option>
+                            <option value="interview" {% if status_filter == 'interview' %}selected{% endif %}>Interview</option>
+                            <option value="offer" {% if status_filter == 'offer' %}selected{% endif %}>Offer</option>
+                            <option value="accepted" {% if status_filter == 'accepted' %}selected{% endif %}>Accepted (Placed)</option>
+                            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <!-- Payment Method Filter (For Sales Report) -->
+                    {% if report_type == 'sales' %}
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Payment Gateway:</label>
+                        <select name="payment_method" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Payment Gateways</option>
+                            <option value="bkash" {% if payment_method == 'bkash' %}selected{% endif %}>bKash Mobile Banking</option>
+                            <option value="nagad" {% if payment_method == 'nagad' %}selected{% endif %}>Nagad Mobile Banking</option>
+                            <option value="upay" {% if payment_method == 'upay' %}selected{% endif %}>Upay</option>
+                            <option value="card" {% if payment_method == 'card' %}selected{% endif %}>Credit / Debit Card</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Txn Status:</label>
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Statuses</option>
+                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed & Verified</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending Verification</option>
+                            <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <!-- Sort Field -->
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Sort By:</label>
+                        <select name="sort_by" class="form-select form-select-sm" onchange="this.form.submit()">
+                            {% if report_type == 'applications' %}
+                                <option value="date" {% if sort_by == 'date' %}selected{% endif %}>Application Date</option>
+                                <option value="company" {% if sort_by == 'company' %}selected{% endif %}>Company Name</option>
+                                <option value="student" {% if sort_by == 'student' %}selected{% endif %}>Student Name</option>
+                                <option value="status" {% if sort_by == 'status' %}selected{% endif %}>Status</option>
+                                <option value="score" {% if sort_by == 'score' %}selected{% endif %}>AI Match Score</option>
+                            {% elif report_type == 'sales' %}
+                                <option value="date" {% if sort_by == 'date' %}selected{% endif %}>Transaction Date</option>
+                                <option value="amount" {% if sort_by == 'amount' %}selected{% endif %}>Amount (BDT)</option>
+                                <option value="user" {% if sort_by == 'user' %}selected{% endif %}>Payer Email</option>
+                                <option value="method" {% if sort_by == 'method' %}selected{% endif %}>Payment Gateway</option>
+                            {% elif report_type == 'companies' %}
+                                <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Company Name</option>
+                                <option value="posted" {% if sort_by == 'posted' %}selected{% endif %}>Internships Posted</option>
+                                <option value="placed" {% if sort_by == 'placed' %}selected{% endif %}>Hired/Placed Students</option>
+                                <option value="apps" {% if sort_by == 'apps' %}selected{% endif %}>Total Applications Received</option>
+                            {% elif report_type == 'students' %}
+                                <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Student Name</option>
+                                <option value="reports" {% if sort_by == 'reports' %}selected{% endif %}>Weekly Reports Count</option>
+                                <option value="score" {% if sort_by == 'score' %}selected{% endif %}>Average Performance Score</option>
+                                <option value="apps" {% if sort_by == 'apps' %}selected{% endif %}>Applications Submitted</option>
+                            {% else %}
+                                <option value="date" {% if sort_by == 'date' %}selected{% endif %}>Activity Date</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <!-- Sort Order Toggle (Ascending / Descending) -->
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Sort Direction:</label>
+                        <select name="order" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="desc" {% if order == 'desc' %}selected{% endif %}>Descending (Highest/Newest)</option>
+                            <option value="asc" {% if order == 'asc' %}selected{% endif %}>Ascending (Lowest/Oldest)</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== REPORT CONTENT DISPLAY ==================== -->
+
+    <!-- 1. SUMMARY REPORT -->
+    {% if report_type == 'summary' %}
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase mb-1"><i class="fas fa-users text-primary me-2"></i>Total Users</div>
+                <div class="report-metric-value text-primary">{{ summary_metrics.total_users }}</div>
+                <div class="small text-muted">
+                    {{ summary_metrics.students_count }} Students | {{ summary_metrics.companies_count }} Companies | {{ summary_metrics.supervisors_count }} Supervisors
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase mb-1"><i class="fas fa-briefcase text-warning me-2"></i>Posted Internships</div>
+                <div class="report-metric-value text-warning">{{ summary_metrics.internships_count }}</div>
+                <div class="small text-muted">{{ summary_metrics.approved_internships }} Verified & Active Listings</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase mb-1"><i class="fas fa-check-circle text-success me-2"></i>Placed Interns</div>
+                <div class="report-metric-value text-success">{{ summary_metrics.placed_students }}</div>
+                <div class="small text-muted">Out of {{ summary_metrics.applications_count }} Total Applications</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase mb-1"><i class="fas fa-coins text-info me-2"></i>Platform Revenue</div>
+                <div class="report-metric-value text-info">৳{{ summary_metrics.total_revenue|floatformat:0 }}</div>
+                <div class="small text-muted">{{ summary_metrics.completed_txns }} Completed Payments ({{ summary_metrics.active_subscriptions }} Active Subs)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sales & Applications Grid -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0" style="background: var(--bg-surface);">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fs-6 fw-bold"><i class="fas fa-file-invoice-dollar text-success me-2"></i>Recent Payment Transactions</h5>
+                    <a href="?report_type=sales" class="btn btn-sm btn-link">View Full Sales Report &rarr;</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-report mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Txn ID</th>
+                                    <th>Payer</th>
+                                    <th>Method</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for txn in recent_txns %}
+                                <tr>
+                                    <td><code class="small">{{ txn.transaction_id }}</code></td>
+                                    <td><strong>{{ txn.user.email }}</strong></td>
+                                    <td><span class="badge bg-secondary">{{ txn.get_payment_method_display }}</span></td>
+                                    <td class="fw-bold text-success">৳{{ txn.amount }}</td>
+                                    <td class="text-muted small">{{ txn.created_at|date:"M d, H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center text-muted py-3">No transactions found for selected period.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0" style="background: var(--bg-surface);">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fs-6 fw-bold"><i class="fas fa-paper-plane text-primary me-2"></i>Recent Applications & Placements</h5>
+                    <a href="?report_type=applications" class="btn btn-sm btn-link">View Full Applications &rarr;</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-report mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Company</th>
+                                    <th>Internship</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in recent_apps %}
+                                <tr>
+                                    <td><strong>{{ app.student.user.get_full_name|default:app.student.user.email }}</strong></td>
+                                    <td>{{ app.internship.company.company_name }}</td>
+                                    <td>{{ app.internship.title|truncatechars:20 }}</td>
+                                    <td>
+                                        {% if app.status == 'accepted' %}
+                                            <span class="badge bg-success">Placed</span>
+                                        {% elif app.status == 'rejected' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% elif app.status == 'interview' %}
+                                            <span class="badge bg-warning">Interview</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ app.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted py-3">No applications found for selected period.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 2. APPLICATIONS & PLACEMENTS REPORT -->
+    {% if report_type == 'applications' %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Total Applications</div>
+                <div class="report-metric-value text-primary">{{ metrics.total_applications }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Students Placed / Hired</div>
+                <div class="report-metric-value text-success">{{ metrics.placed_count }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Interviews Scheduled</div>
+                <div class="report-metric-value text-warning">{{ metrics.interview_count }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Average AI Match Score</div>
+                <div class="report-metric-value text-info">{{ metrics.avg_score }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="background: var(--bg-surface);">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-report mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student Applicant</th>
+                            <th>Target Internship</th>
+                            <th>Company</th>
+                            <th>Applied Date</th>
+                            <th>AI Match</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in report_items %}
+                        <tr>
+                            <td class="text-muted small">{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ app.student.user.get_full_name|default:app.student.user.email }}</strong>
+                                <div class="small text-muted">{{ app.student.user.email }} | {{ app.student.university|default:"N/A" }}</div>
+                            </td>
+                            <td>
+                                <span class="fw-bold">{{ app.internship.title }}</span>
+                                <div class="small text-muted">{{ app.internship.location|default:"Remote" }}</div>
+                            </td>
+                            <td><strong class="text-primary">{{ app.internship.company.company_name }}</strong></td>
+                            <td>{{ app.applied_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                {% if app.ai_match_score %}
+                                <span class="badge bg-info rounded-pill px-2">{{ app.ai_match_score }}% Match</span>
+                                {% else %}
+                                <span class="text-muted small">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.status == 'accepted' %}
+                                    <span class="badge bg-success px-3 py-1">Placed / Hired</span>
+                                {% elif app.status == 'rejected' %}
+                                    <span class="badge bg-danger px-3 py-1">Rejected</span>
+                                {% elif app.status == 'interview' %}
+                                    <span class="badge bg-warning px-3 py-1 text-dark">Interview</span>
+                                {% elif app.status == 'offer' %}
+                                    <span class="badge bg-primary px-3 py-1">Offer Extended</span>
+                                {% else %}
+                                    <span class="badge bg-secondary px-3 py-1">{{ app.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No application records match your filter criteria.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 3. SALES & FINANCIAL REVENUE REPORT -->
+    {% if report_type == 'sales' %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Total Sales Revenue</div>
+                <div class="report-metric-value text-success">৳{{ metrics.total_revenue|floatformat:2 }}</div>
+                <div class="small text-muted">{{ metrics.completed_count }} Verified Transactions</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">bKash Sales Total</div>
+                <div class="report-metric-value text-primary">৳{{ metrics.bkash_total|floatformat:0 }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Nagad Sales Total</div>
+                <div class="report-metric-value text-warning">৳{{ metrics.nagad_total|floatformat:0 }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Card Payments Total</div>
+                <div class="report-metric-value text-info">৳{{ metrics.card_total|floatformat:0 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="background: var(--bg-surface);">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-report mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Txn ID</th>
+                            <th>Payer / Account</th>
+                            <th>Subscription Package</th>
+                            <th>Gateway</th>
+                            <th>Amount (BDT)</th>
+                            <th>Timestamp</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in report_items %}
+                        <tr>
+                            <td class="text-muted small">{{ forloop.counter }}</td>
+                            <td><code class="fw-bold text-primary">{{ txn.transaction_id }}</code></td>
+                            <td>
+                                <strong>{{ txn.user.get_full_name|default:txn.user.username }}</strong>
+                                <div class="small text-muted">{{ txn.user.email }} ({% if txn.account_number %}Acc: {{ txn.account_number }}{% endif %})</div>
+                            </td>
+                            <td>
+                                {% if txn.subscription %}
+                                    <span class="badge bg-dark border border-secondary">{{ txn.subscription.plan_display_name }}</span>
+                                {% else %}
+                                    <span class="text-muted small">Standard Plan</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-secondary">{{ txn.get_payment_method_display }}</span></td>
+                            <td class="fw-bold text-success fs-6">৳{{ txn.amount }}</td>
+                            <td>{{ txn.created_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                {% if txn.status == 'completed' %}
+                                    <span class="badge bg-success">Completed & Verified</span>
+                                {% elif txn.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% else %}
+                                    <span class="badge bg-danger">{{ txn.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No sales or payment transactions match your query criteria.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 4. COMPANIES & ALLOCATION REPORT -->
+    {% if report_type == 'companies' %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Total Companies</div>
+                <div class="report-metric-value text-primary">{{ metrics.total_companies }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Internships Posted</div>
+                <div class="report-metric-value text-warning">{{ metrics.total_posted }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Applications Received</div>
+                <div class="report-metric-value text-info">{{ metrics.total_apps }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Students Hired / Placed</div>
+                <div class="report-metric-value text-success">{{ metrics.total_placed }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="background: var(--bg-surface);">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-report mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Company Name</th>
+                            <th>Industry & Contact</th>
+                            <th>Internships Posted</th>
+                            <th>Total Applications</th>
+                            <th>Placed Interns</th>
+                            <th>Assigned / Hired Students Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in company_reports %}
+                        <tr>
+                            <td class="text-muted small">{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ row.company.company_name }}</strong>
+                                {% if row.company.is_verified %}
+                                <i class="fas fa-check-circle text-primary small ms-1" title="Verified Company"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div>{{ row.company.industry|default:"Technology" }}</div>
+                                <div class="small text-muted">{{ row.company.user.email }}</div>
+                            </td>
+                            <td><span class="badge bg-primary fs-6">{{ row.internships_count }}</span></td>
+                            <td><span class="badge bg-secondary fs-6">{{ row.applications_count }}</span></td>
+                            <td><span class="badge bg-success fs-6">{{ row.placed_count }}</span></td>
+                            <td>
+                                {% if row.placed_students %}
+                                    <ul class="list-unstyled mb-0 small">
+                                    {% for app in row.placed_students %}
+                                        <li>
+                                            <i class="fas fa-user-graduate text-success me-1"></i>
+                                            <strong>{{ app.student.user.get_full_name|default:app.student.user.email }}</strong>
+                                            <span class="text-muted">({{ app.internship.title|truncatechars:20 }})</span>
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <span class="text-muted small">No placed interns yet</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No companies found matching criteria.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 5. STUDENT PERFORMANCE REPORT -->
+    {% if report_type == 'students' %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Total Active Students</div>
+                <div class="report-metric-value text-primary">{{ metrics.total_students }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Placed Interns Count</div>
+                <div class="report-metric-value text-success">{{ metrics.total_placed }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="report-card">
+                <div class="text-muted small fw-bold text-uppercase">Weekly Reports Submitted</div>
+                <div class="report-metric-value text-warning">{{ metrics.total_reports }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="background: var(--bg-surface);">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-report mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student Name</th>
+                            <th>University & Major</th>
+                            <th>Applications</th>
+                            <th>Placement Status & Company</th>
+                            <th>Supervisor</th>
+                            <th>Reports</th>
+                            <th>Avg Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in student_reports %}
+                        <tr>
+                            <td class="text-muted small">{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ row.student.user.get_full_name|default:row.student.user.email }}</strong>
+                                <div class="small text-muted">{{ row.student.user.email }}</div>
+                            </td>
+                            <td>
+                                <div>{{ row.student.university|default:"N/A" }}</div>
+                                <div class="small text-muted">{{ row.student.major|default:"Computer Science" }}</div>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ row.apps_count }}</span></td>
+                            <td>
+                                {% if row.placed_app %}
+                                    <span class="badge bg-success me-1">Placed</span>
+                                    <strong class="small">{{ row.placed_app.internship.company.company_name }}</strong>
+                                {% else %}
+                                    <span class="badge bg-outline-secondary text-muted">Seeking Internship</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.student.supervisor %}
+                                    <small>{{ row.student.supervisor.user.get_full_name|default:row.student.supervisor.user.email }}</small>
+                                {% else %}
+                                    <span class="text-muted small">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-info">{{ row.reports_count }}</span></td>
+                            <td>
+                                {% if row.avg_score %}
+                                    <span class="fw-bold text-warning"><i class="fas fa-star text-warning me-1"></i>{{ row.avg_score }}/10</span>
+                                {% else %}
+                                    <span class="text-muted small">N/A</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No student records found matching filter.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

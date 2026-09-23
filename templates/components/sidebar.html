@@ -290,7 +290,12 @@ Used on: Student, Company, Supervisor, Admin dashboards.
             <span>Internships</span>
         </a>
 
-        <div class="nav-section">System</div>
+        <div class="nav-section">Reports & System</div>
+
+        <a href="{% url 'administration:admin_reports' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
+            <i class="fas fa-file-invoice text-primary"></i>
+            <span class="fw-bold">Report Generator</span>
+        </a>
 
         <a href="{% url 'administration:activity_logs' %}" class="nav-link {% if request.resolver_match.url_name == 'activity_logs' %}active{% endif %}">
             <i class="fas fa-history"></i>
@@ -308,6 +313,7 @@ Used on: Student, Company, Supervisor, Admin dashboards.
         </a>
 
         {% endif %}
+
 
         <div class="nav-section">Governance</div>
         <a href="{% url 'landing:rules' %}" target="_blank" class="nav-link">

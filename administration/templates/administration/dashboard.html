@@ -14,12 +14,18 @@
         </button>
     </div>
 
-    <div class="dashboard-header mt-4">
+    <div class="dashboard-header mt-4 d-flex justify-content-between align-items-center">
         <div class="greeting">
             <h2>System Control Panel</h2>
-            <p>Monitor platform statistics, moderate internship listings, and manage user permissions.</p>
+            <p>Monitor platform statistics, moderate internship listings, and generate executive report documentation.</p>
+        </div>
+        <div>
+            <a href="{% url 'administration:admin_reports' %}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                <i class="fas fa-file-invoice me-2"></i> Report Generator & Print
+            </a>
         </div>
     </div>
+
 
     <!-- Stats Grid -->
     <div class="stats-grid">

@@ -15,6 +15,9 @@ urlpatterns = [
     path('internship-edit/<int:pk>/', views.admin_internship_edit, name='internship_edit'),
     path('internship-unpublish/<int:pk>/', views.internship_unpublish, name='internship_unpublish'),
     path('company-management/', views.company_management, name='company_management'),
+    path('reports/', views.admin_reports, name='admin_reports'),
+    path('reports/print/', views.admin_reports_print, name='admin_reports_print'),
     path('activity-logs/', views.activity_logs, name='activity_logs'),
     path('platform-settings/', views.platform_settings, name='platform_settings'),
 ]
+
